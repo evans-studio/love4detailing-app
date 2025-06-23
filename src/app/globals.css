@@ -1,26 +1,285 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "Helvetica Neue", sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 0 0% 8%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 303 52% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 303 42% 75%;
+    --secondary-foreground: 0 0% 5%;
+    --muted: 0 0% 17%;
+    --muted-foreground: 0 0% 67%;
+    --accent: 303 52% 35%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 50% 47%;
+    --success-foreground: 0 0% 100%;
+    --border: 303 52% 35%;
+    --input: 303 52% 35%;
+    --ring: 303 52% 35%;
+    --radius: 0.75rem;
+  }
+  .dark {
+
+    --background: 0 0% 8%;
+
+    --foreground: 210 20% 98%;
+
+    --card: 0 0% 12%;
+
+    --card-foreground: 210 20% 98%;
+
+    --popover: 0 0% 8%;
+
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 210 20% 98%;
+
+    --primary-foreground: 220.9 39.3% 11%;
+
+    --secondary: 215 27.9% 16.9%;
+
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 215 27.9% 16.9%;
+
+    --muted-foreground: 217.9 10.6% 64.9%;
+
+    --accent: 215 27.9% 16.9%;
+
+    --accent-foreground: 210 20% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 303 52% 35%;
+
+    --input: 303 52% 35%;
+
+    --ring: 216 12.2% 83.9%;
+
+    --chart-1: 220 70% 50%;
+
+    --chart-2: 160 60% 45%;
+
+    --chart-3: 30 80% 55%;
+
+    --chart-4: 280 65% 60%;
+
+    --chart-5: 340 75% 55%
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-button shadow-button hover:brightness-110 transition;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white;
+  }
+
+  .btn-secondary {
+    @apply bg-surface text-foreground border border-border px-6 py-3 rounded-button hover:border-primary hover:text-primary transition;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent text-foreground border border-border px-6 py-3 rounded-button hover:border-primary transition;
+  }
+
+  .card {
+    @apply bg-card p-6 rounded-[20px] shadow-lg;
+  }
+
+  .card-base {
+    @apply bg-surface text-foreground rounded-card shadow-card p-6;
+  }
+
+  .input {
+    @apply w-full p-3 bg-background text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+  }
+
+  .input-base {
+    @apply bg-surface text-foreground border border-border rounded-base px-4 py-3 placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+
+  .upload-base {
+    @apply bg-surface border-2 border-dashed border-border rounded-card p-4 text-center text-foreground cursor-pointer hover:border-primary;
+  }
+
+  .nav-sidebar {
+    @apply fixed top-0 left-0 h-screen w-64 bg-background text-foreground p-6 flex flex-col gap-6 border-r border-border;
+  }
+  
+  .nav-item {
+    @apply flex items-center gap-3 text-sm font-medium hover:text-primary transition;
+  }
+  
+  .form-section {
+    @apply space-y-6 bg-surface rounded-card p-6 shadow-card;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Custom Utilities */
+.max-w-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Custom Components */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80;
+}
+
+.glass-card {
+  @apply bg-background/80 backdrop-blur-sm border border-border rounded-lg;
+}
+
+/* Form Elements */
+.form-input {
+  @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+.form-select {
+  @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+.form-checkbox {
+  @apply h-5 w-5 rounded-md border-2 border-border bg-background text-primary-foreground;
+  @apply hover:border-primary/80 hover:bg-primary/5;
+  @apply focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+  @apply checked:bg-primary checked:border-primary;
+  @apply transition-all duration-200 ease-in-out;
+  @apply shadow-sm hover:shadow-md checked:shadow-md;
+}
+
+/* Button Variants */
+.btn-gradient {
+  @apply relative inline-flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-r from-primary to-primary/80 px-4 py-2 text-sm font-medium text-white transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+/* Responsive Typography */
+.h1 {
+  @apply text-4xl font-bold sm:text-5xl md:text-6xl;
+}
+
+.h2 {
+  @apply text-3xl font-bold sm:text-4xl;
+}
+
+.h3 {
+  @apply text-2xl font-bold sm:text-3xl;
+}
+
+.body-large {
+  @apply text-lg sm:text-xl;
+}
+
+.body {
+  @apply text-base sm:text-lg;
+}
+
+.caption {
+  @apply text-sm text-muted-foreground;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-surface;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-secondary;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  @apply animate-spin rounded-full border-4 border-primary border-t-transparent h-8 w-8;
+}
+
+/* Animations */
+.fade-in {
+  @apply animate-[fade-in_0.35s_ease-in-out];
+}
+
+.slide-up {
+  @apply animate-[slide-up_0.4s_ease-in-out];
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
