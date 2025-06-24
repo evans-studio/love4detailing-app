@@ -8,17 +8,19 @@ import { SidebarProvider, useSidebar } from './SidebarContext'
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { isCollapsed } = useSidebar()
   
   // Use dashboard sidebar for dashboard pages, landing sidebar for others
   const isDashboard = pathname.startsWith('/dashboard')
   
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen">
+      {/* Render sidebars - these are fixed positioned and don't affect layout flow */}
       {isDashboard ? <Sidebar /> : <LandingSidebar />}
+      
+      {/* Main content with proper margin for fixed sidebar */}
       <main 
-        className={`flex-1 transition-all duration-300 ${
-          isCollapsed ? 'lg:ml-20' : 'lg:ml-64'
+        className={`min-h-screen transition-all duration-300 ${
+          isDashboard ? 'ml-0 md:ml-64' : 'ml-0 lg:ml-64'
         }`}
       >
         <BackButton />

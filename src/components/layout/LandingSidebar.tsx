@@ -80,7 +80,7 @@ export default function LandingSidebar() {
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="h-full flex flex-col">
       {/* Logo Section */}
-      <div className={`p-6 ${isCollapsed && !isMobile ? 'px-4' : ''}`}>
+      <div className={`p-6 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4' : ''}`}>
         <Link href="/" className="flex items-center justify-center">
           <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full h-16'}`}>
             <Image
@@ -97,7 +97,7 @@ export default function LandingSidebar() {
 
       {/* Collapse Toggle Button - Desktop Only */}
       {!isMobile && (
-        <div className="px-4 mb-4">
+        <div className="px-4 mb-4 flex-shrink-0">
           <Button
             variant="ghost"
             size="sm"
@@ -125,7 +125,7 @@ export default function LandingSidebar() {
       )}
 
       {/* Quick Info Section */}
-      <div className={`px-4 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
+      <div className={`px-4 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
         <AnimatePresence>
           {(!isCollapsed || isMobile) && (
             <motion.div
@@ -155,10 +155,10 @@ export default function LandingSidebar() {
         </AnimatePresence>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className="my-4 flex-shrink-0" />
 
       {/* Main Navigation */}
-      <nav className={`flex-1 px-4 space-y-2 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
+      <nav className={`flex-1 px-4 space-y-2 overflow-y-auto min-h-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
         <AnimatePresence>
           {(!isCollapsed || isMobile) && (
             <motion.h3
@@ -210,7 +210,7 @@ export default function LandingSidebar() {
       </nav>
 
       {/* Auth Section */}
-      <div className={`px-4 space-y-2 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
+      <div className={`px-4 space-y-2 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
         <Separator className="my-4" />
         
         {user ? (
@@ -261,7 +261,7 @@ export default function LandingSidebar() {
       </div>
 
       {/* Bottom Actions */}
-      <div className={`p-4 space-y-2 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
+      <div className={`p-4 space-y-2 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
         <AnimatePresence>
           {(!isCollapsed || isMobile) && (
             <motion.div
@@ -318,13 +318,22 @@ export default function LandingSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <motion.aside
-        variants={sidebarVariants}
-        animate={isCollapsed ? "collapsed" : "expanded"}
-        className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:z-50 lg:bg-background lg:border-r lg:border-border"
+      <aside
+        className="hidden lg:flex lg:flex-col lg:bg-background lg:border-r lg:border-border"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: isCollapsed ? '5rem' : '16rem',
+          zIndex: 999,
+          backgroundColor: '#141414',
+          borderRight: '1px solid rgba(138, 43, 133, 0.2)',
+          transition: 'width 300ms ease'
+        }}
       >
         <SidebarContent />
-      </motion.aside>
+      </aside>
 
       {/* Mobile Menu Button */}
       <div className="lg:hidden">

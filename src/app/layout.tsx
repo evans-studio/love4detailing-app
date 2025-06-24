@@ -3,6 +3,7 @@ import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import { SupabaseProvider } from '@/components/providers/SupabaseProvider'
+import PremiumLoadingProvider from '@/components/providers/PremiumLoadingProvider'
 import AppLayout from '@/components/layout/AppLayout'
 import { Inter } from 'next/font/google'
 
@@ -28,12 +29,14 @@ export default function RootLayout({
       inter.variable
     )} suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <SupabaseProvider>
-          <AppLayout>
-            {children}
-          </AppLayout>
-          <Toaster />
-        </SupabaseProvider>
+        <PremiumLoadingProvider duration={3000}>
+          <SupabaseProvider>
+            <AppLayout>
+              {children}
+            </AppLayout>
+            <Toaster />
+          </SupabaseProvider>
+        </PremiumLoadingProvider>
       </body>
     </html>
   )

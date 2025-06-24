@@ -12,25 +12,47 @@ module.exports = {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1280px",
+        "2xl": "1400px",
       },
     },
     extend: {
       colors: {
+        // Final Color Palette Specification
+        'true-black': '#141414',        // Primary Background (app shell)
+        'deep-purple': '#8A2B85',       // Primary Accent (buttons, icons, highlights)
+        'rich-crimson': '#BA0C2F',      // Secondary Accent (hover states, subtle highlights)
+        'primary-text': '#F0F0F0',      // Primary Text (on dark background)
+        'secondary-text': '#C7C7C7',    // Secondary Text and Subtle Labels
+        'sidebar-bg': '#1E1E1E',        // Sidebar background
+        
+        // Legacy aliases for compatibility
+        'deep-black': '#141414',
+        'accent-purple': '#8A2B85',
+        'mid-purple': '#3B1040',
+        'overlay-purple-black': '#1E0A1F',
+        'soft-silver': '#8A8D8F',
+        'midnight-black': '#141414',
+        'primary-purple': '#8A2B85',
+        'crimson-alert': '#BA0C2F',
+        
+        // UI Colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#8A2B85",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
-        surface: "hsl(var(--card))",
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -39,30 +61,52 @@ module.exports = {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
-        success: {
-          DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
+      },
+      backgroundImage: {
+        // Approved Gradient (for section backgrounds only)
+        'approved-gradient': 'linear-gradient(135deg, #141414 0%, #1C0F1C 100%)',
+        'sidebar-gradient': 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)',
+        
+        // Legacy gradients for compatibility
+        'brand-gradient': 'linear-gradient(135deg, #141414 0%, #3B1040 50%, #8A2B85 100%)',
+        'brand-gradient-reverse': 'linear-gradient(135deg, #8A2B85 0%, #3B1040 50%, #141414 100%)',
+        'brand-gradient-vertical': 'linear-gradient(180deg, #141414 0%, #3B1040 50%, #8A2B85 100%)',
+        'brand-gradient-radial': 'radial-gradient(circle at center, #8A2B85 0%, #3B1040 40%, #141414 100%)',
+        'brand-gradient-subtle': 'linear-gradient(135deg, #141414 0%, #1E0A1F 30%, #3B1040 70%, #8A2B85 100%)',
+        'brand-gradient-overlay': 'linear-gradient(135deg, #1E0A1F 0%, #3B1040 50%, #141414 100%)',
+        
+        // Utility Gradients
+        'card-gradient': 'linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(59, 16, 64, 0.3) 50%, rgba(138, 43, 133, 0.1) 100%)',
+        'modal-gradient': 'linear-gradient(135deg, rgba(20, 20, 20, 0.98) 0%, rgba(30, 10, 31, 0.95) 100%)',
+        
+        // Legacy gradients for compatibility
+        'gradient-primary': 'linear-gradient(135deg, #8A2B85 0%, #6B1F66 100%)',
+        'gradient-dark': 'linear-gradient(135deg, #141414 0%, #1A1A1A 50%, #202020 100%)',
+        'gradient-surface': 'linear-gradient(135deg, #1A1A1A 0%, #202020 100%)',
+        'gradient-purple-fade': 'linear-gradient(135deg, #141414 0%, rgba(138, 43, 133, 0.1) 100%)',
       },
       borderRadius: {
-        base: "calc(var(--radius))",
-        button: "calc(var(--radius) - 0.25rem)",
-        card: "calc(var(--radius) + 0.25rem)",
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 0.2rem)",
-        sm: "calc(var(--radius) - 0.4rem)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+        // Legacy
+        'card': 'calc(var(--radius) + 0.25rem)',
       },
       boxShadow: {
-        card: "0 4px 12px rgba(0, 0, 0, 0.25)",
-        button: "0 2px 6px rgba(138, 43, 133, 0.4)",
-      },
-      fontFamily: {
-        sans: ['var(--font-sans)'],
-        heading: ['Helvetica', 'Arial', 'sans-serif'],
+        // Legacy shadows for compatibility
+        card: "0 4px 16px rgba(20, 20, 20, 0.4)",
+        button: "0 2px 8px rgba(138, 43, 133, 0.3)",
+        'button-hover': "0 4px 16px rgba(138, 43, 133, 0.5)",
+        'purple-glow': "0 0 20px rgba(138, 43, 133, 0.4)",
+        'crimson-glow': "0 0 16px rgba(186, 12, 47, 0.4)",
       },
       keyframes: {
         "accordion-down": {
@@ -73,12 +117,47 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        "purple-glow": {
+          "0%, 100%": { 
+            boxShadow: "0 0 20px rgba(138, 43, 133, 0.3)",
+            transform: "translateZ(0)"
+          },
+          "50%": { 
+            boxShadow: "0 0 30px rgba(138, 43, 133, 0.5)",
+            transform: "translateZ(0)"
+          },
+        },
+        "gradient-shift": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
+        "shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "purple-glow": "purple-glow 2s ease-in-out infinite",
+        "gradient-shift": "gradient-shift 6s ease-in-out infinite",
+        "shimmer": "shimmer 2s infinite",
+      },
+      transitionProperty: {
+        'smooth': 'all',
+      },
+      transitionDuration: {
+        'smooth': '300ms',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      fontFamily: {
+        'heading': ['Helvetica', 'Arial', 'sans-serif'],
+        'sans': ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/forms")],
+  plugins: [require("tailwindcss-animate")],
 } 

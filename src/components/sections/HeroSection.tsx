@@ -45,9 +45,12 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-background via-background/95 to-background/90">
+    <div className="relative min-h-screen overflow-hidden approved-gradient">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(138,43,133,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(138,43,133,0.05)_1px,transparent_1px)] bg-[size:32px_32px]" />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-deep-purple/20 via-transparent to-rich-crimson/10" />
       
       {/* Content */}
       <motion.div
@@ -63,18 +66,18 @@ export default function HeroSection() {
           style={{ opacity: isMounted ? undefined : 1 }}
         >
           {/* Main Title */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
+            <span className="text-gradient-purple">
               Drive a Car That Looks
             </span>
             <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-primary/80">
+            <span className="text-gradient-brand">
               Brand New Every Time
             </span>
           </h1>
 
           {/* Description */}
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-secondary-text max-w-2xl mx-auto leading-relaxed">
             Effortlessly book car detailing, washes, and maintenance services anytime, 
             anywhere. Explore top-rated services and enjoy a clean, polished, and 
             well-maintained ride!
@@ -88,8 +91,8 @@ export default function HeroSection() {
           >
             <Button 
               size="lg" 
-              variant="default"
-              className="min-w-[200px] bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 transition-opacity"
+              variant="premium"
+              className="min-w-[200px]"
               asChild
             >
               <Link href="/booking">
@@ -99,7 +102,7 @@ export default function HeroSection() {
             <Button 
               size="lg" 
               variant="outline"
-              className="min-w-[200px] border-white/10 hover:bg-white/5"
+              className="min-w-[200px]"
               asChild
             >
               <Link href="/services">
@@ -117,14 +120,34 @@ export default function HeroSection() {
             {services.map(({ name, Icon }) => (
               <div 
                 key={name}
-                className="flex flex-col items-center p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-primary/50 transition-colors group"
+                className="flex flex-col items-center p-4 rounded-xl bg-true-black/50 backdrop-blur-sm border border-deep-purple/20 hover:border-deep-purple/50 hover:bg-deep-purple/5 glow-purple transition-all duration-300 group hover-lift"
               >
-                <div className="w-12 h-12 mb-3 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
-                  <Icon className="w-6 h-6 text-primary/80" />
+                <div className="w-12 h-12 mb-3 rounded-lg bg-deep-purple flex items-center justify-center group-hover:shadow-lg group-hover:shadow-deep-purple/30 transition-all duration-300">
+                  <Icon className="w-6 h-6 text-primary-text transition-colors duration-300" />
                 </div>
-                <span className="text-sm font-medium text-white/80">{name}</span>
+                <span className="text-sm font-medium text-secondary-text group-hover:text-primary-text transition-colors duration-300">{name}</span>
               </div>
             ))}
+          </motion.div>
+
+          {/* Trust Indicators */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-16 pt-8 border-t border-deep-purple/20"
+            style={{ opacity: isMounted ? undefined : 1 }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-deep-purple rounded-full animate-purple-glow"></div>
+              <span className="text-sm text-secondary-text">200+ Happy Customers</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-deep-purple rounded-full animate-purple-glow"></div>
+              <span className="text-sm text-secondary-text">4.9/5 Rating</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-deep-purple rounded-full animate-purple-glow"></div>
+              <span className="text-sm text-secondary-text">South West London</span>
+            </div>
           </motion.div>
         </motion.div>
       </motion.div>

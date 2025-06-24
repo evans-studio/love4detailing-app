@@ -1409,15 +1409,6 @@ export default function DashboardBookingForm() {
                       ? 'border-primary bg-primary/5 shadow-md' 
                       : 'border-muted hover:border-primary/50'
                   }`}
-                  onClick={() => {
-                    const value = field.value || []
-                    const isSelected = value.includes(addon.id)
-                    if (isSelected) {
-                      field.onChange(value.filter((v) => v !== addon.id))
-                    } else {
-                      field.onChange([...value, addon.id])
-                    }
-                  }}
                 >
                   <CardContent className="p-4">
                     <FormItem className="flex items-center space-x-3">
@@ -1434,7 +1425,18 @@ export default function DashboardBookingForm() {
                           }}
                         />
                       </FormControl>
-                      <div className="flex-1">
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => {
+                          const value = field.value || []
+                          const isSelected = value.includes(addon.id)
+                          if (isSelected) {
+                            field.onChange(value.filter((v) => v !== addon.id))
+                          } else {
+                            field.onChange([...value, addon.id])
+                          }
+                        }}
+                      >
                         <div className="flex items-center justify-between">
                           <h3 className="font-medium">{addon.label}</h3>
                           <Badge variant={field.value?.includes(addon.id) ? "default" : "outline"}>

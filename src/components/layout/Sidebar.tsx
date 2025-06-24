@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
@@ -12,13 +12,14 @@ import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Menu, Shield, Users, Calendar, Star, BarChart3, Settings, ChevronLeft, ChevronRight, User } from 'lucide-react'
+import { Menu, Shield, Users, Calendar, Star, BarChart3, Settings, ChevronLeft, ChevronRight, User, Home, FileText, Trophy, LogOut, Phone, MapPin } from 'lucide-react'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { useAuth, signOut } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
 import { useSidebar } from './SidebarContext'
+import { cn } from '@/lib/utils'
 
 const getNavItems = (isAdmin: boolean) => {
   if (isAdmin) {
@@ -30,10 +31,9 @@ const getNavItems = (isAdmin: boolean) => {
     ]
   } else {
     return [
-      { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
-      { href: '/dashboard/bookings', label: 'My Bookings', icon: Calendar },
+      { href: '/dashboard', label: 'Dashboard', icon: Home },
       { href: '/dashboard/book-service', label: 'Book Service', icon: Calendar },
-      { href: '/dashboard/rewards', label: 'Rewards', icon: Star },
+      { href: '/dashboard/rewards', label: 'Rewards', icon: Trophy },
       { href: '/dashboard/profile', label: 'My Profile', icon: User },
     ]
   }
@@ -77,12 +77,13 @@ const linkVariants = {
 }
 
 export default function Sidebar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { isCollapsed, toggleCollapsed } = useSidebar()
+  const { user } = useAuth()
+  const { isCollapsed, setIsCollapsed } = useSidebar()
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
   const pathname = usePathname()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null)
-  const { user } = useAuth()
   const { toast } = useToast()
 
   // Check if user is admin
@@ -113,19 +114,14 @@ export default function Sidebar() {
   }
 
   const handleSignOut = async () => {
+    setIsLoading(true)
     try {
       await signOut()
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      })
+      router.push('/')
     } catch (error) {
       console.error('Error signing out:', error)
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
-      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -139,12 +135,12 @@ export default function Sidebar() {
           {type === 'signup' ? 'Sign Up' : 'Log In'}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="bg-true-black border border-deep-purple/20">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-primary-text">
             {type === 'signup' ? 'Create an account' : 'Welcome back'}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-secondary-text">
             {type === 'signup' 
               ? 'Create an account to track your bookings and earn rewards.'
               : 'Sign in to manage your bookings and rewards.'}
@@ -152,14 +148,23 @@ export default function Sidebar() {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="hello@example.com" />
+            <Label htmlFor="email" className="text-secondary-text">Email</Label>
+            <Input 
+              id="email" 
+              type="email" 
+              placeholder="hello@example.com"
+              variant="default"
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" />
+            <Label htmlFor="password" className="text-secondary-text">Password</Label>
+            <Input 
+              id="password" 
+              type="password"
+              variant="default"
+            />
           </div>
-          <Button className="w-full">
+          <Button className="w-full" variant="default">
             {type === 'signup' ? 'Create Account' : 'Sign In'}
           </Button>
         </div>
@@ -168,265 +173,188 @@ export default function Sidebar() {
   )
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <div className="h-full flex flex-col">
-      {/* Logo Section */}
-      <div className={`p-6 ${isCollapsed && !isMobile ? 'px-4' : ''}`}>
-        <Link href="/" className="flex items-center justify-center">
-          <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full h-16'}`}>
-            <Image
-              src="/logo.png"
-              alt="Love4Detailing Logo"
-              fill
-              className="object-contain"
-              priority
-              sizes={isCollapsed && !isMobile ? "48px" : "100vw"}
-            />
-          </div>
-        </Link>
+    <div className="h-full flex flex-col border-r border-deep-purple/20 w-64" style={{ background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)' }}>
+      {/* Logo - Full Width */}
+      <div className="p-6 border-b border-deep-purple/20 flex-shrink-0">
+        <img 
+          src="/logo.png" 
+          alt="Love4Detailing" 
+          className="w-full h-auto object-contain"
+          style={{ 
+            maxHeight: '60px'
+          }}
+        />
       </div>
 
-      {/* Collapse Toggle Button - Desktop Only */}
-      {!isMobile && (
-        <div className="px-4 mb-4">
+      {/* User Section */}
+      {user ? (
+        <div className="p-6 space-y-4 flex-shrink-0">
+          {/* Account Info */}
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-12 w-12 border-2 border-deep-purple/30">
+              <AvatarImage src={profileImageUrl || ''} />
+              <AvatarFallback className="bg-deep-purple text-primary-text">
+                {user.email?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-primary-text truncate">
+                {(user as any)?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+              </p>
+              <p className="text-xs text-secondary-text truncate">
+                {user.email}
+              </p>
+            </div>
+          </div>
+
+          {/* Sign Out Button */}
           <Button
-            variant="ghost"
+            onClick={handleSignOut}
+            disabled={isLoading}
+            variant="outline"
             size="sm"
-            onClick={toggleCollapsed}
-            className="w-full flex items-center justify-center"
+            className="w-full"
           >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <>
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                <AnimatePresence>
-                  <motion.span
-                    variants={contentVariants}
-                    animate={isCollapsed ? "collapsed" : "expanded"}
-                    className="text-sm"
-                  >
-                    Collapse
-                  </motion.span>
-                </AnimatePresence>
-              </>
-            )}
+            <LogOut className="h-4 w-4 mr-2" />
+            {isLoading ? 'Signing out...' : 'Sign Out'}
           </Button>
+
+          <Separator className="bg-deep-purple/20" />
+
+          {/* Rating and Review Summary */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-secondary-text">Our Rating</span>
+              <div className="flex items-center space-x-1">
+                <Star className="h-4 w-4 fill-deep-purple text-deep-purple" />
+                <span className="text-sm font-medium text-primary-text">4.9/5</span>
+              </div>
+            </div>
+            <p className="text-xs text-secondary-text">From 200+ customers</p>
+          </div>
+
+          <Separator className="bg-deep-purple/20" />
+
+          {/* Contact Details */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Phone className="h-4 w-4 text-deep-purple" />
+              <span className="text-sm text-secondary-text">+44 7123 456789</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <MapPin className="h-4 w-4 text-deep-purple" />
+              <span className="text-sm text-secondary-text">South West London</span>
+            </div>
+          </div>
+
+          <Separator className="bg-deep-purple/20" />
+        </div>
+      ) : (
+        <div className="p-6 space-y-4 flex-shrink-0">
+          <div className="text-center space-y-3">
+            <h3 className="text-lg font-semibold text-primary-text">Welcome</h3>
+            <p className="text-sm text-secondary-text">Sign in to access your dashboard</p>
+          </div>
+          <div className="space-y-2">
+            <AuthDialog type="login" />
+            <AuthDialog type="signup" />
+          </div>
         </div>
       )}
 
-      {/* User Section */}
-      <div className={`px-4 space-y-2 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-        {user ? (
-          <>
-            <div className="border-t border-border my-4" />
-            <div className={`px-4 py-2 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-              <div className={`flex items-center gap-4 mb-4 ${isCollapsed && !isMobile ? 'justify-center' : ''}`}>
-                <Avatar className={isCollapsed && !isMobile ? 'w-8 h-8' : 'w-10 h-10'}>
-                  <AvatarImage src={profileImageUrl || undefined} alt="Profile" />
-                  <AvatarFallback className="text-xs">
-                    {user.full_name?.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <AnimatePresence>
-                  {(!isCollapsed || isMobile) && (
-                    <motion.div
-                      variants={contentVariants}
-                      animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                      className="flex-1 min-w-0"
-                    >
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-sm truncate">{user.full_name}</p>
-                        {isAdmin && (
-                          <Badge variant="secondary" className="text-xs">
-                            Admin
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <AnimatePresence>
-                {(!isCollapsed || isMobile) && (
-                  <motion.div
-                    variants={contentVariants}
-                    animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                  >
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={handleSignOut}
-                    >
-                      Sign Out
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="border-t border-border my-4" />
-            <div className={`px-4 space-y-2 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-              <AnimatePresence>
-                {(!isCollapsed || isMobile) && (
-                  <motion.div
-                    variants={contentVariants}
-                    animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                    className="space-y-2"
-                  >
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        setShowAuthModal(true)
-                        setIsMobileMenuOpen(false)
-                      }}
-                    >
-                      Sign In
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        setShowAuthModal(true)
-                        setIsMobileMenuOpen(false)
-                      }}
-                    >
-                      Create Account
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </>
-        )}
-      </div>
-
-      <Separator className="my-6" />
-
+      {/* Navigation Menu */}
       {user && (
-        <nav className={`flex-1 px-4 space-y-6 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-          {/* Navigation */}
-          <div>
-            <AnimatePresence>
-              {(!isCollapsed || isMobile) && (
-                <motion.h3
-                  variants={contentVariants}
-                  animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                  className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2"
-                >
-                  {isAdmin ? 'Administration' : 'Dashboard'}
-                </motion.h3>
-              )}
-            </AnimatePresence>
-            <div className="space-y-1">
-              {getNavItems(isAdmin).map((item) => {
-                const Icon = item.icon
-                return (
-                  <motion.div
-                    key={item.href}
-                    variants={linkVariants}
-                    whileHover="hover"
-                  >
-                    <Link
-                      href={item.href}
-                      className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-                        pathname === item.href 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                      } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
-                      title={isCollapsed && !isMobile ? item.label : undefined}
-                    >
-                      <Icon className="h-4 w-4 flex-shrink-0" />
-                      <AnimatePresence>
-                        {(!isCollapsed || isMobile) && (
-                          <motion.span
-                            variants={contentVariants}
-                            animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                          >
-                            {item.label}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </Link>
-                  </motion.div>
-                )
-              })}
-            </div>
+        <nav className="flex-1 px-4 pb-6 space-y-1 overflow-y-auto min-h-0">
+          <div className="space-y-1">
+            {getNavItems(isAdmin).map((item) => (
+              <SidebarItem
+                key={item.href}
+                href={item.href}
+                icon={<item.icon className="h-5 w-5" />}
+                label={item.label}
+                isActive={pathname === item.href}
+              />
+            ))}
           </div>
         </nav>
       )}
-
-      {/* Bottom Actions */}
-      <div className={`p-4 space-y-2 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-        <AnimatePresence>
-          {(!isCollapsed || isMobile) && (
-            <motion.div
-              variants={contentVariants}
-              animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-              className="space-y-2"
-            >
-              <Button variant="outline" className="w-full" asChild>
-                <Link href={user ? "/dashboard/book-service" : "/booking"}>Book a Service</Link>
-              </Button>
-              <Button variant="ghost" className="w-full" asChild>
-                <Link href="/services">View Services</Link>
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        {isCollapsed && !isMobile && (
-          <div className="flex flex-col space-y-2">
-            <Button variant="outline" size="sm" className="w-full p-2" asChild title="Book a Service">
-              <Link href={user ? "/dashboard/book-service" : "/booking"}>
-                <Calendar className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="sm" className="w-full p-2" asChild title="View Services">
-              <Link href="/services">
-                <Star className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        )}
-      </div>
     </div>
+  )
+
+  // Mobile Sidebar
+  const MobileSidebar = () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-6 w-6" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="p-0 w-64 sidebar-gradient border-r border-deep-purple/20">
+        <SidebarContent isMobile={true} />
+      </SheetContent>
+    </Sheet>
   )
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <motion.aside
-        variants={sidebarVariants}
-        animate={isCollapsed ? "collapsed" : "expanded"}
-        className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:z-50 lg:bg-background lg:border-r lg:border-border"
-      >
-        <SidebarContent />
-      </motion.aside>
-
-      {/* Mobile Menu Button */}
-      <div className="lg:hidden">
-        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0">
-            <SheetHeader className="sr-only">
-              <SheetTitle>Navigation Menu</SheetTitle>
-            </SheetHeader>
-            <SidebarContent isMobile={true} />
-          </SheetContent>
-        </Sheet>
+      {/* Mobile Sidebar */}
+      <div className="md:hidden">
+        <MobileSidebar />
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-      />
+      {/* Desktop Sidebar - Simplified with absolute positioning */}
+      <div 
+        className="hidden md:block"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: '16rem',
+          zIndex: 999,
+          backgroundColor: '#1E1E1E',
+          borderRight: '1px solid rgba(138, 43, 133, 0.2)',
+          overflow: 'hidden'
+        }}
+      >
+        <SidebarContent />
+      </div>
     </>
+  )
+}
+
+function SidebarItem({ 
+  href, 
+  icon, 
+  label, 
+  isActive 
+}: { 
+  href: string
+  icon: React.ReactNode
+  label: string
+  isActive: boolean
+}) {
+  return (
+    <Link href={href}>
+      <motion.div
+        variants={linkVariants}
+        whileHover="hover"
+        initial="normal"
+        className={cn(
+          "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+          isActive 
+            ? "bg-deep-purple text-primary-text shadow-lg" 
+            : "text-secondary-text hover:bg-deep-purple/10 hover:text-primary-text"
+        )}
+      >
+        <span className={cn(
+          "transition-colors duration-200",
+          isActive ? "text-primary-text" : "text-deep-purple"
+        )}>
+          {icon}
+        </span>
+        <span>{label}</span>
+      </motion.div>
+    </Link>
   )
 } 
