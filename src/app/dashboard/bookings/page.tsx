@@ -116,41 +116,45 @@ export default function CustomerBookingsPage() {
   }
 
   const BookingCard = ({ booking }: { booking: Booking }) => (
-    <Card className="border-l-4 border-l-primary hover:shadow-md transition-shadow">
+    <Card className="border-l-4 border-l-primary hover:bg-muted/50 transition-colors">
       <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
+        <div className="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+          <div className="flex-1 min-w-0 space-y-2">
             <div className="flex items-center space-x-2">
-              <h3 className="font-medium capitalize">{booking.service}</h3>
-              <Badge className={getStatusColor(booking.status)}>
+              <h3 className="font-medium capitalize text-sm sm:text-base truncate">{booking.service}</h3>
+              <Badge variant="outline" className={getStatusColor(booking.status)}>
                 {getStatusIcon(booking.status)}
                 <span className="ml-1">{booking.status}</span>
               </Badge>
             </div>
-            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+            
+            <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-muted-foreground">
               <div className="flex items-center space-x-1">
-                <Calendar className="h-4 w-4" />
-                <span>{format(new Date(booking.booking_date), 'PPP')}</span>
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Clock className="h-4 w-4" />
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                 <span>{booking.booking_time}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <MapPin className="h-4 w-4" />
+                <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                 <span>{booking.postcode}</span>
               </div>
             </div>
+            
             {booking.notes && (
-              <p className="text-sm text-muted-foreground italic">
+              <p className="text-xs sm:text-sm text-muted-foreground italic">
                 Notes: {booking.notes}
               </p>
             )}
+            
             <p className="text-xs text-muted-foreground">
-              Booked on {format(new Date(booking.created_at), 'PP')}
+              Booked on {format(new Date(booking.created_at), 'MMM dd, yyyy')}
             </p>
           </div>
-          <div className="text-right space-y-2">
+          
+          <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right space-x-2 sm:space-x-0 sm:space-y-2">
             <p className="text-lg font-bold">£{booking.total_price.toFixed(2)}</p>
             <Button 
               variant="outline" 
@@ -163,9 +167,10 @@ export default function CustomerBookingsPage() {
                   description: `${format(new Date(booking.booking_date), 'PPP')} at ${booking.booking_time} • £${booking.total_price.toFixed(2)}`,
                 })
               }}
+              className="touch-target"
             >
-              <Eye className="h-4 w-4 mr-1" />
-              View Details
+              <Eye className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">View Details</span>
             </Button>
           </div>
         </div>
@@ -197,76 +202,95 @@ export default function CustomerBookingsPage() {
   )
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      {/* Header Section - Mobile-First Layout */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
+        className="space-y-4"
       >
-        <div>
-          <h1 className="text-3xl font-bold">My Bookings</h1>
-          <p className="text-muted-foreground">View and manage your car service bookings</p>
+        <div className="space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Bookings</h1>
+          <p className="text-sm text-muted-foreground">View and manage your car service bookings</p>
         </div>
-        <Button asChild size="lg">
-          <Link href="/dashboard/book-service">
-            <Plus className="mr-2 h-4 w-4" />
-            Book New Service
-          </Link>
-        </Button>
+        
+        <div className="flex justify-end">
+          <Button asChild size="sm" className="w-full sm:w-auto touch-target">
+            <Link href="/dashboard/book-service">
+              <Plus className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Book New </span>Service
+            </Link>
+          </Button>
+        </div>
       </motion.div>
 
-      {/* Stats */}
+      {/* Enhanced Stats Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid gap-4 md:grid-cols-4"
+        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-blue-500" />
-              <div>
-                <div className="text-2xl font-bold">{bookings.length}</div>
-                <p className="text-xs text-muted-foreground">Total Bookings</p>
+              <div className="p-2 bg-blue-500 rounded-full">
+                <Calendar className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  {bookings.length}
+                </div>
+                <p className="text-xs text-blue-600 dark:text-blue-400">Total Bookings</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <div>
-                <div className="text-2xl font-bold">{completedBookings}</div>
-                <p className="text-xs text-muted-foreground">Completed</p>
+              <div className="p-2 bg-green-500 rounded-full">
+                <CheckCircle className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-300">
+                  {completedBookings}
+                </div>
+                <p className="text-xs text-green-600 dark:text-green-400">Completed</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <AlertCircle className="h-4 w-4 text-platinum-silver" />
-              <div>
-                <div className="text-2xl font-bold">{upcomingBookings.length}</div>
-                <p className="text-xs text-muted-foreground">Upcoming</p>
+              <div className="p-2 bg-orange-500 rounded-full">
+                <AlertCircle className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-orange-700 dark:text-orange-300">
+                  {upcomingBookings.length}
+                </div>
+                <p className="text-xs text-orange-600 dark:text-orange-400">Upcoming</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <Car className="h-4 w-4 text-purple-500" />
-              <div>
-                <div className="text-2xl font-bold">£{totalSpent.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">Total Spent</p>
+              <div className="p-2 bg-purple-500 rounded-full">
+                <Car className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300 truncate">
+                  £{totalSpent.toFixed(0)}
+                </div>
+                <p className="text-xs text-purple-600 dark:text-purple-400">Total Spent</p>
               </div>
             </div>
           </CardContent>
