@@ -5,18 +5,17 @@ export const initGSAPBackground = (container: HTMLElement) => {
   // Clear any existing animations
   gsap.killTweensOf(container.querySelectorAll('.gsap-particle, .gsap-glow, .gsap-ambient'))
   
-  // Create ambient glow orbs with fixed positions to avoid hydration mismatch
+  // Create premium ambient orbs with reduced blur and brand colors
   const createAmbientOrbs = () => {
-    const orbCount = 5
+    const orbCount = 4 // Reduced for cleaner look
     const orbs: HTMLElement[] = []
     
-    // Use fixed positions and sizes to ensure consistency
+    // Fixed positions optimized for premium feel
     const orbConfigs = [
-      { size: 250, left: 20, top: 15 },
-      { size: 300, left: 70, top: 25 },
-      { size: 200, left: 50, top: 60 },
-      { size: 280, left: 85, top: 70 },
-      { size: 220, left: 10, top: 80 }
+      { size: 320, left: 15, top: 20 },
+      { size: 280, left: 75, top: 30 },
+      { size: 350, left: 45, top: 65 },
+      { size: 300, left: 85, top: 75 }
     ]
     
     for (let i = 0; i < orbCount; i++) {
@@ -27,11 +26,11 @@ export const initGSAPBackground = (container: HTMLElement) => {
         position: absolute;
         width: ${config.size}px;
         height: ${config.size}px;
-        background: radial-gradient(circle, rgba(138, 43, 133, 0.15) 0%, rgba(138, 43, 133, 0.05) 50%, transparent 100%);
+        background: radial-gradient(circle, rgba(138, 43, 133, 0.08) 0%, rgba(181, 88, 170, 0.04) 40%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
         z-index: 1;
-        filter: blur(40px);
+        filter: blur(20px);
         will-change: transform, opacity;
         transform: translate3d(0, 0, 0);
         left: ${config.left}%;
@@ -45,28 +44,21 @@ export const initGSAPBackground = (container: HTMLElement) => {
     return orbs
   }
   
-  // Create floating particles with fixed positions
+  // Create elegant floating particles with crisp rendering
   const createFloatingParticles = () => {
-    const particleCount = 15
+    const particleCount = 8 // Reduced for premium, clean look
     const particles: HTMLElement[] = []
     
-    // Use fixed positions to avoid hydration mismatch
+    // Optimized positions for elegant distribution
     const particlePositions = [
-      { left: 10, top: 20, size: 3 },
-      { left: 25, top: 35, size: 4 },
-      { left: 40, top: 15, size: 2 },
-      { left: 55, top: 45, size: 3 },
-      { left: 70, top: 25, size: 4 },
-      { left: 85, top: 40, size: 2 },
-      { left: 15, top: 65, size: 3 },
-      { left: 30, top: 75, size: 4 },
-      { left: 45, top: 85, size: 2 },
-      { left: 60, top: 70, size: 3 },
-      { left: 75, top: 80, size: 4 },
-      { left: 90, top: 60, size: 2 },
-      { left: 20, top: 90, size: 3 },
-      { left: 65, top: 95, size: 4 },
-      { left: 80, top: 10, size: 2 }
+      { left: 20, top: 25, size: 2 },
+      { left: 35, top: 40, size: 3 },
+      { left: 55, top: 20, size: 2 },
+      { left: 70, top: 55, size: 3 },
+      { left: 25, top: 70, size: 2 },
+      { left: 60, top: 80, size: 3 },
+      { left: 80, top: 35, size: 2 },
+      { left: 40, top: 90, size: 3 }
     ]
     
     for (let i = 0; i < particleCount; i++) {
@@ -77,7 +69,7 @@ export const initGSAPBackground = (container: HTMLElement) => {
         position: absolute;
         width: ${pos.size}px;
         height: ${pos.size}px;
-        background: rgba(138, 43, 133, 0.6);
+        background: rgba(181, 88, 170, 0.4);
         border-radius: 50%;
         pointer-events: none;
         z-index: 2;
@@ -85,6 +77,7 @@ export const initGSAPBackground = (container: HTMLElement) => {
         transform: translate3d(0, 0, 0);
         left: ${pos.left}%;
         top: ${pos.top}%;
+        box-shadow: 0 0 ${pos.size * 2}px rgba(138, 43, 133, 0.3);
       `
       
       container.appendChild(particle)
@@ -94,16 +87,15 @@ export const initGSAPBackground = (container: HTMLElement) => {
     return particles
   }
   
-  // Create soft glow effects with fixed positions
+  // Create premium glow effects with minimal blur
   const createGlowEffects = () => {
-    const glowCount = 3
+    const glowCount = 2 // Reduced for cleaner premium look
     const glows: HTMLElement[] = []
     
-    // Fixed configurations to prevent hydration mismatch
+    // Strategic positioning for depth
     const glowConfigs = [
-      { size: 450, left: 15, top: 20 },
-      { size: 500, left: 60, top: 50 },
-      { size: 400, left: 80, top: 10 }
+      { size: 500, left: 25, top: 35 },
+      { size: 450, left: 70, top: 60 }
     ]
     
     for (let i = 0; i < glowCount; i++) {
@@ -114,11 +106,11 @@ export const initGSAPBackground = (container: HTMLElement) => {
         position: absolute;
         width: ${config.size}px;
         height: ${config.size}px;
-        background: radial-gradient(circle, rgba(138, 43, 133, 0.08) 0%, rgba(186, 12, 47, 0.05) 40%, transparent 100%);
+        background: radial-gradient(circle, rgba(138, 43, 133, 0.04) 0%, rgba(181, 88, 170, 0.02) 50%, transparent 80%);
         border-radius: 50%;
         pointer-events: none;
         z-index: 1;
-        filter: blur(60px);
+        filter: blur(30px);
         will-change: transform, opacity;
         transform: translate3d(0, 0, 0);
         left: ${config.left}%;
@@ -137,40 +129,31 @@ export const initGSAPBackground = (container: HTMLElement) => {
   const particles = createFloatingParticles()
   const glows = createGlowEffects()
   
-  // Predefined animation values to ensure consistency
+  // Premium animation configurations - slower, more elegant
   const orbAnimations = [
-    { x: 180, y: -120, duration: 25, opacity: 0.5, opacityDuration: 10 },
-    { x: -150, y: 200, duration: 30, opacity: 0.6, opacityDuration: 12 },
-    { x: 220, y: 160, duration: 35, opacity: 0.4, opacityDuration: 9 },
-    { x: -180, y: -140, duration: 28, opacity: 0.7, opacityDuration: 11 },
-    { x: 160, y: 180, duration: 32, opacity: 0.5, opacityDuration: 13 }
+    { x: 120, y: -80, duration: 40, opacity: 0.6, opacityDuration: 15 },
+    { x: -100, y: 140, duration: 50, opacity: 0.5, opacityDuration: 18 },
+    { x: 150, y: 100, duration: 45, opacity: 0.7, opacityDuration: 12 },
+    { x: -130, y: -90, duration: 55, opacity: 0.4, opacityDuration: 20 }
   ]
   
   const particleAnimations = [
-    { x: 250, y: -200, duration: 35, opacity: 0.4, opacityDuration: 6 },
-    { x: -180, y: 260, duration: 40, opacity: 0.6, opacityDuration: 7 },
-    { x: 220, y: 180, duration: 42, opacity: 0.3, opacityDuration: 5 },
-    { x: -200, y: -220, duration: 38, opacity: 0.7, opacityDuration: 8 },
-    { x: 280, y: 200, duration: 45, opacity: 0.5, opacityDuration: 6 },
-    { x: -160, y: 240, duration: 41, opacity: 0.4, opacityDuration: 7 },
-    { x: 190, y: -180, duration: 37, opacity: 0.6, opacityDuration: 5 },
-    { x: -240, y: 160, duration: 43, opacity: 0.3, opacityDuration: 8 },
-    { x: 200, y: 220, duration: 39, opacity: 0.5, opacityDuration: 6 },
-    { x: -170, y: -200, duration: 36, opacity: 0.7, opacityDuration: 7 },
-    { x: 260, y: 180, duration: 44, opacity: 0.4, opacityDuration: 5 },
-    { x: -190, y: 200, duration: 40, opacity: 0.6, opacityDuration: 8 },
-    { x: 170, y: -160, duration: 38, opacity: 0.3, opacityDuration: 6 },
-    { x: -220, y: 180, duration: 42, opacity: 0.5, opacityDuration: 7 },
-    { x: 240, y: 160, duration: 41, opacity: 0.4, opacityDuration: 5 }
+    { x: 150, y: -120, duration: 60, opacity: 0.6, opacityDuration: 8 },
+    { x: -120, y: 180, duration: 70, opacity: 0.5, opacityDuration: 10 },
+    { x: 180, y: 140, duration: 65, opacity: 0.7, opacityDuration: 7 },
+    { x: -160, y: -140, duration: 75, opacity: 0.4, opacityDuration: 12 },
+    { x: 140, y: 160, duration: 68, opacity: 0.6, opacityDuration: 9 },
+    { x: -140, y: 120, duration: 72, opacity: 0.5, opacityDuration: 11 },
+    { x: 120, y: -100, duration: 63, opacity: 0.7, opacityDuration: 8 },
+    { x: -100, y: 100, duration: 77, opacity: 0.4, opacityDuration: 10 }
   ]
   
   const glowAnimations = [
-    { x: 120, y: -100, duration: 45, opacity: 0.6, opacityDuration: 15 },
-    { x: -140, y: 130, duration: 50, opacity: 0.5, opacityDuration: 18 },
-    { x: 160, y: 110, duration: 55, opacity: 0.7, opacityDuration: 16 }
+    { x: 80, y: -60, duration: 80, opacity: 0.5, opacityDuration: 25 },
+    { x: -90, y: 70, duration: 85, opacity: 0.6, opacityDuration: 30 }
   ]
   
-  // Animate ambient orbs - slow, subtle movement
+  // Animate ambient orbs - slow, elegant movement
   orbs.forEach((orb, index) => {
     const config = orbAnimations[index]
     
@@ -178,24 +161,24 @@ export const initGSAPBackground = (container: HTMLElement) => {
       x: `+=${config.x}`,
       y: `+=${config.y}`,
       duration: config.duration,
-      ease: easePresets.smooth,
+      ease: "power1.inOut", // Smoother easing
+      repeat: -1,
+      yoyo: true,
+      delay: index * 3 // Increased delay for more elegant staggering
+    })
+    
+    // Gentle opacity pulse
+    gsap.to(orb, {
+      opacity: config.opacity,
+      duration: config.opacityDuration,
+      ease: "sine.inOut",
       repeat: -1,
       yoyo: true,
       delay: index * 2
     })
-    
-    // Pulse opacity
-    gsap.to(orb, {
-      opacity: config.opacity,
-      duration: config.opacityDuration,
-      ease: easePresets.smooth,
-      repeat: -1,
-      yoyo: true,
-      delay: index * 1.5
-    })
   })
   
-  // Animate floating particles - gentle drift
+  // Animate floating particles - gentle, premium drift
   particles.forEach((particle, index) => {
     const config = particleAnimations[index]
     
@@ -203,20 +186,30 @@ export const initGSAPBackground = (container: HTMLElement) => {
       x: `+=${config.x}`,
       y: `+=${config.y}`,
       duration: config.duration,
-      ease: easePresets.smooth,
+      ease: "none", // Linear for continuous drift
       repeat: -1,
       yoyo: true,
-      delay: index * 0.5
+      delay: index * 4
     })
     
-    // Subtle opacity animation
+    // Subtle twinkling effect
     gsap.to(particle, {
       opacity: config.opacity,
       duration: config.opacityDuration,
-      ease: easePresets.smooth,
+      ease: "sine.inOut",
       repeat: -1,
       yoyo: true,
-      delay: index * 0.3
+      delay: index * 1.5
+    })
+    
+    // Gentle scale variation
+    gsap.to(particle, {
+      scale: 1.3,
+      duration: config.opacityDuration * 2,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      delay: index * 2.5
     })
   })
   
@@ -228,31 +221,82 @@ export const initGSAPBackground = (container: HTMLElement) => {
       x: `+=${config.x}`,
       y: `+=${config.y}`,
       duration: config.duration,
-      ease: easePresets.smooth,
+      ease: "power1.inOut",
+      repeat: -1,
+      yoyo: true,
+      delay: index * 5
+    })
+    
+    // Very subtle opacity variation
+    gsap.to(glow, {
+      opacity: config.opacity,
+      duration: config.opacityDuration,
+      ease: "sine.inOut",
       repeat: -1,
       yoyo: true,
       delay: index * 3
     })
-    
-    // Soft pulsing
-    gsap.to(glow, {
-      opacity: config.opacity,
-      duration: config.opacityDuration,
-      ease: easePresets.smooth,
-      repeat: -1,
-      yoyo: true,
-      delay: index * 2.5
-    })
   })
   
-  // Return cleanup function
+  // Cleanup function
   return () => {
-    // Kill all animations
     gsap.killTweensOf([...orbs, ...particles, ...glows])
-    
-    // Remove elements
     orbs.forEach(orb => orb.remove())
     particles.forEach(particle => particle.remove())
     glows.forEach(glow => glow.remove())
   }
+}
+
+// Premium scroll-based background effects
+export const initScrollBasedBackground = (container: HTMLElement) => {
+  const elements = container.querySelectorAll('.gsap-ambient, .gsap-particle, .gsap-glow')
+  
+  // Subtle parallax effect on scroll
+  gsap.to(elements, {
+    y: -50,
+    ease: "none",
+    scrollTrigger: {
+      trigger: "body",
+      start: "top top",
+      end: "bottom top",
+      scrub: 1.5 // Slower, smoother scrub
+    }
+  })
+}
+
+// Premium background for specific sections
+export const createSectionBackground = (section: HTMLElement, intensity: 'low' | 'medium' | 'high' = 'medium') => {
+  const overlay = document.createElement('div')
+  overlay.className = 'premium-section-overlay'
+  
+  const intensityMap = {
+    low: 0.02,
+    medium: 0.04,
+    high: 0.06
+  }
+  
+  overlay.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse 600px 400px at 50% 30%, rgba(138, 43, 133, ${intensityMap[intensity]}) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  `
+  
+  section.style.position = 'relative'
+  section.insertBefore(overlay, section.firstChild)
+  
+  // Subtle animation
+  gsap.to(overlay, {
+    opacity: intensityMap[intensity] * 1.5,
+    duration: 8,
+    ease: "sine.inOut",
+    repeat: -1,
+    yoyo: true
+  })
+  
+  return overlay
 } 

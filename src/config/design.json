@@ -3,17 +3,43 @@
       "mode": "dark",
       "colors": {
           "background": "#141414",
-          "primary": "#A64AFB",
+          "primary": "#8A2B85",
+          "primary-glow": "#B558AA",
           "secondary": "#F8F4EB",
           "accent": "#DAD7CE",
           "surface": "#1E1E1E",
           "text": "#F0F0F0",
           "text-muted": "#C7C7C7",
           "text-contrast": "#F8F4EB",
-          "border": "#A64AFB",
-          "border-muted": "rgba(166, 74, 251, 0.2)",
+          "border": "#8A2B85",
+          "border-muted": "rgba(138, 43, 133, 0.2)",
           "error": "#BA0C2F",
           "success": "#28C76F"
+      },
+      "backgroundAnimation": {
+          "enabled": true,
+          "intensity": "medium",
+          "speed": 0.8,
+          "opacity": 0.9,
+          "colors": {
+              "primary": "rgba(138, 43, 133, 0.12)",
+              "secondary": "rgba(181, 88, 170, 0.08)",
+              "ambient": "rgba(138, 43, 133, 0.04)"
+          },
+          "blur": {
+              "minimal": "20px",
+              "medium": "30px",
+              "disabled": "0px"
+          },
+          "motion": {
+              "type": "elegant",
+              "duration": {
+                  "base": 35,
+                  "pulse": 20,
+                  "shift": 50
+              },
+              "easing": "power1.inOut"
+          }
       },
       "typography": {
           "font-body": "'Inter', 'Helvetica', 'Arial', sans-serif",
@@ -31,9 +57,9 @@
       },
       "shadows": {
           "card": "0 4px 16px rgba(20, 20, 20, 0.4)",
-          "button": "0 2px 8px rgba(166, 74, 251, 0.3)",
-          "button-hover": "0 4px 16px rgba(166, 74, 251, 0.5)",
-          "purple-glow": "0 0 20px rgba(166, 74, 251, 0.4)",
+          "button": "0 2px 8px rgba(138, 43, 133, 0.3)",
+          "button-hover": "0 4px 16px rgba(138, 43, 133, 0.5)",
+          "purple-glow": "0 0 20px rgba(138, 43, 133, 0.4)",
           "glass": "0 8px 32px rgba(20, 20, 20, 0.6)"
       },
       "animations": {
