@@ -176,30 +176,24 @@ export default function LandingSidebar() {
             const Icon = item.icon
             const isActive = pathname === item.href
             return (
-              <div key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors hover:scale-105 ${
-                    isActive 
-                      ? 'bg-primary/10 text-primary' 
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                  } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
-                  title={isCollapsed && !isMobile ? item.label : undefined}
-                  onClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined}
-                >
-                  <Icon className="h-4 w-4 flex-shrink-0" />
-                  <AnimatePresence>
-                    {(!isCollapsed || isMobile) && (
-                      <motion.span
-                        variants={contentVariants}
-                        animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                      >
-                        {item.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              </div>
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${
+                  isActive 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
+                title={isCollapsed && !isMobile ? item.label : undefined}
+                onClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined}
+              >
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                {(!isCollapsed || isMobile) && (
+                  <span className={`transition-opacity duration-200 ${isCollapsed && !isMobile ? 'opacity-0' : 'opacity-100'}`}>
+                    {item.label}
+                  </span>
+                )}
+              </Link>
             )
           })}
         </div>

@@ -56,9 +56,9 @@ export default function HeroSection() {
           className="space-y-8"
         >
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight">
-            Premium Car Detailing
+            Car Stays Fresh.
             <span className="block bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
-              That Comes to You
+              You Stay Moving.
             </span>
           </h1>
           

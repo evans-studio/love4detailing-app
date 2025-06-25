@@ -190,7 +190,41 @@ Recommended Commit Frequency
 
 ⸻
 
-Let me know if you’d like a separate .workflow.md or .version-control.md file to isolate these practices in your folder structure.
+Design Consistency Requirements (App-Wide)
+
+All interface elements — including sidebars, dashboards, buttons, cards, and landing sections — must adhere to a unified visual system.
+
+Global UI Standards:
+	•	Primary Brand Colour: Use #A64AFB (or latest approved purple) as the dominant accent across all pages — including dashboard UI, sidebars, buttons, form highlights, and headings.
+	•	Typography: Maintain the same font family, sizes, weights, and spacing rules from the landing page across dashboard and app screens.
+	•	Shadows, Radii & Borders: All containers, cards, buttons, and modals must use the same radius values, box shadows, and border styling throughout.
+	•	Button Styles: Primary, secondary, and outline buttons must retain identical padding, hover states, animations (GSAP), and color rules across all views — landing and dashboard.
+	•	Sidebar Styling: The sidebar must:
+	•	Use the same purple gradient or solid fill as the hero/CTA elements.
+	•	Include hover/active states consistent with landing page buttons.
+	•	Display icons and text styled in line with the design system.
+
+Design Checks Per Commit:
+
+Before committing visual changes:
+	•	Run a full app pass (landing, dashboard, and sidebar).
+	•	Ensure all updated styles match the core theme variables (defined in /styles/theme.ts or global CSS).
+	•	Visually inspect the sidebar and dashboard interactions — especially buttons and links — for design fidelity and functional consistency.
+	•	Confirm GSAP animations remain smooth and do not clash with content hierarchy or legibility.
+
+If it doesn’t match the visual tone and UX of the landing page, it doesn’t go in.
+
+⸻
+
+Workspace and Terminal Discipline
+
+To avoid performance issues, confusion, and broken development flows:
+	•	Always keep only one terminal session active at a time unless explicitly debugging a concurrent process. 
+	•	Close unused terminals to reduce memory load and prevent accidental conflicts (such as duplicate builds or multiple ports).
+	•	Keep your editor or file tabs minimal — close irrelevant files once you’re done working on them.
+	•	Name open terminals clearly (e.g., dev-server, supabase, storybook) when multiple are temporarily needed.
+
+Streamlined workspace = faster builds, fewer mistakes, and cleaner code.
 
 MAINTAIN CODE QUALITY AT ALL TIMES. DO NOT RUSH, DO NOT DUPLICATE.
 Every line of code must contribute toward a thoughtful, clean, and scalable app.

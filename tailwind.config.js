@@ -19,7 +19,7 @@ module.exports = {
       colors: {
         // Final Color Palette Specification (Dev Guidelines Compliant)
         'true-black': '#141414',        // Primary Background (app shell) - Dev Guidelines
-        'deep-purple': '#8A2B85',       // Primary Accent (buttons, icons, highlights) - Dev Guidelines
+        'deep-purple': '#A64AFB',       // Primary Accent (buttons, icons, highlights) - Dev Guidelines
         'canvas-white': '#F8F4EB',      // Canvas/Off-white (Text Contrast) - Dev Guidelines
         'stone-grey': '#DAD7CE',        // Support Accent (Subtle) - Dev Guidelines
         'rich-crimson': '#BA0C2F',      // Secondary Accent (hover states, subtle highlights)
@@ -30,12 +30,12 @@ module.exports = {
         
         // Legacy aliases for compatibility
         'deep-black': '#141414',
-        'accent-purple': '#8A2B85',
+        'accent-purple': '#A64AFB',
         'mid-purple': '#3B1040',
         'overlay-purple-black': '#1E0A1F',
         'soft-silver': '#8A8D8F',
         'midnight-black': '#141414',
-        'primary-purple': '#8A2B85',
+        'primary-purple': '#A64AFB',
         'crimson-alert': '#BA0C2F',
         
         // UI Colors
@@ -45,7 +45,7 @@ module.exports = {
         background: "#141414",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#8A2B85",
+          DEFAULT: "#A64AFB",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
