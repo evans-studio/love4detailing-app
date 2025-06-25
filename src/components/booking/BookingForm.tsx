@@ -40,6 +40,7 @@ import {
   AlertCircle,
   Sparkles
 } from 'lucide-react'
+import { ServiceIcons } from '@/components/ui/icons'
 import PaymentButton from '@/components/payments/PaymentButton'
 import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
 import { VehicleSearchResult, LicensePlateResult } from '@/lib/utils/vehicleDatabase'
@@ -603,7 +604,13 @@ export default function BookingForm() {
                           <CardContent className="p-6">
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-semibold text-foreground">{size.label}</h3>
+                                <div className="flex items-center space-x-3">
+                                  {key === 'small' && <ServiceIcons.SmallCar className="h-6 w-6 text-primary" />}
+                                  {key === 'medium' && <ServiceIcons.MediumCar className="h-6 w-6 text-primary" />}
+                                  {key === 'large' && <ServiceIcons.LargeCar className="h-6 w-6 text-primary" />}
+                                  {key === 'extraLarge' && <ServiceIcons.ExtraLargeCar className="h-6 w-6 text-primary" />}
+                                  <h3 className="text-lg font-semibold text-foreground">{size.label}</h3>
+                                </div>
                                 <span className="text-2xl font-bold text-primary">£{size.price}</span>
                               </div>
                               <p className="text-sm text-muted-foreground">{size.description}</p>

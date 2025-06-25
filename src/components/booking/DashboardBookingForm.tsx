@@ -8,7 +8,8 @@ import { format, addDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase/client'
 import { calculateTravelFee } from '@/lib/utils/calculateTravelFee'
-import { calculateTimeSlots, getWorkingDays, isWorkingDay, TimeSlot } from '@/lib/utils/calculateTimeSlots'
+import { calculateTimeSlots, getWorkingDays, isWorkingDay } from '@/lib/utils/calculateTimeSlots'
+import type { TimeSlot } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/Card'
@@ -39,6 +40,7 @@ import {
   Sparkles,
   CreditCard
 } from 'lucide-react'
+import { ServiceIcons } from '@/components/ui/icons'
 import { Label } from '@/components/ui/label'
 import PaymentButton from '@/components/payments/PaymentButton'
 
@@ -1085,7 +1087,10 @@ export default function DashboardBookingForm() {
                   onClick={() => field.onChange(key)}
                 >
                   <CardContent className="p-4 text-center">
-                    <Car className="h-8 w-8 mx-auto mb-2 text-primary" />
+                    {key === 's' && <ServiceIcons.SmallCar className="h-8 w-8 mx-auto mb-2 text-primary" />}
+                    {key === 'm' && <ServiceIcons.MediumCar className="h-8 w-8 mx-auto mb-2 text-primary" />}
+                    {key === 'l' && <ServiceIcons.LargeCar className="h-8 w-8 mx-auto mb-2 text-primary" />}
+                    {key === 'xl' && <ServiceIcons.ExtraLargeCar className="h-8 w-8 mx-auto mb-2 text-primary" />}
                     <h3 className="font-semibold">{label}</h3>
                     <p className="text-xs text-muted-foreground mb-2">{description}</p>
                     <Badge variant={field.value === key ? "default" : "outline"}>£{price}</Badge>
@@ -1334,7 +1339,7 @@ export default function DashboardBookingForm() {
                                 Fully Booked
                               </Badge>
                             )}
-                            {slot.isAvailable && slot.bookingCount > 0 && (
+                            {slot.isAvailable && slot.bookingCount && slot.bookingCount > 0 && (
                               <Badge variant="outline" className="ml-2 text-xs">
                                 {slot.bookingCount} booked
                               </Badge>

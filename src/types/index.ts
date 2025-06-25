@@ -75,6 +75,7 @@ export interface TimeSlot {
   time: string
   label: string
   isAvailable: boolean
+  bookingCount?: number
 }
 
 export interface AdminSetting {

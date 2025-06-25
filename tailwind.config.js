@@ -17,9 +17,11 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Final Color Palette Specification
-        'true-black': '#141414',        // Primary Background (app shell)
-        'deep-purple': '#8A2B85',       // Primary Accent (buttons, icons, highlights)
+        // Final Color Palette Specification (Dev Guidelines Compliant)
+        'true-black': '#141414',        // Primary Background (app shell) - Dev Guidelines
+        'deep-purple': '#8A2B85',       // Primary Accent (buttons, icons, highlights) - Dev Guidelines
+        'canvas-white': '#F8F4EB',      // Canvas/Off-white (Text Contrast) - Dev Guidelines
+        'stone-grey': '#DAD7CE',        // Support Accent (Subtle) - Dev Guidelines
         'rich-crimson': '#BA0C2F',      // Secondary Accent (hover states, subtle highlights)
         'platinum-silver': '#E8E8EA',   // Supporting Accent (ratings, status, secondary elements)
         'primary-text': '#F0F0F0',      // Primary Text (on dark background)

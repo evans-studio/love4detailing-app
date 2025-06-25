@@ -171,6 +171,21 @@ export default function AdminDashboard() {
           customer_phone: booking.profiles?.phone || ''
         }))
 
+        // Fetch rewards data for all customers
+        const { data: rewardsData, error: rewardsError } = await supabase
+          .from('rewards')
+          .select('user_id, points')
+
+        if (rewardsError) {
+          console.error('Error fetching rewards data:', rewardsError)
+        }
+
+        // Create a map for quick rewards lookup
+        const rewardsMap = new Map()
+        rewardsData?.forEach(reward => {
+          rewardsMap.set(reward.user_id, reward.points || 0)
+        })
+
         // Calculate customer stats
         const customerStats = customersData.map(customer => {
           const customerBookings = bookingsData.filter(b => b.user_id === customer.id)
@@ -186,7 +201,7 @@ export default function AdminDashboard() {
             phone: customer.phone,
             total_spent: totalSpent,
             total_bookings: customerBookings.length,
-            rewards_points: 0, // TODO: Get from rewards table
+            rewards_points: rewardsMap.get(customer.id) || 0,
             last_booking: lastBooking,
             created_at: customer.created_at
           }
