@@ -740,53 +740,6 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-              {/* Recent Customers */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Recent Customers
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentCustomers.length === 0 ? (
-                      <p className="text-muted-foreground text-center py-4">No recent customers</p>
-                    ) : (
-                      recentCustomers.map((customer) => (
-                        <div key={customer.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center gap-3 flex-1">
-                            <Avatar className="w-10 h-10">
-                              <AvatarImage src={customer.profile_image_url} alt={customer.full_name} />
-                              <AvatarFallback className="text-xs">
-                                {customer.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div className="font-medium">{customer.full_name}</div>
-                              <div className="text-sm text-muted-foreground">{customer.email}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {customer.total_bookings} booking{customer.total_bookings !== 1 ? 's' : ''} • £{customer.total_spent.toFixed(2)} spent
-                              </div>
-                            </div>
-                          </div>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => fetchCustomerProfile(customer.id)}
-                            disabled={isLoadingProfile}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
           <TabsContent value="bookings" className="space-y-4">
             {/* Booking Filters */}
             <Card>
