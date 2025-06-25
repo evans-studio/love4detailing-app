@@ -71,10 +71,7 @@ const contentVariants = {
   }
 }
 
-const linkVariants = {
-  normal: { scale: 1 },
-  hover: { scale: 1.02 }
-}
+
 
 export default function Sidebar() {
   const { user } = useAuth()
@@ -336,12 +333,9 @@ function SidebarItem({
 }) {
   return (
     <Link href={href}>
-      <motion.div
-        variants={linkVariants}
-        whileHover="hover"
-        initial="normal"
+      <div
         className={cn(
-          "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+          "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105",
           isActive 
             ? "bg-deep-purple text-primary-text shadow-lg" 
             : "text-secondary-text hover:bg-deep-purple/10 hover:text-primary-text"
@@ -354,7 +348,7 @@ function SidebarItem({
           {icon}
         </span>
         <span>{label}</span>
-      </motion.div>
+      </div>
     </Link>
   )
 } 
