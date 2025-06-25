@@ -5,7 +5,7 @@ import LandingSidebar from './LandingSidebar'
 import Sidebar from './Sidebar'
 import BackButton from './BackButton'
 import { SidebarProvider, useSidebar } from './SidebarContext'
-import { AnimatedBackground } from '@/components/ui/AnimatedBackground'
+import BackgroundCanvas from '@/components/ui/BackgroundCanvas'
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar()
@@ -35,8 +35,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen bg-true-black overflow-x-hidden max-w-full">
-      {/* Global Animated Background with Orbs and Sparkles */}
-      <AnimatedBackground variant="default" className="z-0" />
+      {/* Global WebGL Background with Fluid Gradients */}
+      <BackgroundCanvas intensity="medium" speed={0.8} opacity={0.7} />
       
       {/* Main App Content */}
       <div className="relative z-10 overflow-x-hidden max-w-full">
