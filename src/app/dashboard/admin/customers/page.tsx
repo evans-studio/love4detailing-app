@@ -329,35 +329,41 @@ export default function AdminCustomersPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      {/* Header Section - Mobile-First Layout */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
+        className="space-y-4"
       >
-        <div>
-          <h1 className="text-3xl font-bold">Customer Management</h1>
-          <p className="text-muted-foreground">Manage and view all customers</p>
+        <div className="space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Customer Management</h1>
+          <p className="text-sm text-muted-foreground">Manage and view all customers</p>
         </div>
-        <div className="flex space-x-2">
+        
+        {/* Action Buttons - Mobile Responsive */}
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
           <Button 
             variant="outline"
+            size="sm"
             onClick={() => fetchCustomers()}
             disabled={isLoading}
+            className="w-full sm:w-auto touch-target"
           >
             {isLoading ? 'Refreshing...' : 'Refresh'}
           </Button>
           <Button 
             variant="outline"
+            size="sm"
             onClick={() => debugFetchAllProfiles()}
-                            className="bg-platinum-silver hover:bg-platinum-silver/80 text-true-black"
+            className="w-full sm:w-auto touch-target bg-muted hover:bg-muted/80"
           >
             Debug DB
           </Button>
           <Button 
             variant="outline"
+            size="sm"
             onClick={() => {
               // Export customers to CSV
               const csvContent = [
@@ -381,95 +387,115 @@ export default function AdminCustomersPage() {
               a.click()
               window.URL.revokeObjectURL(url)
             }}
+            className="w-full sm:w-auto touch-target"
           >
             <Download className="mr-2 h-4 w-4" />
-            Export Customers
+            <span className="hidden sm:inline">Export </span>Customers
           </Button>
         </div>
       </motion.div>
 
-      {/* Stats */}
+      {/* Enhanced Stats Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid gap-4 md:grid-cols-4"
+        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-blue-500" />
-              <div>
-                <div className="text-2xl font-bold">{customers.length}</div>
-                <p className="text-xs text-muted-foreground">Total Customers</p>
+              <div className="p-2 bg-blue-500 rounded-full">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  {customers.length}
+                </div>
+                <p className="text-xs text-blue-600 dark:text-blue-400">Total Customers</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-green-500" />
-              <div>
-                <div className="text-2xl font-bold">{activeCustomers}</div>
-                <p className="text-xs text-muted-foreground">Active Customers</p>
+              <div className="p-2 bg-green-500 rounded-full">
+                <TrendingUp className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-300">
+                  {activeCustomers}
+                </div>
+                <p className="text-xs text-green-600 dark:text-green-400">Active</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-purple-500" />
-              <div>
-                <div className="text-2xl font-bold">£{totalRevenue.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">Total Revenue</p>
+              <div className="p-2 bg-purple-500 rounded-full">
+                <CreditCard className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300 truncate">
+                  £{totalRevenue.toFixed(0)}
+                </div>
+                <p className="text-xs text-purple-600 dark:text-purple-400">Revenue</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-                              <TrendingUp className="h-4 w-4 text-deep-purple" />
-              <div>
-                <div className="text-2xl font-bold">£{averageSpent.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">Avg. Customer Value</p>
+              <div className="p-2 bg-orange-500 rounded-full">
+                <Award className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-orange-700 dark:text-orange-300 truncate">
+                  £{averageSpent.toFixed(0)}
+                </div>
+                <p className="text-xs text-orange-600 dark:text-orange-400">Avg Value</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Filters and Search */}
+      {/* Enhanced Filters and Search */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>All Customers</CardTitle>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
+        <Card className="border-0 shadow-md">
+          <CardHeader className="pb-3">
+            <div className="space-y-4">
+              <CardTitle className="text-lg">All Customers</CardTitle>
+              
+              {/* Mobile-First Search and Filter Layout */}
+              <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search customers..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
+                    className="pl-10 w-full"
                   />
                 </div>
+                
                 <div className="flex items-center space-x-2">
-                  <Filter className="h-4 w-4" />
+                  <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <select 
                     value={sortBy} 
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="border rounded px-3 py-2"
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-w-[140px]"
                   >
                     <option value="name">Sort by Name</option>
                     <option value="spent">Sort by Spent</option>
@@ -480,52 +506,62 @@ export default function AdminCustomersPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="pt-0">
+            <div className="space-y-3">
               {filteredCustomers.map((customer) => (
-                <Card key={customer.id} className="hover:shadow-md transition-shadow">
+                <Card key={customer.id} className="border rounded-lg hover:bg-muted/50 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
+                    <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                      <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-medium">{customer.full_name}</h3>
-                          <Badge className={getCustomerStatusColor(customer.status)}>
+                          <h3 className="font-medium text-sm sm:text-base truncate">{customer.full_name}</h3>
+                          <Badge variant="outline" className={getCustomerStatusColor(customer.status)}>
                             {customer.status}
                           </Badge>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        
+                        <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-muted-foreground">
                           <div className="flex items-center space-x-1">
-                            <Mail className="h-4 w-4" />
-                            <span>{customer.email}</span>
+                            <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">{customer.email}</span>
                           </div>
                           {customer.phone && (
                             <div className="flex items-center space-x-1">
-                              <Phone className="h-4 w-4" />
+                              <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                               <span>{customer.phone}</span>
                             </div>
                           )}
                           <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             <span>Joined {format(new Date(customer.created_at), 'PP')}</span>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm">
-                          <span className="font-medium">{customer.total_bookings} bookings</span>
-                          <span className="font-medium">£{customer.total_spent.toFixed(2)} spent</span>
+                        
+                        <div className="flex flex-wrap gap-2 text-xs sm:text-sm">
+                          <span className="font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+                            {customer.total_bookings} booking{customer.total_bookings !== 1 ? 's' : ''}
+                          </span>
+                          <span className="font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
+                            £{customer.total_spent.toFixed(2)} spent
+                          </span>
                           {customer.last_booking && (
-                            <span>Last booking: {format(new Date(customer.last_booking), 'PP')}</span>
+                            <span className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+                              Last: {format(new Date(customer.last_booking), 'MMM dd')}
+                            </span>
                           )}
                         </div>
                       </div>
-                      <div className="text-right space-y-2">
+                      
+                      <div className="flex justify-end">
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => fetchCustomerProfile(customer.id)}
                           disabled={isLoadingProfile}
+                          className="touch-target"
                         >
-                          <Eye className="h-4 w-4 mr-1" />
-                          {isLoadingProfile ? 'Loading...' : 'View Profile'}
+                          <Eye className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">{isLoadingProfile ? 'Loading...' : 'View'}</span>
                         </Button>
                       </div>
                     </div>
