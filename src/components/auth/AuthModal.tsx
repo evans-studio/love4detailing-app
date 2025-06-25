@@ -139,32 +139,34 @@ export function AuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent 
-        className="sm:max-w-[425px] w-full max-w-[95vw] mx-auto"
-        style={{
-          // iOS Safari specific fixes
-          maxHeight: '90dvh',
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch'
-        }}
-      >
+      <DialogContent className="sm:max-w-[425px] w-[95vw] max-w-[95vw] sm:w-full bg-[#141414] border border-[#8A2B85]/20">
         <DialogHeader>
-          <DialogTitle>Welcome to Love4Detailing</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[#F8F4EB] text-lg sm:text-xl">Welcome to Love4Detailing</DialogTitle>
+          <DialogDescription className="text-[#C7C7C7]">
             {activeTab === 'sign-up' 
               ? 'Create an account to start booking and earning rewards.'
               : 'Sign in to manage your bookings and rewards.'}
           </DialogDescription>
         </DialogHeader>
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'sign-in' | 'sign-up')}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="sign-in">Sign In</TabsTrigger>
-            <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-[#8A2B85]/20">
+            <TabsTrigger 
+              value="sign-in"
+              className="data-[state=active]:bg-[#8A2B85] data-[state=active]:text-white text-[#C7C7C7]"
+            >
+              Sign In
+            </TabsTrigger>
+            <TabsTrigger 
+              value="sign-up"
+              className="data-[state=active]:bg-[#8A2B85] data-[state=active]:text-white text-[#C7C7C7]"
+            >
+              Sign Up
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="sign-in">
             <form onSubmit={handleSignIn} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-[#C7C7C7]">Email</Label>
                 <Input
                   id="email"
                   name="email"
@@ -174,17 +176,12 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="email"
                   defaultValue={bookingEmail}
-                  className="text-base touch-manipulation"
-                  style={{
-                    fontSize: '16px',
-                    WebkitAppearance: 'none',
-                    borderRadius: '0.375rem',
-                    touchAction: 'manipulation'
-                  }}
+                  className="bg-[#1E1E1E] border-[#8A2B85]/20 text-[#F8F4EB] placeholder:text-[#C7C7C7]/60"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-[#C7C7C7]">Password</Label>
                 <Input
                   id="password"
                   name="password"
@@ -193,23 +190,14 @@ export function AuthModal({
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="text-base touch-manipulation"
-                  style={{
-                    fontSize: '16px',
-                    WebkitAppearance: 'none',
-                    borderRadius: '0.375rem',
-                    touchAction: 'manipulation'
-                  }}
+                  className="bg-[#1E1E1E] border-[#8A2B85]/20 text-[#F8F4EB] placeholder:text-[#C7C7C7]/60"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <Button 
                 type="submit" 
-                className="w-full h-12 touch-manipulation" 
+                className="w-full bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target min-h-[48px]" 
                 disabled={isLoading}
-                style={{
-                  touchAction: 'manipulation',
-                  WebkitTapHighlightColor: 'transparent'
-                }}
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
@@ -218,7 +206,7 @@ export function AuthModal({
           <TabsContent value="sign-up">
             <form onSubmit={handleSignUp} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName" className="text-[#C7C7C7]">Full Name</Label>
                 <Input
                   id="fullName"
                   name="fullName"
@@ -227,63 +215,43 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="name"
                   defaultValue={bookingData?.customer}
-                  className="text-base touch-manipulation"
-                  style={{
-                    fontSize: '16px',
-                    WebkitAppearance: 'none',
-                    borderRadius: '0.375rem',
-                    touchAction: 'manipulation'
-                  }}
+                  className="bg-[#1E1E1E] border-[#8A2B85]/20 text-[#F8F4EB] placeholder:text-[#C7C7C7]/60"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="signupEmail" className="text-[#C7C7C7]">Email</Label>
                 <Input
-                  id="email"
+                  id="signupEmail"
                   name="email"
                   type="email"
                   placeholder="Enter your email"
                   required
                   disabled={isLoading}
                   autoComplete="email"
-                  defaultValue={bookingEmail}
-                  className="text-base touch-manipulation"
-                  style={{
-                    fontSize: '16px',
-                    WebkitAppearance: 'none',
-                    borderRadius: '0.375rem',
-                    touchAction: 'manipulation'
-                  }}
+                  defaultValue={bookingEmail || bookingData?.email}
+                  className="bg-[#1E1E1E] border-[#8A2B85]/20 text-[#F8F4EB] placeholder:text-[#C7C7C7]/60"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="signupPassword" className="text-[#C7C7C7]">Password</Label>
                 <Input
-                  id="password"
+                  id="signupPassword"
                   name="password"
                   type="password"
-                  placeholder="Choose a password"
+                  placeholder="Create a password"
                   required
                   disabled={isLoading}
                   autoComplete="new-password"
-                  minLength={6}
-                  className="text-base touch-manipulation"
-                  style={{
-                    fontSize: '16px',
-                    WebkitAppearance: 'none',
-                    borderRadius: '0.375rem',
-                    touchAction: 'manipulation'
-                  }}
+                  className="bg-[#1E1E1E] border-[#8A2B85]/20 text-[#F8F4EB] placeholder:text-[#C7C7C7]/60"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <Button 
                 type="submit" 
-                className="w-full h-12 touch-manipulation" 
+                className="w-full bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target min-h-[48px]" 
                 disabled={isLoading}
-                style={{
-                  touchAction: 'manipulation',
-                  WebkitTapHighlightColor: 'transparent'
-                }}
               >
                 {isLoading ? "Creating account..." : "Create Account"}
               </Button>

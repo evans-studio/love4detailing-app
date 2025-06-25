@@ -79,8 +79,8 @@ export default function LandingSidebar() {
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="h-full flex flex-col">
-      {/* Logo Section - Updated proportions */}
-      <div className={`sidebar-logo-container flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4 py-6' : ''}`}>
+      {/* Logo Section - Fixed proportions */}
+      <div className={`sidebar-logo-container flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4 py-6' : 'px-6 py-6'}`}>
         <Link href="/" className="flex items-center justify-center">
           <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full max-w-[160px] h-16'}`}>
             <Image
@@ -96,12 +96,11 @@ export default function LandingSidebar() {
               }}
               onError={(e) => {
                 console.error('Logo failed to load:', e)
-                // Fallback to text if image fails
                 const target = e.target as HTMLImageElement
                 target.style.display = 'none'
                 const parent = target.parentElement
                 if (parent) {
-                  parent.innerHTML = '<div class="text-primary font-bold text-lg">L4D</div>'
+                  parent.innerHTML = '<div class="text-[#8A2B85] font-bold text-lg">L4D</div>'
                 }
               }}
             />
@@ -116,7 +115,7 @@ export default function LandingSidebar() {
             variant="ghost"
             size="sm"
             onClick={toggleCollapsed}
-            className="w-full flex items-center justify-center"
+            className="w-full flex items-center justify-center touch-target"
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -138,30 +137,30 @@ export default function LandingSidebar() {
         </div>
       )}
 
-      {/* Quick Info Section */}
+      {/* Quick Info Section - Updated brand colors */}
       <div className={`px-4 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
         <AnimatePresence>
           {(!isCollapsed || isMobile) && (
             <motion.div
               variants={contentVariants}
               animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-              className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 mb-4"
+              className="bg-gradient-to-r from-[#8A2B85]/10 to-[#8A2B85]/5 rounded-lg p-4 mb-4"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Star className="w-4 h-4 text-platinum-silver fill-platinum-silver" />
-                <span className="text-sm font-medium">4.9/5 Rating</span>
+                <Star className="w-4 h-4 text-[#F8F4EB] fill-[#F8F4EB]" />
+                <span className="text-sm font-medium text-[#F8F4EB]">4.9/5 Rating</span>
               </div>
-              <p className="text-xs text-muted-foreground mb-3">
+              <p className="text-xs text-[#C7C7C7] mb-3">
                 200+ Happy Customers
               </p>
               <div className="space-y-2 text-xs">
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3 h-3 text-primary" />
-                  <span>07123 456 789</span>
+                  <Phone className="w-3 h-3 text-[#8A2B85]" />
+                  <span className="text-[#C7C7C7]">07123 456 789</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-3 h-3 text-primary" />
-                  <span>South West London</span>
+                  <MapPin className="w-3 h-3 text-[#8A2B85]" />
+                  <span className="text-[#C7C7C7]">South West London</span>
                 </div>
               </div>
             </motion.div>
@@ -178,7 +177,7 @@ export default function LandingSidebar() {
             <motion.h3
               variants={contentVariants}
               animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-              className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3"
+              className="px-3 text-xs font-semibold text-[#C7C7C7] uppercase tracking-wider mb-3"
             >
               Navigation
             </motion.h3>
@@ -193,139 +192,127 @@ export default function LandingSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 hover:scale-105 ${
+                className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 touch-target ${
                   isActive 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    ? 'bg-[#8A2B85]/10 text-[#8A2B85] border border-[#8A2B85]/20' 
+                    : 'text-[#C7C7C7] hover:bg-[#8A2B85]/5 hover:text-[#F8F4EB]'
                 } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
-                title={isCollapsed && !isMobile ? item.label : undefined}
-                onClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined}
+                onClick={() => isMobile && setIsMobileMenuOpen(false)}
               >
-                <Icon className="h-4 w-4 flex-shrink-0" />
-                {(!isCollapsed || isMobile) && (
-                  <span className={`transition-opacity duration-200 ${isCollapsed && !isMobile ? 'opacity-0' : 'opacity-100'}`}>
-                    {item.label}
-                  </span>
-                )}
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <AnimatePresence>
+                  {(!isCollapsed || isMobile) && (
+                    <motion.span
+                      variants={contentVariants}
+                      animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
+                      className="font-medium"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </Link>
             )
           })}
         </div>
       </nav>
 
-      {/* Auth Section */}
-      <div className={`px-4 space-y-2 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-        <Separator className="my-4" />
-        
-        {user ? (
-          <AnimatePresence>
-            {(!isCollapsed || isMobile) && (
-              <motion.div
-                variants={contentVariants}
-                animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                className="space-y-2"
-              >
-                <Button variant="default" className="w-full" asChild>
-                  <Link href="/dashboard">Go to Dashboard</Link>
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        ) : (
-          <AnimatePresence>
-            {(!isCollapsed || isMobile) && (
-              <motion.div
-                variants={contentVariants}
-                animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-                className="space-y-2"
-              >
-                <Button
-                  className="w-full"
-                  onClick={() => {
-                    setShowAuthModal(true)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  Sign In
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setShowAuthModal(true)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  Create Account
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
-      </div>
+      <Separator className="my-4 flex-shrink-0" />
 
-      {/* Bottom Actions */}
-      <div className={`p-4 space-y-2 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-        <AnimatePresence>
-          {(!isCollapsed || isMobile) && (
-            <motion.div
-              variants={contentVariants}
-              animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
-              className="space-y-2"
-            >
+      {/* Auth Section */}
+      <div className={`px-4 pb-6 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
+        {user ? (
+          <div className="space-y-3">
+            <AnimatePresence>
+              {(!isCollapsed || isMobile) && (
+                <motion.div
+                  variants={contentVariants}
+                  animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
+                  className="text-center"
+                >
+                  <p className="text-sm text-[#C7C7C7] mb-2">Welcome back!</p>
+                  <p className="text-sm font-medium text-[#F8F4EB] truncate">{user.email}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <Link href="/dashboard">
               <Button 
                 variant="default" 
-                className="w-full btn-brand-accent" 
-                asChild
+                className={`w-full bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target ${
+                  isCollapsed && !isMobile ? 'px-2' : ''
+                }`}
+                onClick={() => isMobile && setIsMobileMenuOpen(false)}
               >
-                <Link href="/booking">Book Service Now</Link>
+                {isCollapsed && !isMobile ? (
+                  <Home className="w-4 h-4" />
+                ) : (
+                  'Dashboard'
+                )}
               </Button>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" className="flex-1" asChild>
-                  <Link href="tel:07123456789">
-                    <Phone className="h-4 w-4 mr-1" />
-                    Call
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="flex-1" asChild>
-                  <Link href="mailto:hello@love4detailing.com">
-                    <Mail className="h-4 w-4 mr-1" />
-                    Email
-                  </Link>
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {isCollapsed && !isMobile && (
-          <div className="flex flex-col space-y-2">
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="w-full p-2 btn-brand-accent" 
-              asChild 
-              title="Book Service"
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Button
+              onClick={() => setShowAuthModal(true)}
+              variant="default"
+              className={`w-full bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target ${
+                isCollapsed && !isMobile ? 'px-2' : ''
+              }`}
             >
-              <Link href="/booking">
-                <Calendar className="h-4 w-4" />
-              </Link>
+              {isCollapsed && !isMobile ? (
+                <Mail className="w-4 h-4" />
+              ) : (
+                'Sign In'
+              )}
             </Button>
-            <div className="flex gap-1">
-              <Button variant="ghost" size="sm" className="flex-1 p-2" asChild title="Call Us">
-                <Link href="tel:07123456789">
-                  <Phone className="h-3 w-3" />
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="flex-1 p-2" asChild title="Email Us">
-                <Link href="mailto:hello@love4detailing.com">
-                  <Mail className="h-3 w-3" />
-                </Link>
-              </Button>
-            </div>
+            <AnimatePresence>
+              {(!isCollapsed || isMobile) && (
+                <motion.div
+                  variants={contentVariants}
+                  animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
+                >
+                  <Button
+                    onClick={() => setShowAuthModal(true)}
+                    variant="outline"
+                    className="w-full border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target"
+                  >
+                    Sign Up
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>
+    </div>
+  )
+
+  // Mobile Menu Button - Improved positioning and touch targets
+  const MobileMenuButton = () => (
+    <div className="lg:hidden fixed top-4 left-4 z-50">
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="bg-[#141414]/90 backdrop-blur-sm border-[#8A2B85]/20 text-[#F8F4EB] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] shadow-lg touch-target"
+            style={{ minHeight: '44px', minWidth: '44px' }}
+          >
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent 
+          side="left" 
+          className="p-0 bg-[#141414] border-r border-[#8A2B85]/20 w-80 max-w-[85vw]"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+          </SheetHeader>
+          <SidebarContent isMobile={true} />
+        </SheetContent>
+      </Sheet>
     </div>
   )
 
@@ -335,36 +322,22 @@ export default function LandingSidebar() {
       <motion.aside
         variants={sidebarVariants}
         animate={isCollapsed ? "collapsed" : "expanded"}
-        className="fixed left-0 top-0 z-50 h-screen bg-sidebar flex-shrink-0 hidden lg:flex flex-col"
+        className="hidden lg:flex fixed left-0 top-0 h-full bg-[#141414] border-r border-[#8A2B85]/20 z-40"
+        style={{
+          background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)',
+        }}
       >
         <SidebarContent />
       </motion.aside>
 
       {/* Mobile Menu Button */}
-      <div className="lg:hidden">
-        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border/50 hover:bg-accent shadow-lg"
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0 bg-sidebar border-r border-border/20">
-            <SheetHeader className="sr-only">
-              <SheetTitle>Navigation Menu</SheetTitle>
-            </SheetHeader>
-            <SidebarContent isMobile={true} />
-          </SheetContent>
-        </Sheet>
-      </div>
+      <MobileMenuButton />
 
       {/* Auth Modal */}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultTab="sign-in"
       />
     </>
   )

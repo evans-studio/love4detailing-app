@@ -10,7 +10,7 @@ import { useProtectedRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import Link from 'next/link'
-import { Calendar, Clock, MapPin, Star, Car, Gift, TrendingUp } from 'lucide-react'
+import { Calendar, Clock, MapPin, Star, Car, Gift, TrendingUp, User } from 'lucide-react'
 import LoyaltyBadges from '@/components/loyalty/LoyaltyBadges'
 
 interface Booking {
@@ -35,13 +35,13 @@ interface DashboardData {
 }
 
 const LoadingSkeleton = () => (
-  <div className="space-y-8">
+  <div className="space-y-6 sm:space-y-8">
     <Card>
       <CardHeader>
         <div className="h-6 bg-muted rounded animate-pulse" />
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
               <CardContent className="pt-6">
@@ -123,7 +123,7 @@ export default function CustomerDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-green-500'
-      case 'pending': return 'bg-platinum-silver'
+      case 'pending': return 'bg-[#F8F4EB]'
       case 'completed': return 'bg-blue-500'
       case 'cancelled': return 'bg-red-500'
       default: return 'bg-gray-500'
@@ -140,22 +140,25 @@ export default function CustomerDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8 w-full max-w-[100vw] overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold">Welcome back, {user?.full_name}</h1>
-          <p className="text-muted-foreground">Here's what's happening with your bookings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#F8F4EB]">
+            Welcome back, {(user as any)?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+          </h1>
+          <p className="text-[#C7C7C7] text-sm sm:text-base">Here's what's happening with your bookings</p>
         </div>
-        <Button asChild size="lg">
+        <Button asChild size="lg" className="bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target">
           <Link href="/dashboard/book-service">
             <Car className="mr-2 h-4 w-4" />
-            Book New Service
+            <span className="hidden sm:inline">Book New Service</span>
+            <span className="sm:hidden">Book Service</span>
           </Link>
         </Button>
       </motion.div>
@@ -166,9 +169,9 @@ export default function CustomerDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.05 }}
       >
-        <Card>
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
           <CardHeader>
-            <CardTitle className="text-lg">Your Achievements</CardTitle>
+            <CardTitle className="text-lg text-[#F8F4EB]">Your Achievements</CardTitle>
           </CardHeader>
           <CardContent>
             <LoyaltyBadges compact={true} showProgress={false} />
@@ -181,189 +184,103 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4 text-blue-500" />
               <div>
-                <div className="text-2xl font-bold">{dashboardData.upcomingBookings.length}</div>
-                <p className="text-xs text-muted-foreground">Upcoming Bookings</p>
+                <div className="text-2xl font-bold text-[#F8F4EB]">{dashboardData.upcomingBookings.length}</div>
+                <p className="text-xs text-[#C7C7C7]">Upcoming Bookings</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4 text-green-500" />
               <div>
-                <div className="text-2xl font-bold">£{dashboardData.totalSpent.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">Total Spent</p>
+                <div className="text-2xl font-bold text-[#F8F4EB]">£{dashboardData.totalSpent}</div>
+                <p className="text-xs text-[#C7C7C7]">Total Spent</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <Gift className="h-4 w-4 text-purple-500" />
+              <Gift className="h-4 w-4 text-[#8A2B85]" />
               <div>
-                <div className="text-2xl font-bold">{dashboardData.rewardsPoints}</div>
-                <p className="text-xs text-muted-foreground">Rewards Points</p>
+                <div className="text-2xl font-bold text-[#F8F4EB]">{dashboardData.rewardsPoints}</div>
+                <p className="text-xs text-[#C7C7C7]">Reward Points</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <Star className="h-4 w-4 text-platinum-silver" />
+              <Star className="h-4 w-4 text-yellow-500" />
               <div>
-                <div className="text-2xl font-bold">{dashboardData.totalBookings}</div>
-                <p className="text-xs text-muted-foreground">Total Services</p>
+                <div className="text-2xl font-bold text-[#F8F4EB]">{dashboardData.totalBookings}</div>
+                <p className="text-xs text-[#C7C7C7]">Total Services</p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Button asChild variant="outline" className="h-auto p-4">
-                <Link href="/dashboard/book-service" className="flex flex-col items-center space-y-2">
-                  <Car className="h-6 w-6" />
-                  <span>Book Service</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto p-4">
-                <Link href="/dashboard/rewards" className="flex flex-col items-center space-y-2">
-                  <Gift className="h-6 w-6" />
-                  <span>View Rewards</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="h-auto p-4">
-                <Link href="/services" className="flex flex-col items-center space-y-2">
-                  <Star className="h-6 w-6" />
-                  <span>Our Services</span>
-                </Link>
-              </Button>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
       {/* Upcoming Bookings */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {dashboardData.upcomingBookings.length === 0 ? (
-              <div className="text-center py-12">
-                <Car className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No upcoming bookings</h3>
-                <p className="text-muted-foreground mb-4">Book your next car service to keep your vehicle in perfect condition</p>
-                <Button asChild>
-                  <Link href="/dashboard/book-service">Book Your Next Service</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {dashboardData.upcomingBookings.map((booking) => (
-                  <Card key={booking.id} className="border-l-4 border-l-primary">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <h3 className="font-medium capitalize">{booking.service}</h3>
-                            <Badge className={getStatusColor(booking.status)}>
-                              {booking.status}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>{format(new Date(booking.booking_date), 'PPP')}</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Clock className="h-4 w-4" />
-                              <span>{booking.booking_time}</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="h-4 w-4" />
-                              <span>{booking.postcode}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold">£{booking.total_price.toFixed(2)}</p>
-                          <Button variant="outline" size="sm" className="mt-2">
-                            View Details
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Recent Bookings */}
-      {dashboardData.pastBookings.length > 0 && (
+      {dashboardData.upcomingBookings.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card>
+          <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
             <CardHeader>
-              <CardTitle>Recent Services</CardTitle>
+              <CardTitle className="text-lg text-[#F8F4EB]">Upcoming Bookings</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {dashboardData.pastBookings.slice(0, 3).map((booking) => (
-                  <div key={booking.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                    <div>
-                      <p className="font-medium capitalize">{booking.service}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(booking.booking_date), 'PP')} • {booking.postcode}
-                      </p>
+                {dashboardData.upcomingBookings.slice(0, 3).map((booking) => (
+                  <div key={booking.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#141414]/50 rounded-lg border border-[#8A2B85]/10">
+                    <div className="space-y-1 mb-2 sm:mb-0">
+                      <div className="flex items-center space-x-2">
+                        <Badge className={`${getStatusColor(booking.status)} text-white text-xs`}>
+                          {booking.status}
+                        </Badge>
+                        <span className="font-medium text-[#F8F4EB]">{booking.service}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-sm text-[#C7C7C7]">
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{booking.booking_time}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{booking.postcode}</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">£{booking.total_price.toFixed(2)}</p>
-                      <Badge variant="outline" className="text-xs">
-                        {booking.status}
-                      </Badge>
+                      <div className="font-bold text-[#F8F4EB]">£{booking.total_price}</div>
                     </div>
                   </div>
                 ))}
               </div>
-              {dashboardData.pastBookings.length > 3 && (
+              {dashboardData.upcomingBookings.length > 3 && (
                 <div className="mt-4 text-center">
-                  <Button variant="outline" asChild>
+                  <Button variant="outline" asChild className="border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target">
                     <Link href="/dashboard/bookings">View All Bookings</Link>
                   </Button>
                 </div>
@@ -372,6 +289,97 @@ export default function CustomerDashboard() {
           </Card>
         </motion.div>
       )}
+
+      {/* Recent Activity */}
+      {dashboardData.pastBookings.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+            <CardHeader>
+              <CardTitle className="text-lg text-[#F8F4EB]">Recent Services</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {dashboardData.pastBookings.slice(0, 3).map((booking) => (
+                  <div key={booking.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#141414]/50 rounded-lg border border-[#8A2B85]/10">
+                    <div className="space-y-1 mb-2 sm:mb-0">
+                      <div className="flex items-center space-x-2">
+                        <Badge className="bg-green-500 text-white text-xs">
+                          completed
+                        </Badge>
+                        <span className="font-medium text-[#F8F4EB]">{booking.service}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-sm text-[#C7C7C7]">
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{booking.postcode}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-[#F8F4EB]">£{booking.total_price}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-2">
+              <Car className="h-8 w-8 text-[#8A2B85] mx-auto" />
+              <h3 className="font-medium text-[#F8F4EB]">Book Service</h3>
+              <p className="text-xs text-[#C7C7C7]">Schedule your next car service</p>
+              <Button asChild className="w-full bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target">
+                <Link href="/dashboard/book-service">Book Now</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-2">
+              <Gift className="h-8 w-8 text-[#8A2B85] mx-auto" />
+              <h3 className="font-medium text-[#F8F4EB]">Rewards</h3>
+              <p className="text-xs text-[#C7C7C7]">Check your loyalty points</p>
+              <Button asChild variant="outline" className="w-full border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target">
+                <Link href="/dashboard/rewards">View Rewards</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 sm:col-span-2 lg:col-span-1">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-2">
+              <User className="h-8 w-8 text-[#8A2B85] mx-auto" />
+              <h3 className="font-medium text-[#F8F4EB]">Profile</h3>
+              <p className="text-xs text-[#C7C7C7]">Update your information</p>
+              <Button asChild variant="outline" className="w-full border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target">
+                <Link href="/dashboard/profile">Edit Profile</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   )
 } 

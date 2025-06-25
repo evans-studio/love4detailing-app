@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next'
+import type { Metadata } from 'next'
 import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
@@ -15,22 +15,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Love4Detailing - Mobile Car Valeting Services',
   description: 'Professional mobile car valeting and detailing services that come to you.',
-  metadataBase: new URL('https://love4detailing.vercel.app'),
-  openGraph: {
-    title: 'Love4Detailing - Mobile Car Valeting Services',
-    description: 'Professional mobile car valeting and detailing services that come to you.',
-    type: 'website',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
   },
-}
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: '#8A2B85',
-  // iOS Safari specific
-  viewportFit: 'cover',
+  other: {
+    'format-detection': 'telephone=no',
+  },
 }
 
 export default function RootLayout({
@@ -44,16 +37,13 @@ export default function RootLayout({
       inter.variable
     )} suppressHydrationWarning>
       <head>
-        {/* iOS Safari specific meta tags */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="format-detection" content="telephone=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Love4Detailing" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        {/* Prevent zoom on input focus */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+        <meta name="theme-color" content="#8A2B85" />
       </head>
-      <body className="min-h-screen bg-background font-sans antialiased touch-manipulation">
+      <body className="min-h-screen bg-background font-sans antialiased">
         <SupabaseProvider>
           <AppLayout>
             {children}

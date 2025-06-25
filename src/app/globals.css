@@ -214,6 +214,34 @@
     outline: none;
     box-shadow: 0 0 0 2px rgba(138, 43, 133, 0.5);
   }
+
+  /* Mobile Safari specific fixes */
+  input[type="email"],
+  input[type="password"],
+  input[type="text"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"] {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: 0.375rem;
+  }
+
+  /* Prevent zoom on iOS when focusing inputs */
+  @media screen and (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Improve touch targets on mobile */
+  @media (hover: none) and (pointer: coarse) {
+    button, [role="button"], input[type="submit"], input[type="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
   
   /* Scrollbar styling */
   ::-webkit-scrollbar {
@@ -532,10 +560,14 @@
   /* Touch-friendly sizing */
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .touch-target-sm {
     @apply min-h-[40px] min-w-[40px];
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   /* Responsive image utilities */
@@ -613,173 +645,50 @@ div.sidebar-force-fixed,
   -o-transform: none !important;
 }
 
-/* Mobile-specific fixes */
-@media (max-width: 768px) {
-  /* Prevent zoom on input focus on iOS */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  textarea,
-  select {
-    font-size: 16px !important;
-    transform: translateZ(0);
-    -webkit-appearance: none;
-    border-radius: 0;
-  }
-
-  /* Better touch targets */
-  button,
-  [role="button"],
-  input[type="submit"],
-  input[type="button"] {
-    min-height: 44px;
-    min-width: 44px;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  /* Improve dialog positioning on mobile */
-  [data-radix-dialog-content] {
-    max-height: 90vh !important;
-    overflow-y: auto !important;
-    margin: 16px !important;
-    width: calc(100vw - 32px) !important;
-    max-width: calc(100vw - 32px) !important;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Fix sheet positioning on mobile */
-  [data-radix-dialog-content][data-side="left"] {
-    width: 280px !important;
-    max-width: 85vw !important;
-  }
-
-  /* iOS Safari specific fixes */
-  body {
-    position: fixed;
-    overflow: hidden;
-    width: 100%;
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height for iOS */
-  }
-
-  /* Main app container for iOS */
-  #__next,
-  [data-reactroot] {
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Fix sidebar positioning on mobile Safari */
-  .sidebar-mobile-fix {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    height: 100dvh !important;
-    z-index: 9999 !important;
-    background: rgba(0, 0, 0, 0.8) !important;
-  }
-
-  /* Ensure main content doesn't get cut off */
-  main {
-    padding-bottom: env(safe-area-inset-bottom, 20px) !important;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-
-  /* Fix button interactions on iOS */
-  button:hover {
-    background-color: inherit;
-  }
-
-  /* Prevent elastic scrolling */
-  html, body {
-    overflow-x: hidden;
-    position: relative;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Fix input focus issues on iOS */
-  input:focus,
-  textarea:focus,
-  select:focus {
-    outline: none;
-    -webkit-appearance: none;
-    border-radius: 0;
-    transform: translateZ(0);
-  }
+/* Override any motion library transforms */
+.sidebar-force-fixed *,
+.sidebar-force-fixed > * {
+  transform: none !important;
+  -webkit-transform: none !important;
 }
 
-/* iOS Safari safe area handling */
-@supports (padding: env(safe-area-inset-top)) {
-  .ios-safe-top {
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  .ios-safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .ios-safe-left {
-    padding-left: env(safe-area-inset-left);
-  }
-  
-  .ios-safe-right {
-    padding-right: env(safe-area-inset-right);
-  }
+/* Force fixed positioning for sidebars - Override any transforms */
+.sidebar-force-fixed,
+[data-sidebar="fixed"] {
+  position: fixed !important;
+  transform: none !important;
+  will-change: auto !important;
+  backface-visibility: visible !important;
 }
 
-/* Touch improvements for all mobile devices */
+/* Ensure body doesn't interfere with fixed positioning */
+body {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* Override any CSS that might interfere with fixed positioning */
 * {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
+  transform: none;
+  will-change: auto;
 }
 
-/* Allow text selection where needed */
-input,
-textarea,
-[contenteditable] {
-  -webkit-user-select: text;
-  user-select: text;
+/* Re-enable transforms only for specific animations */
+.motion-safe\:transform-gpu {
+  transform: translateZ(0);
+  will-change: transform;
 }
 
-/* Improve scrolling performance */
-.scroll-smooth {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-/* Fix z-index stacking for mobile */
-.mobile-modal-backdrop {
+/* Ensure sidebars stay fixed regardless of parent transforms */
+.hidden.md\:block[style*="position: fixed"],
+.hidden.lg\:flex[style*="position: fixed"] {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  z-index: 9998 !important;
-  background: rgba(0, 0, 0, 0.8) !important;
+  z-index: 999 !important;
 }
 
-.mobile-modal-content {
-  position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  z-index: 9999 !important;
-  max-width: 90vw !important;
-  max-height: 90vh !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-}
+
 
 /* Clean gradients without animation - GSAP handles motion */
 

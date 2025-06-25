@@ -71,12 +71,11 @@ const contentVariants = {
   }
 }
 
-
-
 export default function Sidebar() {
   const { user } = useAuth()
   const { isCollapsed, setIsCollapsed } = useSidebar()
   const [isLoading, setIsLoading] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -170,30 +169,29 @@ export default function Sidebar() {
   )
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <div className="h-full flex flex-col border-r border-deep-purple/20 w-64" style={{ background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)' }}>
-      {/* Logo - Updated proportions matching reference */}
-      <div className={`sidebar-logo-container border-b border-deep-purple/20 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4 py-6' : ''}`}>
-        <Link href="/" className="flex items-center justify-center p-4">
-          <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full max-w-[160px] h-16'}`}>
+    <div className="h-full flex flex-col border-r border-[#8A2B85]/20 w-64" style={{ background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)' }}>
+      {/* Logo - Fixed proportions */}
+      <div className="sidebar-logo-container border-b border-[#8A2B85]/20 flex-shrink-0">
+        <Link href="/" className="flex items-center justify-center p-6">
+          <div className="relative w-full max-w-[160px] h-16">
             <Image
               src="/logo.png"
               alt="Love4Detailing Logo"
               fill
               className="sidebar-logo object-contain"
               priority
-              sizes={isCollapsed && !isMobile ? "48px" : "160px"}
+              sizes="160px"
               style={{
                 objectFit: 'contain',
                 objectPosition: 'center'
               }}
               onError={(e) => {
                 console.error('Logo failed to load:', e)
-                // Fallback to text if image fails
                 const target = e.target as HTMLImageElement
                 target.style.display = 'none'
                 const parent = target.parentElement
                 if (parent) {
-                  parent.innerHTML = '<div class="text-primary font-bold text-lg">L4D</div>'
+                  parent.innerHTML = '<div class="text-[#8A2B85] font-bold text-lg">L4D</div>'
                 }
               }}
             />
@@ -201,245 +199,124 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Collapse Toggle Button - Desktop Only */}
-      {!isMobile && (
-        <div className="px-4 mb-4 flex-shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-full flex items-center justify-center"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <>
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-sm"
-                >
-                  Collapse
-                </motion.span>
-              </>
+      {/* User Profile Section */}
+      <div className="p-6 border-b border-[#8A2B85]/20 flex-shrink-0">
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-12 w-12 border-2 border-[#8A2B85]/20">
+            <AvatarImage src={profileImageUrl || undefined} alt={user?.email || 'User'} />
+            <AvatarFallback className="bg-[#8A2B85]/10 text-[#8A2B85] font-semibold">
+              {user?.email?.charAt(0).toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-[#F8F4EB] truncate">
+              {(user as any)?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+            </p>
+            <p className="text-xs text-[#C7C7C7] truncate">{user?.email}</p>
+            {isAdmin && (
+              <Badge variant="secondary" className="mt-1 text-xs bg-[#8A2B85]/10 text-[#8A2B85] border-[#8A2B85]/20">
+                Admin
+              </Badge>
             )}
-          </Button>
+          </div>
         </div>
-      )}
+      </div>
 
-      {/* User Section */}
-      {user ? (
-        <AnimatePresence>
-          {(!isCollapsed || isMobile) && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="p-6 space-y-4 flex-shrink-0"
-            >
-              {/* Account Info */}
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-12 w-12 border-2 border-deep-purple/30">
-                  <AvatarImage src={profileImageUrl || ''} />
-                  <AvatarFallback className="bg-deep-purple text-primary-text">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-primary-text truncate">
-                    {(user as any)?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                  </p>
-                  <p className="text-xs text-secondary-text truncate">
-                    {user.email}
-                  </p>
-                </div>
-              </div>
-
-              {/* Sign Out Button */}
-              <Button
-                onClick={handleSignOut}
-                disabled={isLoading}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                {isLoading ? 'Signing out...' : 'Sign Out'}
-              </Button>
-
-              <Separator className="bg-deep-purple/20" />
-
-              {/* Rating and Review Summary */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-secondary-text">Our Rating</span>
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 fill-deep-purple text-deep-purple" />
-                    <span className="text-sm font-medium text-primary-text">4.9/5</span>
-                  </div>
-                </div>
-                <p className="text-xs text-secondary-text">From 200+ customers</p>
-              </div>
-
-              <Separator className="bg-deep-purple/20" />
-
-              {/* Contact Details */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4 text-deep-purple" />
-                  <span className="text-sm text-secondary-text">+44 7123 456789</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-deep-purple" />
-                  <span className="text-sm text-secondary-text">South West London</span>
-                </div>
-              </div>
-
-              <Separator className="bg-deep-purple/20" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      ) : (
-        <AnimatePresence>
-          {(!isCollapsed || isMobile) && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="p-6 space-y-4 flex-shrink-0"
-            >
-              <div className="text-center space-y-3">
-                <h3 className="text-lg font-semibold text-primary-text">Welcome</h3>
-                <p className="text-sm text-secondary-text">Sign in to access your dashboard</p>
-              </div>
-              <div className="space-y-2">
-                <AuthDialog type="login" />
-                <AuthDialog type="signup" />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
-
-      {/* Navigation Menu */}
-      {user && (
-        <nav className={`flex-1 px-4 pb-6 space-y-1 overflow-y-auto min-h-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
-          <div className="space-y-1">
-            {getNavItems(isAdmin).map((item) => (
-              <SidebarItem
+      {/* Navigation */}
+      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto min-h-0">
+        <div className="space-y-1">
+          {getNavItems(isAdmin).map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+            return (
+              <Link
                 key={item.href}
                 href={item.href}
-                icon={<item.icon className="h-5 w-5" />}
-                label={item.label}
-                isActive={pathname === item.href}
-                isCollapsed={isCollapsed && !isMobile}
-              />
-            ))}
-          </div>
-        </nav>
-      )}
+                className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 touch-target ${
+                  isActive 
+                    ? 'bg-[#8A2B85]/10 text-[#8A2B85] border border-[#8A2B85]/20' 
+                    : 'text-[#C7C7C7] hover:bg-[#8A2B85]/5 hover:text-[#F8F4EB]'
+                }`}
+                onClick={() => isMobile && setIsMobileMenuOpen(false)}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+
+      {/* Quick Actions */}
+      <div className="p-4 border-t border-[#8A2B85]/20 flex-shrink-0">
+        <div className="space-y-2">
+          <Link href="/dashboard/book-service">
+            <Button 
+              className="w-full bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target"
+              onClick={() => isMobile && setIsMobileMenuOpen(false)}
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Quick Book
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            className="w-full border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target"
+            onClick={handleSignOut}
+            disabled={isLoading}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            {isLoading ? 'Signing out...' : 'Sign Out'}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 
-  // Mobile Sidebar
-  const MobileSidebar = () => (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="md:hidden fixed top-4 left-4 z-[9999] bg-background/95 backdrop-blur-sm border border-border/50 hover:bg-accent shadow-lg touch-manipulation"
-          style={{
-            WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation'
-          }}
+  // Mobile Menu Button - Improved positioning and touch targets
+  const MobileMenuButton = () => (
+    <div className="md:hidden fixed top-4 left-4 z-50">
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="bg-[#141414]/90 backdrop-blur-sm border-[#8A2B85]/20 text-[#F8F4EB] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] shadow-lg touch-target"
+            style={{ minHeight: '44px', minWidth: '44px' }}
+          >
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent 
+          side="left" 
+          className="p-0 bg-[#141414] border-r border-[#8A2B85]/20 w-80 max-w-[85vw]"
         >
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent 
-        side="left" 
-        className="p-0 w-64 bg-sidebar border-r border-border/20 z-[9999]"
-        style={{
-          maxWidth: '85vw',
-          height: '100dvh'
-        }}
-      >
-        <SheetHeader className="sr-only">
-          <SheetTitle>Navigation Menu</SheetTitle>
-        </SheetHeader>
-        <div className="h-full overflow-y-auto -webkit-overflow-scrolling-touch">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Dashboard Menu</SheetTitle>
+          </SheetHeader>
           <SidebarContent isMobile={true} />
-        </div>
-      </SheetContent>
-    </Sheet>
+        </SheetContent>
+      </Sheet>
+    </div>
   )
 
   return (
     <>
-      {/* Mobile Sidebar - Only show below md breakpoint */}
-      <div className="block md:hidden">
-        <MobileSidebar />
-      </div>
-
-      {/* Desktop Sidebar - Only show above md breakpoint */}
-      <motion.div 
-        className="hidden md:block fixed top-0 left-0 h-screen z-[999]"
-        animate={{
-          width: isCollapsed ? 80 : 256
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 100,
-          damping: 20
-        }}
-        style={{
-          backgroundColor: '#1E1E1E',
-          borderRight: '1px solid rgba(138, 43, 133, 0.2)',
-          overflow: 'hidden'
-        }}
-      >
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex fixed left-0 top-0 h-full z-40">
         <SidebarContent />
-      </motion.div>
-    </>
-  )
-}
+      </aside>
 
-function SidebarItem({ 
-  href, 
-  icon, 
-  label, 
-  isActive,
-  isCollapsed
-}: { 
-  href: string
-  icon: React.ReactNode
-  label: string
-  isActive: boolean
-  isCollapsed: boolean
-}) {
-  return (
-    <Link href={href}>
-      <div
-        className={cn(
-          "flex items-center rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105",
-          isCollapsed ? "justify-center px-2 py-2" : "space-x-3 px-3 py-2",
-          isActive 
-            ? "bg-deep-purple text-primary-text shadow-lg" 
-            : "text-secondary-text hover:bg-deep-purple/10 hover:text-primary-text"
-        )}
-        title={isCollapsed ? label : undefined}
-      >
-        <span className={cn(
-          "transition-colors duration-200 flex-shrink-0",
-          isActive ? "text-primary-text" : "text-deep-purple"
-        )}>
-          {icon}
-        </span>
-        {!isCollapsed && <span>{label}</span>}
-      </div>
-    </Link>
+      {/* Mobile Menu Button */}
+      <MobileMenuButton />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultTab="sign-in"
+      />
+    </>
   )
 } 
