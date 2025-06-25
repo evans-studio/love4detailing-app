@@ -172,16 +172,16 @@ export default function Sidebar() {
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="h-full flex flex-col border-r border-deep-purple/20 w-64" style={{ background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)' }}>
       {/* Logo - Updated proportions matching reference */}
-      <div className="sidebar-logo-container border-b border-deep-purple/20 flex-shrink-0">
+      <div className={`sidebar-logo-container border-b border-deep-purple/20 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4 py-6' : ''}`}>
         <Link href="/" className="flex items-center justify-center p-4">
-          <div className="relative w-full max-w-[160px] h-16">
+          <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full max-w-[160px] h-16'}`}>
             <Image
               src="/logo.png"
               alt="Love4Detailing Logo"
               fill
               className="sidebar-logo object-contain"
               priority
-              sizes="160px"
+              sizes={isCollapsed && !isMobile ? "48px" : "160px"}
               style={{
                 objectFit: 'contain',
                 objectPosition: 'center'
@@ -201,85 +201,131 @@ export default function Sidebar() {
         </Link>
       </div>
 
+      {/* Collapse Toggle Button - Desktop Only */}
+      {!isMobile && (
+        <div className="px-4 mb-4 flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="w-full flex items-center justify-center"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <>
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-sm"
+                >
+                  Collapse
+                </motion.span>
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+
       {/* User Section */}
       {user ? (
-        <div className="p-6 space-y-4 flex-shrink-0">
-          {/* Account Info */}
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-12 w-12 border-2 border-deep-purple/30">
-              <AvatarImage src={profileImageUrl || ''} />
-              <AvatarFallback className="bg-deep-purple text-primary-text">
-                {user.email?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-primary-text truncate">
-                {(user as any)?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-              </p>
-              <p className="text-xs text-secondary-text truncate">
-                {user.email}
-              </p>
-            </div>
-          </div>
-
-          {/* Sign Out Button */}
-          <Button
-            onClick={handleSignOut}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="w-full"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            {isLoading ? 'Signing out...' : 'Sign Out'}
-          </Button>
-
-          <Separator className="bg-deep-purple/20" />
-
-          {/* Rating and Review Summary */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-secondary-text">Our Rating</span>
-              <div className="flex items-center space-x-1">
-                <Star className="h-4 w-4 fill-deep-purple text-deep-purple" />
-                <span className="text-sm font-medium text-primary-text">4.9/5</span>
+        <AnimatePresence>
+          {(!isCollapsed || isMobile) && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="p-6 space-y-4 flex-shrink-0"
+            >
+              {/* Account Info */}
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-12 w-12 border-2 border-deep-purple/30">
+                  <AvatarImage src={profileImageUrl || ''} />
+                  <AvatarFallback className="bg-deep-purple text-primary-text">
+                    {user.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-primary-text truncate">
+                    {(user as any)?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                  </p>
+                  <p className="text-xs text-secondary-text truncate">
+                    {user.email}
+                  </p>
+                </div>
               </div>
-            </div>
-            <p className="text-xs text-secondary-text">From 200+ customers</p>
-          </div>
 
-          <Separator className="bg-deep-purple/20" />
+              {/* Sign Out Button */}
+              <Button
+                onClick={handleSignOut}
+                disabled={isLoading}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {isLoading ? 'Signing out...' : 'Sign Out'}
+              </Button>
 
-          {/* Contact Details */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Phone className="h-4 w-4 text-deep-purple" />
-              <span className="text-sm text-secondary-text">+44 7123 456789</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <MapPin className="h-4 w-4 text-deep-purple" />
-              <span className="text-sm text-secondary-text">South West London</span>
-            </div>
-          </div>
+              <Separator className="bg-deep-purple/20" />
 
-          <Separator className="bg-deep-purple/20" />
-        </div>
+              {/* Rating and Review Summary */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-secondary-text">Our Rating</span>
+                  <div className="flex items-center space-x-1">
+                    <Star className="h-4 w-4 fill-deep-purple text-deep-purple" />
+                    <span className="text-sm font-medium text-primary-text">4.9/5</span>
+                  </div>
+                </div>
+                <p className="text-xs text-secondary-text">From 200+ customers</p>
+              </div>
+
+              <Separator className="bg-deep-purple/20" />
+
+              {/* Contact Details */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-4 w-4 text-deep-purple" />
+                  <span className="text-sm text-secondary-text">+44 7123 456789</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <MapPin className="h-4 w-4 text-deep-purple" />
+                  <span className="text-sm text-secondary-text">South West London</span>
+                </div>
+              </div>
+
+              <Separator className="bg-deep-purple/20" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       ) : (
-        <div className="p-6 space-y-4 flex-shrink-0">
-          <div className="text-center space-y-3">
-            <h3 className="text-lg font-semibold text-primary-text">Welcome</h3>
-            <p className="text-sm text-secondary-text">Sign in to access your dashboard</p>
-          </div>
-          <div className="space-y-2">
-            <AuthDialog type="login" />
-            <AuthDialog type="signup" />
-          </div>
-        </div>
+        <AnimatePresence>
+          {(!isCollapsed || isMobile) && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="p-6 space-y-4 flex-shrink-0"
+            >
+              <div className="text-center space-y-3">
+                <h3 className="text-lg font-semibold text-primary-text">Welcome</h3>
+                <p className="text-sm text-secondary-text">Sign in to access your dashboard</p>
+              </div>
+              <div className="space-y-2">
+                <AuthDialog type="login" />
+                <AuthDialog type="signup" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
 
       {/* Navigation Menu */}
       {user && (
-        <nav className="flex-1 px-4 pb-6 space-y-1 overflow-y-auto min-h-0">
+        <nav className={`flex-1 px-4 pb-6 space-y-1 overflow-y-auto min-h-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
           <div className="space-y-1">
             {getNavItems(isAdmin).map((item) => (
               <SidebarItem
@@ -288,6 +334,7 @@ export default function Sidebar() {
                 icon={<item.icon className="h-5 w-5" />}
                 label={item.label}
                 isActive={pathname === item.href}
+                isCollapsed={isCollapsed && !isMobile}
               />
             ))}
           </div>
@@ -324,15 +371,22 @@ export default function Sidebar() {
         <MobileSidebar />
       </div>
 
-      {/* Desktop Sidebar - Simplified with absolute positioning */}
-      <div 
+      {/* Desktop Sidebar - Dynamic width based on collapse state */}
+      <motion.div 
         className="hidden md:block"
+        animate={{
+          width: isCollapsed ? 80 : 256
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 100,
+          damping: 20
+        }}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           height: '100vh',
-          width: '16rem',
           zIndex: 999,
           backgroundColor: '#1E1E1E',
           borderRight: '1px solid rgba(138, 43, 133, 0.2)',
@@ -340,7 +394,7 @@ export default function Sidebar() {
         }}
       >
         <SidebarContent />
-      </div>
+      </motion.div>
     </>
   )
 }
@@ -349,30 +403,34 @@ function SidebarItem({
   href, 
   icon, 
   label, 
-  isActive 
+  isActive,
+  isCollapsed
 }: { 
   href: string
   icon: React.ReactNode
   label: string
   isActive: boolean
+  isCollapsed: boolean
 }) {
   return (
     <Link href={href}>
       <div
         className={cn(
-          "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105",
+          "flex items-center rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105",
+          isCollapsed ? "justify-center px-2 py-2" : "space-x-3 px-3 py-2",
           isActive 
             ? "bg-deep-purple text-primary-text shadow-lg" 
             : "text-secondary-text hover:bg-deep-purple/10 hover:text-primary-text"
         )}
+        title={isCollapsed ? label : undefined}
       >
         <span className={cn(
-          "transition-colors duration-200",
+          "transition-colors duration-200 flex-shrink-0",
           isActive ? "text-primary-text" : "text-deep-purple"
         )}>
           {icon}
         </span>
-        <span>{label}</span>
+        {!isCollapsed && <span>{label}</span>}
       </div>
     </Link>
   )

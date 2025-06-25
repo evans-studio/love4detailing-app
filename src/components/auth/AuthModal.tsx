@@ -139,7 +139,7 @@ export function AuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] w-full max-w-[95vw] mx-auto">
         <DialogHeader>
           <DialogTitle>Welcome to Love4Detailing</DialogTitle>
           <DialogDescription>
@@ -166,6 +166,7 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="email"
                   defaultValue={bookingEmail}
+                  className="text-base"
                 />
               </div>
               <div className="space-y-2">
@@ -178,9 +179,10 @@ export function AuthModal({
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
+                  className="text-base"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full h-12" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
@@ -197,6 +199,7 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="name"
                   defaultValue={bookingData?.customer}
+                  className="text-base"
                 />
               </div>
               <div className="space-y-2">
@@ -210,6 +213,7 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="email"
                   defaultValue={bookingEmail}
+                  className="text-base"
                 />
               </div>
               <div className="space-y-2">
@@ -223,9 +227,10 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="new-password"
                   minLength={6}
+                  className="text-base"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full h-12" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>

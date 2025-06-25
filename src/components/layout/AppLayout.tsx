@@ -19,12 +19,16 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       {/* Render sidebars - these are fixed positioned and don't affect layout flow */}
       {isDashboard ? <Sidebar /> : <LandingSidebar />}
       
-      {/* Main content with proper margin for fixed sidebar */}
+      {/* Main content with responsive margin for sidebar */}
       <main 
         className={`min-h-screen transition-all duration-300 overflow-x-hidden max-w-full ${
           isDashboard 
-            ? 'ml-0 md:ml-64' // Dashboard: margin only on md+ screens
-            : 'ml-0 lg:ml-64' // Landing: margin only on lg+ screens since mobile uses Sheet
+            ? isCollapsed 
+              ? 'ml-0 md:ml-20' // Dashboard: collapsed sidebar margin
+              : 'ml-0 md:ml-64' // Dashboard: expanded sidebar margin
+            : isCollapsed 
+              ? 'ml-0 lg:ml-20' // Landing: collapsed sidebar margin
+              : 'ml-0 lg:ml-64' // Landing: expanded sidebar margin
         }`}
       >
         {/* Mobile content padding to account for mobile menu button - Always show on mobile */}
