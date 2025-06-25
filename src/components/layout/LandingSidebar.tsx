@@ -189,7 +189,7 @@ export default function LandingSidebar() {
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   } ${isCollapsed && !isMobile ? 'justify-center' : ''}`}
                   title={isCollapsed && !isMobile ? item.label : undefined}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined}
                 >
                   <Icon className="h-4 w-4 flex-shrink-0" />
                   <AnimatePresence>
