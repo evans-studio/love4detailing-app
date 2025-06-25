@@ -4,7 +4,6 @@ import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import { SupabaseProvider } from '@/components/providers/SupabaseProvider'
 import AppLayout from '@/components/layout/AppLayout'
-import GSAPProvider from '@/components/providers/GSAPProvider'
 import { Inter } from 'next/font/google'
 
 const inter = Inter({
@@ -30,11 +29,9 @@ export default function RootLayout({
     )} suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         <SupabaseProvider>
-          <GSAPProvider>
-            <AppLayout>
-              {children}
-            </AppLayout>
-          </GSAPProvider>
+          <AppLayout>
+            {children}
+          </AppLayout>
           <Toaster />
         </SupabaseProvider>
       </body>

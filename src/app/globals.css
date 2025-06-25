@@ -668,15 +668,8 @@ body {
   perspective: 1000px;
 }
 
-/* Respect user motion preferences for GSAP animations */
+/* Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  .gsap-particle,
-  .gsap-glow,
-  .gsap-ambient {
-    animation: none !important;
-    transform: none !important;
-  }
-  
   .btn-premium::before {
     display: none;
   }
