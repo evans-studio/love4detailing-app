@@ -176,14 +176,10 @@ export default function LandingSidebar() {
             const Icon = item.icon
             const isActive = pathname === item.href
             return (
-              <motion.div
-                key={item.href}
-                variants={linkVariants}
-                whileHover="hover"
-              >
+              <div key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors hover:scale-105 ${
                     isActive 
                       ? 'bg-primary/10 text-primary' 
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
@@ -203,7 +199,7 @@ export default function LandingSidebar() {
                     )}
                   </AnimatePresence>
                 </Link>
-              </motion.div>
+              </div>
             )
           })}
         </div>
