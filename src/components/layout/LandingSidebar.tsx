@@ -87,9 +87,23 @@ export default function LandingSidebar() {
               src="/logo.png"
               alt="Love4Detailing Logo"
               fill
-              className="sidebar-logo"
+              className="sidebar-logo object-contain"
               priority
               sizes={isCollapsed && !isMobile ? "48px" : "160px"}
+              style={{
+                objectFit: 'contain',
+                objectPosition: 'center'
+              }}
+              onError={(e) => {
+                console.error('Logo failed to load:', e)
+                // Fallback to text if image fails
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+                const parent = target.parentElement
+                if (parent) {
+                  parent.innerHTML = '<div class="text-primary font-bold text-lg">L4D</div>'
+                }
+              }}
             />
           </div>
         </Link>
@@ -330,11 +344,15 @@ export default function LandingSidebar() {
       <div className="lg:hidden">
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border/50 hover:bg-accent shadow-lg"
+            >
               <Menu className="h-6 w-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0">
+          <SheetContent side="left" className="w-64 p-0 bg-sidebar border-r border-border/20">
             <SheetHeader className="sr-only">
               <SheetTitle>Navigation Menu</SheetTitle>
             </SheetHeader>

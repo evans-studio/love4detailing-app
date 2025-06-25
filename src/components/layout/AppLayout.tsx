@@ -22,9 +22,13 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       {/* Main content with proper margin for fixed sidebar */}
       <main 
         className={`min-h-screen transition-all duration-300 overflow-x-hidden max-w-full ${
-          isDashboard ? 'ml-0 md:ml-64' : 'ml-0 lg:ml-64'
+          isDashboard 
+            ? 'ml-0 md:ml-64' // Dashboard: margin only on md+ screens
+            : 'ml-0 lg:ml-64' // Landing: margin only on lg+ screens since mobile uses Sheet
         }`}
       >
+        {/* Mobile content padding to account for mobile menu button */}
+        <div className={`${isDashboard ? 'md:hidden' : 'lg:hidden'} h-16 w-full`} />
         <BackButton />
         {children}
       </main>

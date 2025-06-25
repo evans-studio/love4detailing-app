@@ -173,14 +173,32 @@ export default function Sidebar() {
     <div className="h-full flex flex-col border-r border-deep-purple/20 w-64" style={{ background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)' }}>
       {/* Logo - Updated proportions matching reference */}
       <div className="sidebar-logo-container border-b border-deep-purple/20 flex-shrink-0">
-        <img 
-          src="/logo.png" 
-          alt="Love4Detailing" 
-          className="sidebar-logo"
-          style={{ 
-            maxHeight: '60px'
-          }}
-        />
+        <Link href="/" className="flex items-center justify-center p-4">
+          <div className="relative w-full max-w-[160px] h-16">
+            <Image
+              src="/logo.png"
+              alt="Love4Detailing Logo"
+              fill
+              className="sidebar-logo object-contain"
+              priority
+              sizes="160px"
+              style={{
+                objectFit: 'contain',
+                objectPosition: 'center'
+              }}
+              onError={(e) => {
+                console.error('Logo failed to load:', e)
+                // Fallback to text if image fails
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+                const parent = target.parentElement
+                if (parent) {
+                  parent.innerHTML = '<div class="text-primary font-bold text-lg">L4D</div>'
+                }
+              }}
+            />
+          </div>
+        </Link>
       </div>
 
       {/* User Section */}
@@ -282,11 +300,18 @@ export default function Sidebar() {
   const MobileSidebar = () => (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="md:hidden fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border/50 hover:bg-accent shadow-lg"
+        >
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="p-0 w-64 sidebar-gradient border-r border-deep-purple/20">
+      <SheetContent side="left" className="p-0 w-64 bg-sidebar border-r border-border/20">
+        <SheetHeader className="sr-only">
+          <SheetTitle>Navigation Menu</SheetTitle>
+        </SheetHeader>
         <SidebarContent isMobile={true} />
       </SheetContent>
     </Sheet>
