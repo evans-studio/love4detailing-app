@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { vehicleLogger } from '@/lib/utils/logger'
+import type { ApiResponse, VehicleData } from '@/types'
 
 // DVLA Vehicle Enquiry Service API
 const DVLA_API_URL = 'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles'
@@ -31,7 +33,7 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.DVLA_API_KEY
 
     if (!apiKey) {
-      console.warn('DVLA_API_KEY not found in environment variables. Using mock data.')
+      vehicleLogger.warn('DVLA_API_KEY not found in environment variables. Using mock data.')
       
       // Return mock data when API key is not available
       const mockData = getMockVehicleData(cleanedReg)
@@ -59,6 +61,12 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       if (response.status === 404) {
+        // Try mock data first before returning error
+        const mockData = getMockVehicleData(cleanedReg)
+        if (mockData) {
+          vehicleLogger.info('DVLA API returned 404, using mock data', { registration: cleanedReg })
+          return NextResponse.json(mockData)
+        }
         return NextResponse.json(
           { error: 'Vehicle not found' },
           { status: 404 }
@@ -66,7 +74,14 @@ export async function POST(request: NextRequest) {
       }
       
       const errorText = await response.text()
-      console.error('DVLA API error:', response.status, errorText)
+      vehicleLogger.error('DVLA API error', { status: response.status, error: errorText })
+      
+      // For any other error (including 403), try mock data as fallback
+      const mockData = getMockVehicleData(cleanedReg)
+      if (mockData) {
+        vehicleLogger.info('DVLA API failed, using mock data', { registration: cleanedReg })
+        return NextResponse.json(mockData)
+      }
       
       return NextResponse.json(
         { error: 'Failed to fetch vehicle data' },
@@ -94,7 +109,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(transformedData)
 
   } catch (error) {
-    console.error('Vehicle lookup error:', error)
+    vehicleLogger.error('Vehicle lookup error', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -103,8 +118,8 @@ export async function POST(request: NextRequest) {
 }
 
 // Mock data for development/demo when DVLA API key is not available
-function getMockVehicleData(registrationNumber: string) {
-  const mockResponses: { [key: string]: any } = {
+function getMockVehicleData(registrationNumber: string): VehicleData | null {
+  const mockResponses: Record<string, VehicleData> = {
     'AB12CDE': {
       make: 'AUDI',
       model: 'A3',

@@ -117,8 +117,8 @@ export default function Navigation() {
                     <Button variant="ghost" onClick={() => setIsAuthModalOpen(true)}>
                       Sign In
                     </Button>
-                    <Button variant="default" onClick={() => setIsAuthModalOpen(true)}>
-                      Book Now
+                    <Button variant="default" asChild>
+                      <Link href="/booking">Book Now</Link>
                     </Button>
                   </div>
                 )}
@@ -205,9 +205,9 @@ export default function Navigation() {
                           <Button
                             variant="default"
                             className="w-full"
-                            onClick={() => setIsAuthModalOpen(true)}
+                            asChild
                           >
-                            Book Now
+                            <Link href="/booking">Book Now</Link>
                           </Button>
                         </>
                       )}

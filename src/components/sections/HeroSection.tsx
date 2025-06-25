@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { ServiceIcons } from '@/components/ui/icons'
+
 import { useEffect, useState } from 'react'
 
 const containerVariants = {
@@ -45,112 +46,53 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden approved-gradient">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(138,43,133,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(138,43,133,0.05)_1px,transparent_1px)] bg-[size:32px_32px]" />
-      
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-deep-purple/20 via-transparent to-rich-crimson/10" />
-      
+    <section className="relative min-h-screen flex items-center justify-center">
       {/* Content */}
-      <motion.div
-        variants={containerVariants}
-        initial={isMounted ? "hidden" : "visible"}
-        animate="visible"
-        className="relative flex flex-col items-center justify-center min-h-screen text-center px-4 md:px-6"
-        style={{ opacity: isMounted ? undefined : 1 }}
-      >
-        <motion.div 
-          variants={itemVariants} 
-          className="space-y-8 max-w-4xl"
-          style={{ opacity: isMounted ? undefined : 1 }}
+      <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="space-y-8"
         >
-          {/* Main Title */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
-            <span className="text-gradient-purple">
-              Drive a Car That Looks
-            </span>
-            <br />
-            <span className="text-gradient-brand">
-              Brand New Every Time
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight">
+            Premium Car Detailing
+            <span className="block bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+              That Comes to You
             </span>
           </h1>
-
-          {/* Description */}
-          <p className="text-lg md:text-xl text-secondary-text max-w-2xl mx-auto leading-relaxed">
-            Effortlessly book car detailing, washes, and maintenance services anytime, 
-            anywhere. Explore top-rated services and enjoy a clean, polished, and 
-            well-maintained ride!
+          
+          <p className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Professional mobile car valeting services delivered to your doorstep. 
+            Experience the luxury of pristine vehicle care without leaving home.
           </p>
-
-          {/* CTA Buttons */}
-          <motion.div 
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row gap-4 items-center justify-center"
-            style={{ opacity: isMounted ? undefined : 1 }}
-          >
-            <Button 
-              size="lg" 
-              variant="premium"
-              className="min-w-[200px]"
-              asChild
-            >
-              <Link href="/booking">
-                Let&apos;s Get Started
-              </Link>
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="min-w-[200px]"
-              asChild
-            >
-              <Link href="/services">
-                View Services
-              </Link>
-            </Button>
-          </motion.div>
-
-          {/* Service Icons */}
-          <motion.div 
-            variants={itemVariants}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mt-12"
-            style={{ opacity: isMounted ? undefined : 1 }}
-          >
-            {services.map(({ name, Icon }) => (
-              <div 
-                key={name}
-                className="flex flex-col items-center p-4 rounded-xl bg-true-black/50 backdrop-blur-sm border border-deep-purple/20 hover:border-deep-purple/50 hover:bg-deep-purple/5 glow-purple transition-all duration-300 group hover-lift"
-              >
-                <div className="w-12 h-12 mb-3 rounded-lg bg-deep-purple flex items-center justify-center group-hover:shadow-lg group-hover:shadow-deep-purple/30 transition-all duration-300">
-                  <Icon className="w-6 h-6 text-primary-text transition-colors duration-300" />
-                </div>
-                <span className="text-sm font-medium text-secondary-text group-hover:text-primary-text transition-colors duration-300">{name}</span>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Trust Indicators */}
+          
           <motion.div
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-16 pt-8 border-t border-deep-purple/20"
-            style={{ opacity: isMounted ? undefined : 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-deep-purple rounded-full animate-purple-glow"></div>
-              <span className="text-sm text-secondary-text">200+ Happy Customers</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-deep-purple rounded-full animate-purple-glow"></div>
-              <span className="text-sm text-secondary-text">4.9/5 Rating</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-deep-purple rounded-full animate-purple-glow"></div>
-              <span className="text-sm text-secondary-text">South West London</span>
-            </div>
+            <Link href="/booking">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white border-0 min-w-[200px] h-14 text-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300"
+              >
+                Book Now
+              </Button>
+            </Link>
+            <Link href="/services">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 min-w-[200px] h-14 text-lg font-semibold backdrop-blur-sm bg-black/20"
+              >
+                View Services
+              </Button>
+            </Link>
           </motion.div>
         </motion.div>
-      </motion.div>
-    </div>
+      </div>
+    </section>
   )
 } 

@@ -8,30 +8,31 @@
     --true-black: #141414;
     --deep-purple: #8A2B85;
     --rich-crimson: #BA0C2F;
+    --platinum-silver: #E8E8EA;
     --primary-text: #F0F0F0;
     --secondary-text: #C7C7C7;
     --sidebar-bg: #1E1E1E;
     
-    /* UI System Variables */
-    --background: 20 20 20;
-    --foreground: 240 240 240;
-    --card: 20 20 20;
-    --card-foreground: 240 240 240;
-    --popover: 20 20 20;
-    --popover-foreground: 240 240 240;
-    --primary: 138 43 133;
+    /* UI System Variables - Using proper Love4Detailing colors */
+    --background: 0 0 8;  /* #141414 converted to HSL space values */
+    --foreground: 0 0 94;  /* #F0F0F0 converted to HSL space values */
+    --card: 0 0 8;  /* Same as background */
+    --card-foreground: 0 0 94;  /* Same as foreground */
+    --popover: 0 0 8;  /* Same as background */
+    --popover-foreground: 0 0 94;  /* Same as foreground */
+    --primary: 304 51 47;  /* #8A2B85 converted to HSL space values */
     --primary-foreground: 255 255 255;
-    --secondary: 59 16 64;
+    --secondary: 0 0 12;  /* Darker secondary using true black tones */
     --secondary-foreground: 255 255 255;
-    --muted: 199 199 199;
-    --muted-foreground: 240 240 240;
-    --accent: 138 43 133;
+    --muted: 0 0 78;  /* #C7C7C7 neutral gray */
+    --muted-foreground: 0 0 94;  /* Same as foreground */
+    --accent: 304 51 47;  /* Same as primary */
     --accent-foreground: 255 255 255;
-    --destructive: 186 12 47;
+    --destructive: 345 89 39;  /* #BA0C2F converted to HSL space values */
     --destructive-foreground: 255 255 255;
-    --border: 59 16 64;
-    --input: 30 30 30;
-    --ring: 138 43 133;
+    --border: 0 0 15;  /* Neutral border color */
+    --input: 0 0 6;  /* Even darker input background */
+    --ring: 304 51 47;  /* Same as primary */
     --radius: 0.75rem;
   }
 }
@@ -42,16 +43,20 @@
     box-sizing: border-box;
   }
   
+  html {
+    scroll-behavior: smooth;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
   body {
     @apply text-primary-text font-sans antialiased;
     background: #141414;
     min-height: 100vh;
     position: relative;
-  }
-  
-  html {
-    scroll-behavior: smooth;
-    position: relative;
+    overflow-x: hidden;
+    width: 100vw;
+    max-width: 100vw;
   }
   
   /* Typography Scale */
@@ -162,6 +167,15 @@
     will-change: transform;
   }
   
+  /* Glass morphism effects */
+  .glass-effect {
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(138, 43, 133, 0.2);
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
   /* Purple glow effects */
   .glow-purple {
     box-shadow: 0 0 20px rgba(138, 43, 133, 0.3);
@@ -195,15 +209,6 @@
     will-change: transform;
   }
   
-  /* Glass morphism effects */
-  .glass-effect {
-    background: rgba(20, 20, 20, 0.8);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(138, 43, 133, 0.2);
-    transform: translateZ(0);
-    will-change: transform;
-  }
-  
   /* Smooth hover states */
   .hover-lift {
     transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -227,6 +232,8 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  
+
 }
 
 @layer utilities {
@@ -253,13 +260,178 @@
     transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  /* Brand spacing utilities */
+  /* Responsive spacing utilities */
   .section-padding {
-    @apply py-16 md:py-24 lg:py-32;
+    @apply py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24;
   }
   
   .container-padding {
-    @apply px-4 md:px-6 lg:px-8;
+    @apply px-4 sm:px-6 lg:px-8 xl:px-12;
+  }
+  
+  /* Responsive text utilities */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+  }
+  
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl;
+  }
+  
+  /* Responsive spacing utilities */
+  .gap-responsive {
+    @apply gap-3 sm:gap-4 lg:gap-6;
+  }
+  
+  .gap-responsive-sm {
+    @apply gap-2 sm:gap-3 lg:gap-4;
+  }
+  
+  .gap-responsive-lg {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+  
+  /* Responsive padding utilities */
+  .p-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .p-responsive-sm {
+    @apply p-3 sm:p-4 lg:p-6;
+  }
+  
+  .p-responsive-lg {
+    @apply p-6 sm:p-8 lg:p-12;
+  }
+  
+  /* Responsive margin utilities */
+  .m-responsive {
+    @apply m-4 sm:m-6 lg:m-8;
+  }
+  
+  .mb-responsive {
+    @apply mb-6 sm:mb-8 lg:mb-12;
+  }
+  
+  .mt-responsive {
+    @apply mt-6 sm:mt-8 lg:mt-12;
+  }
+  
+  /* Mobile-first grid utilities */
+  .grid-responsive-1-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2;
+  }
+  
+  .grid-responsive-1-2-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .grid-responsive-1-2-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  }
+  
+  .grid-responsive-2-4 {
+    @apply grid grid-cols-2 sm:grid-cols-4;
+  }
+  
+  /* Responsive flex utilities */
+  .flex-responsive-col-row {
+    @apply flex flex-col sm:flex-row;
+  }
+  
+  .flex-responsive-row-col {
+    @apply flex flex-row sm:flex-col;
+  }
+  
+  /* Mobile navigation utilities */
+  .mobile-nav-height {
+    @apply h-16 sm:h-18 lg:h-20;
+  }
+  
+  .mobile-nav-padding {
+    @apply pt-16 sm:pt-18 lg:pt-0;
+  }
+  
+  /* Responsive card utilities */
+  .card-responsive {
+    @apply rounded-lg sm:rounded-xl lg:rounded-2xl p-4 sm:p-6 lg:p-8;
+  }
+  
+  .card-responsive-sm {
+    @apply rounded-md sm:rounded-lg lg:rounded-xl p-3 sm:p-4 lg:p-6;
+  }
+  
+  /* Responsive button utilities */
+  .btn-responsive {
+    @apply h-10 sm:h-11 lg:h-12 px-4 sm:px-6 lg:px-8 text-sm sm:text-base;
+  }
+  
+  .btn-responsive-sm {
+    @apply h-8 sm:h-9 px-3 sm:px-4 text-xs sm:text-sm;
+  }
+  
+  /* Mobile-first layout utilities */
+  .sidebar-margin-mobile {
+    @apply ml-0 pt-16 md:ml-64 md:pt-0;
+  }
+  
+  .sidebar-margin-landing {
+    @apply ml-0 pt-16 lg:ml-64 lg:pt-0;
+  }
+  
+  /* Responsive max-width utilities */
+  .max-w-responsive-sm {
+    @apply max-w-xs sm:max-w-sm md:max-w-md;
+  }
+  
+  .max-w-responsive {
+    @apply max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl;
+  }
+  
+  .max-w-responsive-lg {
+    @apply max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-4xl;
+  }
+  
+  .max-w-responsive-xl {
+    @apply max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-6xl;
+  }
+  
+  /* Touch-friendly sizing */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  .touch-target-sm {
+    @apply min-h-[40px] min-w-[40px];
+  }
+  
+  /* Responsive image utilities */
+  .img-responsive {
+    @apply w-full h-auto object-cover;
+  }
+  
+  .img-responsive-contain {
+    @apply w-full h-auto object-contain;
   }
   
   /* Legacy utility classes for compatibility */
@@ -369,4 +541,136 @@ body {
   top: 0 !important;
   left: 0 !important;
   z-index: 999 !important;
-} 
+}
+
+
+
+/* Clean gradients without animation - GSAP handles motion */
+
+/* Performance Optimization for Backgrounds */
+.premium-layers {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Respect user motion preferences for GSAP animations */
+@media (prefers-reduced-motion: reduce) {
+  .gsap-particle,
+  .gsap-glow,
+  .gsap-ambient {
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  .btn-premium::before {
+    display: none;
+  }
+}
+
+/* PREMIUM BASE BACKGROUND - Clean foundation for GSAP animations */
+.bg-base {
+  background: #141414;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-flare::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 60%;
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(138, 43, 133, 0.15) 50%, transparent 100%);
+  transform: rotate(25deg);
+  animation: flare-sweep 12s ease-in-out infinite;
+  filter: blur(1px);
+}
+
+.bg-flare::after {
+  content: '';
+  position: absolute;
+  bottom: 30%;
+  right: 20%;
+  width: 150px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(186, 12, 47, 0.12) 50%, transparent 100%);
+  transform: rotate(-15deg);
+  animation: flare-sweep-alt 16s ease-in-out infinite reverse;
+  filter: blur(0.5px);
+}
+
+/* Premium Sidebar Background */
+.bg-sidebar {
+  background: linear-gradient(135deg, 
+    rgba(20, 20, 20, 0.98) 0%, 
+    rgba(24, 20, 24, 0.96) 50%, 
+    rgba(20, 20, 20, 0.98) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.2);
+  border-right: 1px solid rgba(138, 43, 133, 0.08);
+  box-shadow: 
+    4px 0 30px rgba(0, 0, 0, 0.3),
+    inset -1px 0 0 rgba(138, 43, 133, 0.05);
+  position: relative;
+}
+
+.bg-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 80% 20%, rgba(138, 43, 133, 0.02) 0%, transparent 60%),
+    radial-gradient(circle at 20% 80%, rgba(186, 12, 47, 0.015) 0%, transparent 50%);
+  animation: sidebar-ambient 20s ease-in-out infinite;
+}
+
+/* Button Enhancement */
+.btn-premium {
+  background: linear-gradient(135deg, #8A2B85 0%, #9A3595 100%);
+  box-shadow: 
+    0 4px 20px rgba(138, 43, 133, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(138, 43, 133, 0.1);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 600ms ease;
+}
+
+.btn-premium:hover {
+  background: linear-gradient(135deg, #9A3595 0%, #AA4BA5 100%);
+  box-shadow: 
+    0 6px 30px rgba(138, 43, 133, 0.4),
+    0 0 40px rgba(138, 43, 133, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(138, 43, 133, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-premium:hover::before {
+  transform: translateX(100%);
+}
+
+/* Performance Optimization */
+.bg-base,
+.bg-overlay,
+.bg-hero,
+.bg-section-dark,
+.bg-section-purple {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Clean CSS file - animations now handled by GSAP */ 

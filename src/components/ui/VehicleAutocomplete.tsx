@@ -153,7 +153,7 @@ export function VehicleAutocomplete({
     switch (size) {
       case 's': return 'bg-green-100 text-green-800'
       case 'm': return 'bg-blue-100 text-blue-800'
-      case 'l': return 'bg-orange-100 text-orange-800'
+              case 'l': return 'bg-deep-purple/20 text-deep-purple'
       case 'xl': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }

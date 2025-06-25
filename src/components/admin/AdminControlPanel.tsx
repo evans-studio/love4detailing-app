@@ -497,7 +497,7 @@ export default function AdminControlPanel() {
 
                       {/* Show status */}
                       {!workingHour && (
-                        <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                        <div className="text-xs text-platinum-silver bg-platinum-silver/10 px-2 py-1 rounded">
                           ⚠️ Using default values - will be saved when you make changes
                         </div>
                       )}

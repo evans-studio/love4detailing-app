@@ -127,7 +127,7 @@ Month 3: £10-25 (250-350 total requests)
 2. **Add to your environment:**
    ```bash
    # Add to .env.local
-   DVLA_API_KEY=your_actual_api_key
+   DVLA_API_KEY=NqKX17bSsU9tsXjFWiVDU2TTbdniAtD09boJPy54
    DVLA_API_URL=https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles
    ```
 

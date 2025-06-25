@@ -352,11 +352,36 @@ export default function AdminCustomersPage() {
           <Button 
             variant="outline"
             onClick={() => debugFetchAllProfiles()}
-            className="bg-yellow-500 hover:bg-yellow-600"
+                            className="bg-platinum-silver hover:bg-platinum-silver/80 text-true-black"
           >
             Debug DB
           </Button>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => {
+              // Export customers to CSV
+              const csvContent = [
+                ['Name', 'Email', 'Phone', 'Status', 'Total Spent', 'Total Bookings', 'Joined'],
+                ...filteredCustomers.map(c => [
+                  c.full_name,
+                  c.email,
+                  c.phone || '',
+                  c.status,
+                  c.total_spent.toFixed(2),
+                  c.total_bookings.toString(),
+                  format(new Date(c.created_at), 'PP')
+                ])
+              ].map(row => row.join(',')).join('\n')
+              
+              const blob = new Blob([csvContent], { type: 'text/csv' })
+              const url = window.URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `customers-${format(new Date(), 'yyyy-MM-dd')}.csv`
+              a.click()
+              window.URL.revokeObjectURL(url)
+            }}
+          >
             <Download className="mr-2 h-4 w-4" />
             Export Customers
           </Button>
@@ -409,7 +434,7 @@ export default function AdminCustomersPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-orange-500" />
+                              <TrendingUp className="h-4 w-4 text-deep-purple" />
               <div>
                 <div className="text-2xl font-bold">£{averageSpent.toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">Avg. Customer Value</p>

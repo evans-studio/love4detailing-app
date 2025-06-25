@@ -21,6 +21,7 @@ import {
   Eye,
   Plus
 } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 interface Booking {
   id: string
@@ -57,6 +58,7 @@ export default function CustomerBookingsPage() {
   const { user, isLoading: authLoading } = useProtectedRoute()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
 
   useEffect(() => {
     if (user) {
@@ -85,7 +87,7 @@ export default function CustomerBookingsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-green-500'
-      case 'pending': return 'bg-yellow-500'
+      case 'pending': return 'bg-platinum-silver'
       case 'completed': return 'bg-blue-500'
       case 'cancelled': return 'bg-red-500'
       default: return 'bg-gray-500'
@@ -150,7 +152,18 @@ export default function CustomerBookingsPage() {
           </div>
           <div className="text-right space-y-2">
             <p className="text-lg font-bold">£{booking.total_price.toFixed(2)}</p>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                // For now, show a toast with booking details
+                // In the future, this could open a detailed modal
+                toast({
+                  title: `Booking Details - ${booking.service}`,
+                  description: `${format(new Date(booking.booking_date), 'PPP')} at ${booking.booking_time} • £${booking.total_price.toFixed(2)}`,
+                })
+              }}
+            >
               <Eye className="h-4 w-4 mr-1" />
               View Details
             </Button>
@@ -238,7 +251,7 @@ export default function CustomerBookingsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <AlertCircle className="h-4 w-4 text-yellow-500" />
+              <AlertCircle className="h-4 w-4 text-platinum-silver" />
               <div>
                 <div className="text-2xl font-bold">{upcomingBookings.length}</div>
                 <p className="text-xs text-muted-foreground">Upcoming</p>

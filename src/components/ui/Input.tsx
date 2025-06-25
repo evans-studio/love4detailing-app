@@ -4,22 +4,22 @@ import { cn } from "@/lib/utils"
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
-  variant?: 'default' | 'glass' | 'premium'
+  variant?: 'default' | 'search' | 'minimal'
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, variant = 'default', ...props }, ref) => {
     const variantClasses = {
-      default: "bg-deep-black border-mid-purple/30 text-white placeholder:text-gray-400 focus:border-accent-purple focus:ring-accent-purple/20",
-      glass: "glass-effect text-white placeholder:text-gray-400 focus:border-accent-purple/50 focus:ring-accent-purple/20",
-      premium: "bg-gradient-to-r from-deep-black to-overlay-purple-black border-accent-purple/40 text-white placeholder:text-gray-300 focus:border-accent-purple focus:ring-accent-purple/30 focus:from-overlay-purple-black focus:to-deep-black"
+      default: "bg-background border-input text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20",
+      search: "bg-muted/50 border-muted text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-primary",
+      minimal: "bg-transparent border-transparent text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-muted/20 border-b-2 rounded-none"
     }
     
     return (
       <input
         type={type}
         className={cn(
-          "flex h-12 w-full rounded-lg border px-4 py-3 text-sm transition-all duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-deep-black disabled:cursor-not-allowed disabled:opacity-50 transform translateZ(0) will-change-transform",
+          "flex h-9 sm:h-10 lg:h-11 w-full rounded-md border px-3 sm:px-4 py-2 text-sm sm:text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
           variantClasses[variant],
           className
         )}

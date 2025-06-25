@@ -76,12 +76,12 @@ export async function lookupByLicensePlate(registrationNumber: string): Promise<
       return cached.data
     }
     
-    // Try to guess vehicle from our local database first (free!)
-    const localGuess = guessVehicleFromRegistration(cleaned)
-    if (localGuess) {
-      console.log('Found vehicle in local database, skipping API call')
-      return localGuess
-    }
+    // Skip local guessing for now to always try API first
+    // const localGuess = guessVehicleFromRegistration(cleaned)
+    // if (localGuess) {
+    //   console.log('Found vehicle in local database, skipping API call')
+    //   return localGuess
+    // }
     
     // Only call API if not found locally
     const mockDVLAResponse = await simulateDVLALookup(cleaned)
@@ -91,7 +91,14 @@ export async function lookupByLicensePlate(registrationNumber: string): Promise<
       const searchQuery = `${mockDVLAResponse.make} ${mockDVLAResponse.model || ''}`.trim()
       const matchedVehicle = searchVehicles(searchQuery, 1)[0]
       
-      const size = matchedVehicle ? matchedVehicle.size : inferSizeFromDVLAData(mockDVLAResponse)
+      // Use matched vehicle size or infer from DVLA data
+      let size: VehicleSize = 'm' // default
+      if (matchedVehicle) {
+        size = matchedVehicle.size
+      } else {
+        size = inferSizeFromDVLAData(mockDVLAResponse)
+      }
+      
       const displayName = mockDVLAResponse.model 
         ? `${mockDVLAResponse.make} ${mockDVLAResponse.model}`
         : mockDVLAResponse.make
@@ -228,10 +235,21 @@ function inferSizeFromDVLAData(dvlaData: any): VehicleSize {
   const engineCapacity = dvlaData.engineCapacity || 0
   const co2Emissions = dvlaData.co2Emissions || 0
   
-  // Size inference logic based on DVLA data
+  // Make/model based size detection
+  if (make.includes('bmw') && (model.includes('x5') || model.includes('x6') || model.includes('x7'))) return 'xl'
+  if (make.includes('audi') && (model.includes('q7') || model.includes('q8'))) return 'xl'
+  if (make.includes('range rover') || (make.includes('land rover') && model.includes('range rover'))) return 'xl'
+  if (make.includes('mercedes') && (model.includes('gle') || model.includes('gls') || model.includes('g-class'))) return 'xl'
+  
+  if (make.includes('bmw') && (model.includes('5 series') || model.includes('x3') || model.includes('x4'))) return 'l'
+  if (make.includes('audi') && (model.includes('a6') || model.includes('q5'))) return 'l'
+  if (make.includes('mercedes') && (model.includes('c-class') || model.includes('e-class') || model.includes('glc'))) return 'l'
+  
+  // Engine capacity based inference
   if (engineCapacity > 3000 || co2Emissions > 200) return 'xl'
   if (engineCapacity > 2000 || co2Emissions > 150) return 'l'
   if (engineCapacity > 1400 || co2Emissions > 120) return 'm'
+  
   return 's'
 }
 

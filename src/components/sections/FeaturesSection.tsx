@@ -1,157 +1,120 @@
 "use client"
 
-import { motion, Variants } from 'framer-motion'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/badge'
-import { 
-  Clock, 
-  MapPin, 
-  Star, 
-  Shield, 
-  Award
-} from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Card } from '@/components/ui/Card'
+import { MapPin, Clock, Shield, Star, Users, Leaf } from 'lucide-react'
 
 const features = [
   {
-    icon: Clock,
-    title: 'Quick & Efficient',
-    description: 'Professional service completed in 45min - 1hr',
-    highlight: 'Fast Service'
-  },
-  {
     icon: MapPin,
-    title: 'Mobile Service',
-    description: 'We come to your location - home, office, or anywhere convenient',
-    highlight: 'At Your Location'
+    title: "Mobile Service",
+    description: "We come directly to your location - home, office, or anywhere convenient for you."
   },
   {
-    icon: Star,
-    title: 'Premium Quality',
-    description: 'Professional-grade products and techniques for showroom results',
-    highlight: 'Professional Grade'
+    icon: Clock,
+    title: "Flexible Scheduling",
+    description: "Book appointments that fit your schedule, including evenings and weekends."
   },
   {
     icon: Shield,
-    title: 'Fully Insured',
-    description: 'Complete peace of mind with comprehensive insurance coverage',
-    highlight: 'Insured & Safe'
+    title: "Fully Insured",
+    description: "Complete peace of mind with comprehensive insurance coverage for all services."
   },
   {
-    icon: Award,
-    title: 'Satisfaction Guaranteed',
-    description: 'Not happy? We\'ll make it right or your money back',
-    highlight: '100% Guarantee'
+    icon: Star,
+    title: "Premium Products",
+    description: "We use only the highest quality professional-grade cleaning products and equipment."
+  },
+  {
+    icon: Users,
+    title: "Expert Team",
+    description: "Trained and experienced professionals who care about your vehicle as much as you do."
+  },
+  {
+    icon: Leaf,
+    title: "Eco-Friendly",
+    description: "Environmentally conscious cleaning solutions that are safe for you and the planet."
   }
 ]
 
-export default function FeaturesSection() {
+const FeaturesSection = () => {
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-background to-background/95">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <Badge variant="secondary" className="mb-4">
-            Why Choose Love4Detailing
-          </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-            Professional Car Care Made Simple
+    <section className="py-40 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+            Why Choose
+            <span className="block bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+              Love4Detailing
+            </span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Experience the difference with our professional mobile car detailing service. 
-            We bring the car wash to you with premium quality and unbeatable convenience.
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Experience the difference with our professional mobile car detailing service
           </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Card className="h-full bg-black/20 backdrop-blur-sm border-purple-500/20 hover:border-purple-400/40 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 group">
+                <div className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-300">
+                    <feature.icon className="w-8 h-8 text-white" />
+                  </div>
+                  
+                  <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-purple-300 transition-colors duration-300">
+                    {feature.title}
+                  </h3>
+                  
+                  <p className="text-gray-300 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          {/* Top row - 3 cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {features.slice(0, 3).map((feature, index) => {
-              const Icon = feature.icon
-              return (
-                <div key={feature.title}>
-                  <Card className="h-full hover:shadow-lg transition-all duration-300 hover:border-primary/50 group">
-                    <CardContent className="p-6 text-center">
-                      <div className="relative mb-4">
-                        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
-                          <Icon className="w-8 h-8 text-primary" />
-                        </div>
-                        <Badge 
-                          variant="outline" 
-                          className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs border-primary/20 bg-background"
-                        >
-                          {feature.highlight}
-                        </Badge>
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2 text-foreground group-hover:text-primary transition-colors">
-                        {feature.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Bottom row - 2 cards centered */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {features.slice(3, 5).map((feature, index) => {
-              const Icon = feature.icon
-              return (
-                <div key={feature.title}>
-                  <Card className="h-full hover:shadow-lg transition-all duration-300 hover:border-primary/50 group">
-                    <CardContent className="p-6 text-center">
-                      <div className="relative mb-4">
-                        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
-                          <Icon className="w-8 h-8 text-primary" />
-                        </div>
-                        <Badge 
-                          variant="outline" 
-                          className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-xs border-primary/20 bg-background"
-                        >
-                          {feature.highlight}
-                        </Badge>
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2 text-foreground group-hover:text-primary transition-colors">
-                        {feature.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-8 border border-primary/20">
-            <h3 className="text-2xl font-bold mb-4 text-foreground">
-              Ready to Experience the Difference?
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mt-16"
+        >
+          <div className="bg-black/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8 max-w-4xl mx-auto">
+            <h3 className="text-2xl font-semibold text-white mb-4">
+              Professional Service You Can Trust
             </h3>
-            <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-              Join hundreds of satisfied customers who trust Love4Detailing for their car care needs.
+            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+              With years of experience and hundreds of satisfied customers across South West London, 
+              we're committed to delivering exceptional results every time.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="/booking"
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6"
-              >
-                Book Your Service
-              </a>
-              <a 
-                href="/services"
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-6"
-              >
-                View All Services
-              </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300">
+                Get Started Today
+              </button>
+              <button className="bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 px-8 py-3 rounded-lg font-semibold backdrop-blur-sm transition-all duration-300">
+                Learn More
+              </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )
-} 
+}
+
+export default FeaturesSection 

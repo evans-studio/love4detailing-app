@@ -89,7 +89,7 @@ export default function LandingSidebar() {
               fill
               className="object-contain"
               priority
-              sizes={isCollapsed && !isMobile ? "48px" : "100vw"}
+              sizes={isCollapsed && !isMobile ? "48px" : "256px"}
             />
           </div>
         </Link>
@@ -134,7 +134,7 @@ export default function LandingSidebar() {
               className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 mb-4"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                <Star className="w-4 h-4 text-platinum-silver fill-platinum-silver" />
                 <span className="text-sm font-medium">4.9/5 Rating</span>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
@@ -269,7 +269,7 @@ export default function LandingSidebar() {
               animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
               className="space-y-2"
             >
-              <Button variant="default" className="w-full" asChild>
+              <Button variant="default" className="w-full btn-premium" asChild>
                 <Link href="/booking">Book Service Now</Link>
               </Button>
               <div className="flex gap-2">
@@ -292,7 +292,7 @@ export default function LandingSidebar() {
         
         {isCollapsed && !isMobile && (
           <div className="flex flex-col space-y-2">
-            <Button variant="default" size="sm" className="w-full p-2" asChild title="Book Service">
+            <Button variant="default" size="sm" className="w-full p-2 btn-premium" asChild title="Book Service">
               <Link href="/booking">
                 <Calendar className="h-4 w-4" />
               </Link>
@@ -318,22 +318,13 @@ export default function LandingSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside
-        className="hidden lg:flex lg:flex-col lg:bg-background lg:border-r lg:border-border"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          width: isCollapsed ? '5rem' : '16rem',
-          zIndex: 999,
-          backgroundColor: '#141414',
-          borderRight: '1px solid rgba(138, 43, 133, 0.2)',
-          transition: 'width 300ms ease'
-        }}
+      <motion.aside
+        variants={sidebarVariants}
+        animate={isCollapsed ? "collapsed" : "expanded"}
+        className="fixed left-0 top-0 z-50 h-screen bg-sidebar flex-shrink-0 hidden lg:flex flex-col"
       >
         <SidebarContent />
-      </aside>
+      </motion.aside>
 
       {/* Mobile Menu Button */}
       <div className="lg:hidden">

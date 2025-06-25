@@ -1330,7 +1330,7 @@ export default function DashboardBookingForm() {
                           <div className="flex items-center justify-between w-full">
                             <span>{slot.label}</span>
                             {!slot.isAvailable && (
-                              <Badge variant="destructive" className="ml-2 text-xs">
+                              <Badge variant="alert" className="ml-2 text-xs">
                                 Fully Booked
                               </Badge>
                             )}
@@ -1373,11 +1373,11 @@ export default function DashboardBookingForm() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg"
+                          className="p-4 bg-platinum-silver/10 border border-platinum-silver/30 rounded-lg"
           >
             <div className="flex items-center space-x-2">
-              <Info className="h-4 w-4 text-amber-600" />
-              <p className="text-sm text-amber-800 dark:text-amber-200">
+                              <Info className="h-4 w-4 text-platinum-silver" />
+                <p className="text-sm text-platinum-silver">
                 Travel surcharge: £{travelFee} (Distance over 10 miles from SW9)
               </p>
             </div>

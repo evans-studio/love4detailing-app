@@ -76,17 +76,17 @@ export default function ApiUsageTracker() {
         </div>
         
         <div className="text-center">
-          <div className="text-2xl font-bold text-orange-600">£{usage.totalCost.toFixed(2)}</div>
+                      <div className="text-2xl font-bold text-rich-crimson">£{usage.totalCost.toFixed(2)}</div>
           <div className="text-sm text-gray-600">Total Cost</div>
         </div>
       </div>
 
       <div className="flex items-center gap-4 mb-4">
-        <Badge variant={freeRemaining > 20 ? "default" : freeRemaining > 0 ? "secondary" : "destructive"}>
+        <Badge variant={freeRemaining > 20 ? "default" : freeRemaining > 0 ? "secondary" : "alert"}>
           {freeRemaining} free calls remaining this month
         </Badge>
         
-        <Badge variant={efficiency > 80 ? "default" : efficiency > 60 ? "secondary" : "destructive"}>
+        <Badge variant={efficiency > 80 ? "default" : efficiency > 60 ? "secondary" : "alert"}>
           {efficiency}% efficiency (cache + local)
         </Badge>
       </div>

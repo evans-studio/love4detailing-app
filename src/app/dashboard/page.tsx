@@ -123,7 +123,7 @@ export default function CustomerDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-green-500'
-      case 'pending': return 'bg-yellow-500'
+      case 'pending': return 'bg-platinum-silver'
       case 'completed': return 'bg-blue-500'
       case 'cancelled': return 'bg-red-500'
       default: return 'bg-gray-500'
@@ -222,7 +222,7 @@ export default function CustomerDashboard() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <Star className="h-4 w-4 text-yellow-500" />
+              <Star className="h-4 w-4 text-platinum-silver" />
               <div>
                 <div className="text-2xl font-bold">{dashboardData.totalBookings}</div>
                 <p className="text-xs text-muted-foreground">Total Services</p>

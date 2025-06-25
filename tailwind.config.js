@@ -21,6 +21,7 @@ module.exports = {
         'true-black': '#141414',        // Primary Background (app shell)
         'deep-purple': '#8A2B85',       // Primary Accent (buttons, icons, highlights)
         'rich-crimson': '#BA0C2F',      // Secondary Accent (hover states, subtle highlights)
+        'platinum-silver': '#E8E8EA',   // Supporting Accent (ratings, status, secondary elements)
         'primary-text': '#F0F0F0',      // Primary Text (on dark background)
         'secondary-text': '#C7C7C7',    // Secondary Text and Subtle Labels
         'sidebar-bg': '#1E1E1E',        // Sidebar background
@@ -39,7 +40,7 @@ module.exports = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
+        background: "#141414",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "#8A2B85",

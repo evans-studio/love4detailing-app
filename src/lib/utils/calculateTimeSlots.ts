@@ -1,35 +1,33 @@
 import { supabase } from '@/lib/supabase/client'
-
-export interface TimeSlot {
-  time: string
-  label: string
-  isAvailable: boolean
-  bookingCount: number
-}
+import { bookingLogger } from '@/lib/utils/logger'
+import { WORKING_HOURS, WORKING_DAYS } from '@/lib/constants/booking'
+import type { TimeSlot } from '@/types'
 
 export async function calculateTimeSlots(selectedDate: Date): Promise<TimeSlot[]> {
   try {
     const dayOfWeek = selectedDate.getDay()
     const dateString = selectedDate.toISOString().split('T')[0]
     
-    console.log('🕐 calculateTimeSlots called with:', {
+    bookingLogger.debug('Calculating time slots', {
       date: dateString,
       dayOfWeek,
-      dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek],
-      originalDate: selectedDate
+      dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek]
     })
     
-    // TEMPORARY: Always return default slots for debugging
-    console.log('🔧 TEMPORARY: Bypassing all checks, returning default slots')
+    // Check if it's a working day
+    if (!WORKING_DAYS.includes(dayOfWeek as 1 | 2 | 3 | 4 | 5 | 6)) {
+      bookingLogger.warn('Non-working day selected', { date: dateString, dayOfWeek })
+      return []
+    }
+    
     const slots = await getDefaultTimeSlots(selectedDate)
-    console.log('🎯 Final slots returned:', slots)
+    bookingLogger.debug('Time slots calculated', { count: slots.length, date: dateString })
     return slots
     
   } catch (error) {
-    console.error('❌ Error calculating time slots:', error)
+    bookingLogger.error('Error calculating time slots', error)
     // Fallback to default slots if anything fails
     const fallbackSlots = await getDefaultTimeSlots(selectedDate)
-    console.log('🔄 Fallback slots returned:', fallbackSlots)
     return fallbackSlots
   }
 }
@@ -58,7 +56,7 @@ function formatTimeLabel(minutes: number): string {
   }
 }
 
-// Fallback function for default time slots (your original slots)
+// Get default time slots with availability check
 async function getDefaultTimeSlots(selectedDate: Date): Promise<TimeSlot[]> {
   const defaultSlots = [
     { time: '10:00', label: '10:00 AM' },
@@ -68,18 +66,41 @@ async function getDefaultTimeSlots(selectedDate: Date): Promise<TimeSlot[]> {
     { time: '16:00', label: '4:00 PM' }
   ]
 
-  console.log('📋 Default slots to check:', defaultSlots)
+  const dateString = selectedDate.toISOString().split('T')[0]
+  
+  try {
+    // Check existing bookings for this date
+    const { data: bookings, error } = await supabase
+      .from('bookings')
+      .select('booking_time')
+      .eq('booking_date', dateString)
+      .eq('status', 'confirmed')
 
-  // TEMPORARY: Skip database check and return all slots as available
-  console.log('🔧 TEMPORARY: Skipping database check, returning all slots as available')
-  const slotsWithAvailability = defaultSlots.map(slot => ({
-    ...slot,
-    isAvailable: true,
-    bookingCount: 0
-  }))
+    if (error) {
+      bookingLogger.warn('Could not check booking availability, returning all slots as available', error)
+      // If we can't check availability, return all slots as available
+      return defaultSlots.map(slot => ({
+        ...slot,
+        isAvailable: true
+      }))
+    }
 
-  console.log('✅ Final slots with availability:', slotsWithAvailability)
-  return slotsWithAvailability
+    const bookedTimes = bookings?.map(b => b.booking_time) || []
+    
+    const slotsWithAvailability = defaultSlots.map(slot => ({
+      ...slot,
+      isAvailable: !bookedTimes.includes(slot.time)
+    }))
+
+    return slotsWithAvailability
+  } catch (error) {
+    bookingLogger.error('Error checking slot availability', error)
+    // If there's an error, return all slots as available
+    return defaultSlots.map(slot => ({
+      ...slot,
+      isAvailable: true
+    }))
+  }
 }
 
 export async function getWorkingDays(): Promise<number[]> {

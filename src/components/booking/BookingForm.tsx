@@ -5,10 +5,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { format } from 'date-fns'
-import { motion, AnimatePresence, Variants } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { slideVariants, fadeInUp } from '@/lib/animations/motion-variants'
+import { bookingLogger } from '@/lib/utils/logger'
+import type { BookingFormData, PaymentResult, PaymentError } from '@/types'
 import { supabase } from '@/lib/supabase/client'
 import { calculateTravelFee } from '@/lib/utils/calculateTravelFee'
-import { calculateTimeSlots, getWorkingDays, isWorkingDay, TimeSlot } from '@/lib/utils/calculateTimeSlots'
+import { calculateTimeSlots, getWorkingDays, isWorkingDay } from '@/lib/utils/calculateTimeSlots'
+import type { TimeSlot } from '@/types'
 import { detectVehicle, getFallbackSize } from '@/lib/utils/vehicleDatabase'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -37,6 +41,8 @@ import {
   Sparkles
 } from 'lucide-react'
 import PaymentButton from '@/components/payments/PaymentButton'
+import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
+import { VehicleSearchResult, LicensePlateResult } from '@/lib/utils/vehicleDatabase'
 
 const vehicleSizes = {
   small: { label: 'Small Vehicle', description: 'Fiesta, Polo, Mini, Corsa', price: 55 },
@@ -54,6 +60,7 @@ const formSchema = z.object({
   fullName: z.string().min(2, 'Full name is required'),
   email: z.string().email('Invalid email address'),
   postcode: z.string().regex(/^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i, 'Invalid UK postcode'),
+  vehicleLookup: z.string().min(1, 'Please enter your registration number or vehicle details'),
   vehicleSize: z.enum(['small', 'medium', 'large', 'extraLarge']),
   date: z.string().min(1, 'Please select a date'),
   timeSlot: z.string().min(1, 'Please select a time slot'),
@@ -62,29 +69,6 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
-
-const fadeInUp: Variants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
-}
-
-const slideVariants: Variants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 300 : -300,
-    opacity: 0
-  }),
-  center: {
-    zIndex: 1,
-    x: 0,
-    opacity: 1
-  },
-  exit: (direction: number) => ({
-    zIndex: 0,
-    x: direction < 0 ? 300 : -300,
-    opacity: 0
-  })
-}
 
 const steps = [
   { id: 'details', title: 'Your Details', icon: User },
@@ -108,6 +92,8 @@ export default function BookingForm() {
   const { user } = useAuth()
   const router = useRouter()
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null)
+  const [vehicleData, setVehicleData] = useState<VehicleSearchResult | LicensePlateResult | null>(null)
+  const [autoDetectedSize, setAutoDetectedSize] = useState<string | null>(null)
 
   // Redirect authenticated users to dashboard booking form
   useEffect(() => {
@@ -126,6 +112,7 @@ export default function BookingForm() {
       fullName: '',
       email: '',
       postcode: '',
+      vehicleLookup: '',
       vehicleSize: undefined,
       date: '',
       timeSlot: '',
@@ -139,6 +126,7 @@ export default function BookingForm() {
   const selectedVehicleSize = watch('vehicleSize')
   const selectedAddOns = watch('addOns')
   const selectedPostcode = watch('postcode')
+  const vehicleLookup = watch('vehicleLookup')
 
   // Fetch working days on component mount
   useEffect(() => {
@@ -148,7 +136,7 @@ export default function BookingForm() {
         // Later this will fetch from your database
         setWorkingDays([1, 2, 3, 4, 5, 6])
       } catch (error) {
-        console.error('Error fetching working days:', error)
+        bookingLogger.error('Error fetching working days', error)
         // Fallback to default working days
         setWorkingDays([1, 2, 3, 4, 5, 6])
       }
@@ -222,17 +210,54 @@ export default function BookingForm() {
     checkTravelFee()
   }, [selectedPostcode])
 
+  // Handle vehicle lookup and auto-size detection
+  const handleVehicleChange = (value: string, vehicleData?: VehicleSearchResult | LicensePlateResult) => {
+    setVehicleData(vehicleData || null)
+    
+    if (vehicleData?.size) {
+      // Convert size from database format to form format
+      const sizeMapping = {
+        's': 'small',
+        'm': 'medium', 
+        'l': 'large',
+        'xl': 'extraLarge'
+      }
+      
+      const mappedSize = sizeMapping[vehicleData.size as keyof typeof sizeMapping]
+      if (mappedSize) {
+        setAutoDetectedSize(mappedSize)
+        form.setValue('vehicleSize', mappedSize as any)
+        
+        toast({
+          title: "Vehicle Detected!",
+          description: `We've automatically selected "${vehicleSizes[mappedSize as keyof typeof vehicleSizes].label}" based on your vehicle.`,
+        })
+      }
+    }
+  }
+
   const createBookingRecord = async (data: FormData) => {
     try {
       // Generate a booking reference number
       const bookingRef = `L4D-${Date.now().toString().slice(-6)}`
       
       // Create booking record in database
+      const vehicleInfo = vehicleData ? {
+        make: vehicleData.make || '',
+        model: vehicleData.model || '',
+        registration: 'registrationNumber' in vehicleData ? vehicleData.registrationNumber : '',
+        year: 'yearOfManufacture' in vehicleData ? vehicleData.yearOfManufacture : null,
+        fuelType: 'fuelType' in vehicleData ? vehicleData.fuelType : '',
+        colour: 'colour' in vehicleData ? vehicleData.colour : ''
+      } : {}
+
       const bookingData = {
         customer_name: data.fullName,
         email: user?.email || data.email,
         postcode: data.postcode,
         vehicle_size: data.vehicleSize,
+        vehicle_lookup: data.vehicleLookup,
+        vehicle_info: vehicleInfo,
         service_date: data.date,
         service_time: data.timeSlot,
         add_ons: data.addOns || [],
@@ -355,7 +380,7 @@ export default function BookingForm() {
         case 0: // Details
           return !!(values.fullName && (user?.email || values.email) && values.postcode)
         case 1: // Service
-          return !!values.vehicleSize
+          return !!(values.vehicleLookup && values.vehicleSize)
         case 2: // DateTime
           return !!(values.date && values.timeSlot)
         case 3: // Extras
@@ -372,10 +397,10 @@ export default function BookingForm() {
     // This function is no longer used for booking creation
     // The booking is created when moving to the final step
     // This is just a fallback in case the form is submitted directly
-    console.log('Form submitted with data:', data)
+    bookingLogger.debug('Form submitted', data)
   }
 
-  const handlePaymentSuccess = async (paymentDetails: any) => {
+  const handlePaymentSuccess = async (paymentDetails: PaymentResult) => {
     try {
       // Update booking with payment details
       const bookingDetails = JSON.parse(localStorage.getItem('lastBooking') || '{}')
@@ -390,7 +415,7 @@ export default function BookingForm() {
           body: JSON.stringify({
             id: bookingDetails.id,
             payment_status: 'paid',
-            payment_id: paymentDetails.id,
+            payment_id: paymentDetails.paymentId,
             status: 'confirmed'
           }),
         })
@@ -407,7 +432,7 @@ export default function BookingForm() {
         }
       }
     } catch (error) {
-      console.error('Payment success handling error:', error)
+      bookingLogger.error('Payment success handling error', error)
       toast({
         title: "Payment Processed",
         description: "Your payment was successful, but there was an issue updating your booking. We'll contact you to confirm.",
@@ -416,8 +441,8 @@ export default function BookingForm() {
     }
   }
 
-  const handlePaymentError = (error: any) => {
-    console.error('Payment error:', error)
+  const handlePaymentError = (error: PaymentError) => {
+    bookingLogger.error('Payment error', error)
     toast({
       title: "Payment Failed",
       description: "There was an issue processing your payment. Please try again or contact us for assistance.",
@@ -521,16 +546,50 @@ export default function BookingForm() {
             >
               <div className="text-center mb-8">
                 <Car className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-foreground mb-2">Select Your Vehicle</h2>
-                <p className="text-muted-foreground">Choose the size that best matches your vehicle</p>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Vehicle Lookup</h2>
+                <p className="text-muted-foreground">Enter your registration or search for your vehicle</p>
               </div>
 
+              {/* Vehicle Lookup */}
               <FormField
                 control={form.control}
-                name="vehicleSize"
+                name="vehicleLookup"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormLabel className="text-sm font-medium">Vehicle Registration or Search</FormLabel>
+                    <FormControl>
+                      <VehicleAutocomplete
+                        value={field.value}
+                        onChange={(value, vehicleData) => {
+                          field.onChange(value)
+                          handleVehicleChange(value, vehicleData)
+                        }}
+                        placeholder="Enter reg plate (AB12 CDE) or search vehicle..."
+                        className="h-12 border-2 focus:border-primary transition-colors"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Vehicle Size Selection */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-foreground">Select Vehicle Size</h3>
+                  {autoDetectedSize && (
+                    <Badge variant="default" className="bg-green-100 text-green-800">
+                      Auto-detected
+                    </Badge>
+                  )}
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="vehicleSize"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(vehicleSizes).map(([key, size]) => (
                         <Card
                           key={key}
@@ -560,6 +619,7 @@ export default function BookingForm() {
                   </FormItem>
                 )}
               />
+              </div>
               
               {/* Premium care message */}
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -864,127 +924,142 @@ export default function BookingForm() {
   }
 
   return (
-    <>
-      <motion.div
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={fadeInUp}
-        className="max-w-4xl mx-auto"
-      >
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {steps.map((step, index) => {
-              const Icon = step.icon
-              const isActive = index === currentStep
-              const isCompleted = index < currentStep
-              
-              return (
-                <div key={step.id} className="flex items-center">
-                  <div 
-                    className={`relative flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-200 ${
-                      isCompleted 
-                        ? 'bg-primary border-primary text-primary-foreground' 
-                        : isActive 
-                          ? 'border-primary text-primary bg-primary/10' 
-                          : 'border-muted-foreground/30 text-muted-foreground'
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <CheckCircle className="w-6 h-6" />
-                    ) : (
-                      <Icon className="w-5 h-5" />
-                    )}
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div 
-                      className={`w-16 h-0.5 mx-2 transition-colors duration-200 ${
-                        index < currentStep ? 'bg-primary' : 'bg-muted-foreground/30'
-                      }`} 
-                    />
-                  )}
+    <div className="min-h-screen bg-true-black py-4 sm:py-6 lg:py-8">
+      <div className="max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Progress Steps - Responsive */}
+        <div className="mb-6 sm:mb-8 lg:mb-12">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex flex-col items-center flex-1">
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center mb-2 sm:mb-3 transition-all duration-300 ${
+                  index <= currentStep 
+                    ? 'bg-deep-purple text-primary-text shadow-lg shadow-deep-purple/30' 
+                    : 'bg-sidebar-bg text-secondary-text border border-deep-purple/30'
+                }`}>
+                  <step.icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
                 </div>
-              )
-            })}
-          </div>
-          <div className="text-center">
-            <h1 className="text-sm font-medium text-muted-foreground">
-              Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
-            </h1>
+                <span className={`text-xs sm:text-sm font-medium text-center leading-tight ${
+                  index <= currentStep ? 'text-primary-text' : 'text-secondary-text'
+                }`}>
+                  <span className="hidden sm:inline">{step.title}</span>
+                  <span className="sm:hidden">{step.title.split(' ')[0]}</span>
+                </span>
+                {index < steps.length - 1 && (
+                  <div className={`hidden sm:block absolute top-4 lg:top-6 left-1/2 w-full h-0.5 -z-10 ${
+                    index < currentStep ? 'bg-deep-purple' : 'bg-deep-purple/20'
+                  }`} style={{ marginLeft: '50%', width: 'calc(100% - 2rem)' }} />
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Card className="border-2">
-              <CardContent className="p-8">
+        {/* Form Container - Responsive */}
+        <Card className="bg-sidebar-bg/50 backdrop-blur-sm border-deep-purple/20 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6 lg:p-8 border-b border-deep-purple/20">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary-text">
+                  {steps[currentStep].title}
+                </h2>
+                <p className="text-xs sm:text-sm text-secondary-text mt-1">
+                  Step {currentStep + 1} of {steps.length}
+                </p>
+              </div>
+              {totalPrice > 0 && (
+                <div className="bg-deep-purple/10 rounded-lg p-3 sm:p-4 border border-deep-purple/20">
+                  <div className="text-right">
+                    <p className="text-xs sm:text-sm text-secondary-text">Total Price</p>
+                    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-deep-purple">
+                      £{totalPrice}
+                    </p>
+                    {travelFee > 0 && (
+                      <p className="text-xs text-secondary-text">
+                        (inc. £{travelFee} travel fee)
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-4 sm:p-6 lg:p-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
                 <AnimatePresence mode="wait" custom={direction}>
-                  {renderStepContent()}
+                  <motion.div
+                    key={currentStep}
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30 },
+                      opacity: { duration: 0.2 }
+                    }}
+                    className="min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
+                  >
+                    {renderStepContent()}
+                  </motion.div>
                 </AnimatePresence>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between mt-8 pt-6 border-t">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={prevStep}
-                    disabled={currentStep === 0}
-                    className="flex items-center space-x-2"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    <span>Previous</span>
-                  </Button>
-
-                  {currentStep === steps.length - 1 ? (
-                    createdBookingId ? (
-                      <div className="flex flex-col space-y-4">
-                        <PaymentButton
-                          bookingData={{
-                            id: createdBookingId,
-                            amount: totalPrice,
-                            customerEmail: user?.email || form.getValues('email'),
-                            customerName: form.getValues('fullName'),
-                            service: `Car Valeting Service - ${vehicleSizes[form.getValues('vehicleSize')]?.label || 'Service'}`,
-                            vehicleSize: form.getValues('vehicleSize')
-                          }}
-                          onSuccess={handlePaymentSuccess}
-                          onError={handlePaymentError}
-                          disabled={isLoading}
-                        />
-                        <p className="text-xs text-muted-foreground text-center">
-                          Secure payment powered by PayPal
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center p-4">
-                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-                        <span>Creating booking...</span>
-                      </div>
-                    )
-                  ) : (
+                {/* Navigation Buttons - Responsive */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-deep-purple/20">
+                  {currentStep > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={prevStep}
+                      className="w-full sm:w-auto order-2 sm:order-1 text-sm sm:text-base"
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-2" />
+                      Previous
+                    </Button>
+                  )}
+                  
+                  <div className="flex-1" />
+                  
+                  {currentStep < steps.length - 1 ? (
                     <Button
                       type="button"
                       onClick={nextStep}
                       disabled={!isStepValid(currentStep)}
-                      className="flex items-center space-x-2"
+                      className="w-full sm:w-auto order-1 sm:order-2 text-sm sm:text-base"
                     >
-                      <span>Next</span>
-                      <ChevronRight className="w-4 h-4" />
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>
+                  ) : (
+                    <div className="w-full sm:w-auto order-1 sm:order-2">
+                      <PaymentButton
+                        bookingData={{
+                          id: '', // Will be set by the payment system
+                          amount: totalPrice,
+                          customerEmail: form.getValues('email'),
+                          customerName: form.getValues('fullName'),
+                          service: `${vehicleSizes[form.getValues('vehicleSize')]?.label} Service`,
+                          vehicleSize: form.getValues('vehicleSize')
+                        }}
+                        onSuccess={handlePaymentSuccess}
+                        onError={handlePaymentError}
+                      />
+                    </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-          </form>
-        </Form>
-      </motion.div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
 
-      <PostBookingModal
-        isOpen={showPostBookingModal}
-        onClose={() => setShowPostBookingModal(false)}
-        bookingEmail={form.getValues('email')}
-      />
-    </>
+        {/* Post Booking Modal */}
+        <PostBookingModal
+          isOpen={showPostBookingModal}
+          onClose={() => setShowPostBookingModal(false)}
+          bookingEmail={form.getValues('email') || ''}
+        />
+      </div>
+    </div>
   )
 } 

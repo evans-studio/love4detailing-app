@@ -318,7 +318,7 @@ export default function AdminDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-green-500'
-      case 'pending': return 'bg-yellow-500'
+      case 'pending': return 'bg-platinum-silver'
       case 'completed': return 'bg-blue-500'
       case 'cancelled': return 'bg-red-500'
       default: return 'bg-gray-500'
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <AlertCircle className="h-5 w-5 text-yellow-500" />
+              <AlertCircle className="h-5 w-5 text-platinum-silver" />
               <div>
                 <div className="text-2xl font-bold">{stats.pendingBookings}</div>
                 <p className="text-xs text-muted-foreground">Pending Bookings</p>
