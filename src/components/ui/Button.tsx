@@ -18,6 +18,9 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         premium: "bg-gradient-to-r from-deep-purple to-rich-crimson text-primary-text hover:from-rich-crimson hover:to-deep-purple shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105",
+        theme: "btn-theme-primary",
+        themeSecondary: "btn-theme-secondary", 
+        themeGhost: "btn-theme-ghost",
       },
       size: {
         default: "h-10 px-4 py-2",

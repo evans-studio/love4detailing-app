@@ -2,6 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Love4Detailing Global Theme - Dev Guidelines Compliant */
+
+/* CSS Custom Properties */
+:root {
+  /* Brand Colors (Latest Approved) */
+  --color-primary: #A64AFB;
+  --color-secondary: #141414;
+  --color-accent: #F8F4EB;
+  --color-muted: #DAD7CE;
+  --color-background: #141414;
+  --color-surface: #1E1E1E;
+  --color-surface-light: #262626;
+  --color-text: #F0F0F0;
+  --color-text-muted: #C7C7C7;
+  --color-text-contrast: #F8F4EB;
+  
+  /* State Colors */
+  --color-error: #BA0C2F;
+  --color-success: #28C76F;
+  --color-warning: #FFA726;
+  --color-info: #29B6F6;
+  
+  /* Purple Variations */
+  --purple-50: rgba(166, 74, 251, 0.05);
+  --purple-100: rgba(166, 74, 251, 0.1);
+  --purple-200: rgba(166, 74, 251, 0.2);
+  --purple-300: rgba(166, 74, 251, 0.3);
+  --purple-400: rgba(166, 74, 251, 0.4);
+  --purple-500: #A64AFB;
+  --purple-600: #9635F0;
+  --purple-700: #8520E5;
+  --purple-800: #740BDA;
+  --purple-900: #5F00C9;
+  
+  /* Typography */
+  --font-heading: 'Helvetica', 'Arial', sans-serif;
+  --font-body: 'Inter', 'Helvetica', 'Arial', sans-serif;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-base: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  
+  /* Shadows */
+  --shadow-card: 0 4px 16px rgba(20, 20, 20, 0.4);
+  --shadow-button: 0 2px 8px rgba(166, 74, 251, 0.3);
+  --shadow-button-hover: 0 4px 16px rgba(166, 74, 251, 0.5);
+  --shadow-purple-glow: 0 0 20px rgba(166, 74, 251, 0.4);
+  --shadow-glass: 0 8px 32px rgba(20, 20, 20, 0.6);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  
+  /* Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-gsap: Power2.easeOut;
+}
+
 @layer base {
   :root {
     /* Final Color Palette Variables */
@@ -804,5 +875,306 @@ body {
 }
 
 .theme-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   LOVE4DETAILING GLOBAL THEME SYSTEM
+   Dev Guidelines Compliant - Latest Colors
+======================================== */
+
+/* Updated Color References - Latest Approved Purple #A64AFB */
+.theme-text-accent {
+  color: #A64AFB;
+}
+
+.theme-border-solid {
+  border-color: #A64AFB;
+}
+
+.theme-gradient-purple {
+  background: linear-gradient(135deg, #A64AFB 0%, #9635F0 100%);
+}
+
+.theme-shadow-glow {
+  box-shadow: 0 0 20px rgba(166, 74, 251, 0.4);
+}
+
+.theme-button-primary {
+  background: linear-gradient(135deg, #A64AFB 0%, #9635F0 100%);
+  color: #F8F4EB;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(166, 74, 251, 0.3);
+}
+
+.theme-button-primary:hover {
+  box-shadow: 0 4px 16px rgba(166, 74, 251, 0.5);
+  transform: translateY(-1px);
+}
+
+.theme-input:focus {
+  border-color: #A64AFB;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(166, 74, 251, 0.2);
+}
+
+/* ===== COMPREHENSIVE COMPONENT SYSTEM ===== */
+
+/* Button Variants */
+.btn-theme-primary {
+  background: linear-gradient(135deg, #A64AFB 0%, #9635F0 100%);
+  color: #F8F4EB;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(166, 74, 251, 0.3);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-theme-primary:hover {
+  box-shadow: 0 4px 16px rgba(166, 74, 251, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-theme-secondary {
+  background: transparent;
+  color: #A64AFB;
+  border: 2px solid #A64AFB;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-theme-secondary:hover {
+  background: #A64AFB;
+  color: #F8F4EB;
+}
+
+.btn-theme-ghost {
+  background: transparent;
+  color: #F0F0F0;
+  border: 2px solid rgba(166, 74, 251, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-theme-ghost:hover {
+  background: rgba(166, 74, 251, 0.1);
+  border-color: #A64AFB;
+}
+
+/* Card System */
+.card-theme-default {
+  background: rgba(30, 30, 30, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(166, 74, 251, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(20, 20, 20, 0.4);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1.5rem;
+}
+
+.card-theme-default:hover {
+  border-color: rgba(166, 74, 251, 0.3);
+  box-shadow: 0 0 20px rgba(166, 74, 251, 0.4);
+}
+
+.card-theme-glass {
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(166, 74, 251, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(20, 20, 20, 0.6);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1.5rem;
+}
+
+.card-theme-glass:hover {
+  box-shadow: 0 0 20px rgba(166, 74, 251, 0.4);
+}
+
+/* Input System */
+.input-theme {
+  width: 100%;
+  background: #141414;
+  color: #F0F0F0;
+  border: 2px solid #DAD7CE;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-family: 'Inter', 'Helvetica', 'Arial', sans-serif;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-theme:focus {
+  outline: none;
+  border-color: #A64AFB;
+  box-shadow: 0 0 0 3px rgba(166, 74, 251, 0.1);
+}
+
+.input-theme::placeholder {
   color: #C7C7C7;
+}
+
+/* Navigation System */
+.nav-sidebar-theme {
+  background: linear-gradient(135deg, #141414 0%, #1E1E1E 100%);
+  border-right: 1px solid rgba(166, 74, 251, 0.2);
+}
+
+.nav-item-theme {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: #C7C7C7;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-item-theme:hover {
+  background: rgba(166, 74, 251, 0.1);
+  color: #A64AFB;
+}
+
+.nav-item-theme.active {
+  background: rgba(166, 74, 251, 0.1);
+  color: #A64AFB;
+  border-left: 3px solid #A64AFB;
+  font-weight: 600;
+}
+
+.nav-topbar-theme {
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(166, 74, 251, 0.2);
+}
+
+/* Modal System */
+.modal-overlay-theme {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content-theme {
+  background: linear-gradient(135deg, #141414 0%, #1E1E1E 100%);
+  border: 1px solid rgba(166, 74, 251, 0.2);
+  border-radius: 1.25rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+}
+
+/* Animation Classes */
+@keyframes theme-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes theme-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes theme-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-theme-fade-in {
+  animation: theme-fade-in 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-theme-slide-up {
+  animation: theme-slide-up 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-theme-scale {
+  animation: theme-scale 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Layout System */
+.layout-theme-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.layout-theme-section {
+  padding: 4rem 0;
+}
+
+.layout-theme-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.layout-theme-grid-auto {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .layout-theme-container {
+    padding: 0 1rem;
+  }
+
+  .layout-theme-section {
+    padding: 2rem 0;
+  }
+
+  .layout-theme-grid {
+    gap: 1rem;
+  }
+
+  .btn-theme-primary,
+  .btn-theme-secondary,
+  .btn-theme-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .card-theme-default,
+  .card-theme-glass {
+    padding: 1rem;
+  }
 } 

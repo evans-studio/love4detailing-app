@@ -73,8 +73,9 @@ const CTASection = () => {
               >
                 <Link href="/booking">
                   <Button 
+                    variant="theme"
                     size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white border-0 min-w-[200px] h-14 text-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 group"
+                    className="min-w-[200px] h-14 text-lg font-semibold group"
                   >
                     Book Your Service
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -82,9 +83,9 @@ const CTASection = () => {
                 </Link>
                 <Link href="/services">
                   <Button 
-                    variant="outline" 
+                    variant="themeSecondary" 
                     size="lg"
-                    className="border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 min-w-[200px] h-14 text-lg font-semibold backdrop-blur-sm"
+                    className="min-w-[200px] h-14 text-lg font-semibold"
                   >
                     View Pricing
                   </Button>

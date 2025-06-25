@@ -123,7 +123,7 @@ export default function ServicesSection() {
           >
             {services.map((service) => (
               <motion.div key={service.id} variants={itemVariants}>
-                <Card className="h-full group hover:shadow-lg hover:shadow-deep-purple/10 transition-all duration-300 hover:border-deep-purple/30 bg-sidebar-bg/50 backdrop-blur-sm">
+                <Card variant="theme" className="h-full group transition-all duration-300">
                   <CardHeader className="p-4 sm:p-5 lg:p-6">
                     <div className="flex items-start justify-between mb-3 sm:mb-4">
                       <div className="flex items-center gap-2 sm:gap-3">
@@ -171,8 +171,8 @@ export default function ServicesSection() {
                     </div>
                     
                     <Button 
+                      variant="themeSecondary"
                       className="w-full group/btn text-xs sm:text-sm" 
-                      variant="outline"
                       asChild
                     >
                       <Link href="/booking">
@@ -203,7 +203,7 @@ export default function ServicesSection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center max-w-xs sm:max-w-none mx-auto">
               <Button 
-                variant="premium" 
+                variant="theme" 
                 className="w-full sm:w-auto text-sm sm:text-base"
                 asChild
               >
@@ -212,7 +212,7 @@ export default function ServicesSection() {
                 </Link>
               </Button>
               <Button 
-                variant="ghost" 
+                variant="themeGhost" 
                 className="w-full sm:w-auto text-sm sm:text-base"
                 asChild
               >
