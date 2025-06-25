@@ -139,7 +139,15 @@ export function AuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px] w-full max-w-[95vw] mx-auto">
+      <DialogContent 
+        className="sm:max-w-[425px] w-full max-w-[95vw] mx-auto"
+        style={{
+          // iOS Safari specific fixes
+          maxHeight: '90dvh',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Welcome to Love4Detailing</DialogTitle>
           <DialogDescription>
@@ -166,7 +174,13 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="email"
                   defaultValue={bookingEmail}
-                  className="text-base"
+                  className="text-base touch-manipulation"
+                  style={{
+                    fontSize: '16px',
+                    WebkitAppearance: 'none',
+                    borderRadius: '0.375rem',
+                    touchAction: 'manipulation'
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -179,10 +193,24 @@ export function AuthModal({
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="text-base"
+                  className="text-base touch-manipulation"
+                  style={{
+                    fontSize: '16px',
+                    WebkitAppearance: 'none',
+                    borderRadius: '0.375rem',
+                    touchAction: 'manipulation'
+                  }}
                 />
               </div>
-              <Button type="submit" className="w-full h-12" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                className="w-full h-12 touch-manipulation" 
+                disabled={isLoading}
+                style={{
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent'
+                }}
+              >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
@@ -199,7 +227,13 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="name"
                   defaultValue={bookingData?.customer}
-                  className="text-base"
+                  className="text-base touch-manipulation"
+                  style={{
+                    fontSize: '16px',
+                    WebkitAppearance: 'none',
+                    borderRadius: '0.375rem',
+                    touchAction: 'manipulation'
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -213,7 +247,13 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="email"
                   defaultValue={bookingEmail}
-                  className="text-base"
+                  className="text-base touch-manipulation"
+                  style={{
+                    fontSize: '16px',
+                    WebkitAppearance: 'none',
+                    borderRadius: '0.375rem',
+                    touchAction: 'manipulation'
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -227,10 +267,24 @@ export function AuthModal({
                   disabled={isLoading}
                   autoComplete="new-password"
                   minLength={6}
-                  className="text-base"
+                  className="text-base touch-manipulation"
+                  style={{
+                    fontSize: '16px',
+                    WebkitAppearance: 'none',
+                    borderRadius: '0.375rem',
+                    touchAction: 'manipulation'
+                  }}
                 />
               </div>
-              <Button type="submit" className="w-full h-12" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                className="w-full h-12 touch-manipulation" 
+                disabled={isLoading}
+                style={{
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent'
+                }}
+              >
                 {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>

@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-manipulation",
   {
     variants: {
       variant: {
@@ -23,11 +23,11 @@ const buttonVariants = cva(
         themeGhost: "btn-theme-ghost",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 sm:h-9 rounded-md px-3 sm:px-4 text-xs sm:text-sm",
-        lg: "h-10 sm:h-11 lg:h-12 rounded-md px-6 sm:px-8 lg:px-10 text-sm sm:text-base lg:text-lg",
-        icon: "h-8 w-8 sm:h-10 sm:w-10",
-        xs: "h-6 sm:h-7 px-2 sm:px-3 text-xs rounded",
+        default: "h-10 px-4 py-2 min-h-[44px]",
+        sm: "h-8 sm:h-9 rounded-md px-3 sm:px-4 text-xs sm:text-sm min-h-[44px]",
+        lg: "h-10 sm:h-11 lg:h-12 rounded-md px-6 sm:px-8 lg:px-10 text-sm sm:text-base lg:text-lg min-h-[44px]",
+        icon: "h-8 w-8 sm:h-10 sm:w-10 min-h-[44px] min-w-[44px]",
+        xs: "h-6 sm:h-7 px-2 sm:px-3 text-xs rounded min-h-[44px]",
       },
     },
     defaultVariants: {
@@ -44,12 +44,17 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, style, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        style={{
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation',
+          ...style
+        }}
         {...props}
       />
     )

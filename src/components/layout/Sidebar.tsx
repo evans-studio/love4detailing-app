@@ -350,30 +350,43 @@ export default function Sidebar() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="md:hidden fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border/50 hover:bg-accent shadow-lg"
+          className="md:hidden fixed top-4 left-4 z-[9999] bg-background/95 backdrop-blur-sm border border-border/50 hover:bg-accent shadow-lg touch-manipulation"
+          style={{
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation'
+          }}
         >
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="p-0 w-64 bg-sidebar border-r border-border/20">
+      <SheetContent 
+        side="left" 
+        className="p-0 w-64 bg-sidebar border-r border-border/20 z-[9999]"
+        style={{
+          maxWidth: '85vw',
+          height: '100dvh'
+        }}
+      >
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>
         </SheetHeader>
-        <SidebarContent isMobile={true} />
+        <div className="h-full overflow-y-auto -webkit-overflow-scrolling-touch">
+          <SidebarContent isMobile={true} />
+        </div>
       </SheetContent>
     </Sheet>
   )
 
   return (
     <>
-      {/* Mobile Sidebar */}
-      <div className="md:hidden">
+      {/* Mobile Sidebar - Only show below md breakpoint */}
+      <div className="block md:hidden">
         <MobileSidebar />
       </div>
 
-      {/* Desktop Sidebar - Dynamic width based on collapse state */}
+      {/* Desktop Sidebar - Only show above md breakpoint */}
       <motion.div 
-        className="hidden md:block"
+        className="hidden md:block fixed top-0 left-0 h-screen z-[999]"
         animate={{
           width: isCollapsed ? 80 : 256
         }}
@@ -383,11 +396,6 @@ export default function Sidebar() {
           damping: 20
         }}
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          zIndex: 999,
           backgroundColor: '#1E1E1E',
           borderRight: '1px solid rgba(138, 43, 133, 0.2)',
           overflow: 'hidden'
