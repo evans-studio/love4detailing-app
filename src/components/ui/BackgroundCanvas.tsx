@@ -14,8 +14,7 @@
  */
 "use client"
 
-import { useMemo } from 'react'
-import { useDeviceDetection } from '@/hooks/useDeviceDetection'
+import { useState, useEffect } from 'react'
 
 interface BackgroundCanvasProps {
   className?: string
@@ -30,25 +29,53 @@ export default function BackgroundCanvas({
   speed = 1,
   opacity = 0.8
 }: BackgroundCanvasProps) {
-  const { isMobile, isLowPowerDevice } = useDeviceDetection()
-  
-  // Performance-based adjustments
-  const animationDuration = useMemo(() => {
-    const baseSpeed = isLowPowerDevice ? 30 : isMobile ? 25 : 20
-    return `${baseSpeed / speed}s`
-  }, [isMobile, isLowPowerDevice, speed])
+  // Use state to prevent hydration mismatch
+  const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isLowPowerDevice, setIsLowPowerDevice] = useState(false)
 
-  const intensityValue = useMemo(() => {
-    if (isLowPowerDevice) return intensity === 'high' ? 0.6 : 0.4
-    return intensity === 'low' ? 0.4 : intensity === 'high' ? 0.8 : 0.6
-  }, [intensity, isLowPowerDevice])
+  useEffect(() => {
+    setMounted(true)
+    
+    // Device detection after mount to prevent hydration issues
+    const checkDevice = () => {
+      const mobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      const lowPower = mobile && (
+        navigator.hardwareConcurrency <= 2 || 
+        (navigator as any).deviceMemory <= 2 ||
+        window.innerWidth < 480
+      )
+      
+      setIsMobile(mobile)
+      setIsLowPowerDevice(lowPower)
+    }
 
-  const opacityValue = useMemo(() => {
-    if (isLowPowerDevice) return opacity * 0.7
-    return opacity
-  }, [opacity, isLowPowerDevice])
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    return () => window.removeEventListener('resize', checkDevice)
+  }, [])
 
-  const gradientStyle = useMemo(() => ({
+  // Default values for SSR
+  const animationDuration = mounted 
+    ? `${(isLowPowerDevice ? 30 : isMobile ? 25 : 20) / speed}s`
+    : '20s'
+
+  const intensityValue = mounted
+    ? (isLowPowerDevice ? (intensity === 'high' ? 0.6 : 0.4) : (intensity === 'low' ? 0.4 : intensity === 'high' ? 0.8 : 0.6))
+    : 0.6
+
+  const opacityValue = mounted
+    ? (isLowPowerDevice ? opacity * 0.7 : opacity)
+    : opacity
+
+  // Always render with fallback styles to prevent black background
+  const gradientStyle = {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: -10,
     background: `
       radial-gradient(circle at 20% 30%, rgba(138, 43, 133, ${intensityValue * 0.3}) 0%, transparent 50%),
       radial-gradient(circle at 80% 70%, rgba(169, 76, 157, ${intensityValue * 0.25}) 0%, transparent 50%),
@@ -58,17 +85,18 @@ export default function BackgroundCanvas({
     `,
     backgroundSize: '400% 400%, 300% 300%, 500% 500%, 350% 350%, 100% 100%',
     opacity: opacityValue,
-    animation: `
+    animation: mounted ? `
       gradientFlow ${animationDuration} ease-in-out infinite,
       gradientPulse ${parseFloat(animationDuration) * 1.5}s ease-in-out infinite alternate
-    `,
-    willChange: 'background-position, opacity'
-  }), [animationDuration, intensityValue, opacityValue])
+    ` : 'none',
+    willChange: mounted ? 'background-position, opacity' : 'auto'
+  }
 
   return (
     <div 
-      className={`fixed inset-0 -z-10 ${className}`}
+      className={className}
       style={gradientStyle}
+      suppressHydrationWarning
     />
   )
 } 
