@@ -1223,7 +1223,32 @@ body {
     }
   }
 
-/* WebGL Background Fallback Animation */
+/* Animated Background Keyframes */
+@keyframes gradientFlow {
+  0%, 100% {
+    background-position: 0% 50%, 100% 50%, 0% 100%, 100% 0%, 0% 0%;
+  }
+  25% {
+    background-position: 100% 50%, 0% 100%, 50% 0%, 0% 50%, 0% 0%;
+  }
+  50% {
+    background-position: 50% 100%, 50% 0%, 100% 50%, 50% 100%, 0% 0%;
+  }
+  75% {
+    background-position: 0% 0%, 100% 100%, 0% 50%, 100% 50%, 0% 0%;
+  }
+}
+
+@keyframes gradientPulse {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}
+
+/* Legacy fallback for older browsers */
 @keyframes gradientShift {
   0%, 100% {
     background-position: 0% 50%;
