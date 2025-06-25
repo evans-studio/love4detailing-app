@@ -77,19 +77,17 @@ export default function BackgroundCanvas({
     bottom: 0,
     zIndex: -10,
     background: `
-      radial-gradient(circle at 20% 30%, rgba(138, 43, 133, ${intensityValue * 0.3}) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(169, 76, 157, ${intensityValue * 0.25}) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(138, 43, 133, ${intensityValue * 0.2}) 0%, transparent 50%),
-      radial-gradient(circle at 90% 20%, rgba(169, 76, 157, ${intensityValue * 0.15}) 0%, transparent 50%),
-      linear-gradient(135deg, #141414 0%, #1a1a1a 50%, #141414 100%)
+      radial-gradient(circle at 20% 30%, rgba(138, 43, 133, 0.6) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(169, 76, 157, 0.5) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(138, 43, 133, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 90% 20%, rgba(169, 76, 157, 0.35) 0%, transparent 50%),
+      radial-gradient(circle at 60% 50%, rgba(138, 43, 133, 0.3) 0%, transparent 60%),
+      linear-gradient(135deg, #141414 0%, #1c1c1c 25%, #141414 50%, #1c1c1c 75%, #141414 100%)
     `,
-    backgroundSize: '400% 400%, 300% 300%, 500% 500%, 350% 350%, 100% 100%',
+    backgroundSize: '300% 300%, 250% 250%, 400% 400%, 280% 280%, 350% 350%, 100% 100%',
     opacity: opacityValue,
-    animation: mounted ? `
-      gradientFlow ${animationDuration} ease-in-out infinite,
-      gradientPulse ${parseFloat(animationDuration) * 1.5}s ease-in-out infinite alternate
-    ` : 'none',
-    willChange: mounted ? 'background-position, opacity' : 'auto'
+    animation: mounted ? `gradientFlow ${animationDuration} ease-in-out infinite` : 'none',
+    willChange: mounted ? 'background-position' : 'auto'
   }
 
   return (

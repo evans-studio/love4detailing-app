@@ -34,9 +34,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen bg-true-black overflow-x-hidden max-w-full">
+    <div className="relative min-h-screen overflow-x-hidden max-w-full">
       {/* Global WebGL Background with Fluid Gradients */}
-      <BackgroundCanvas intensity="medium" speed={0.8} opacity={0.7} />
+      <BackgroundCanvas intensity="medium" speed={0.8} opacity={0.8} />
       
       {/* Main App Content */}
       <div className="relative z-10 overflow-x-hidden max-w-full">
