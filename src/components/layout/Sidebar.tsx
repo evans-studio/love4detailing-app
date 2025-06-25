@@ -171,12 +171,12 @@ export default function Sidebar() {
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="h-full flex flex-col border-r border-deep-purple/20 w-64" style={{ background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)' }}>
-      {/* Logo - Full Width */}
-      <div className="p-6 border-b border-deep-purple/20 flex-shrink-0">
+      {/* Logo - Updated proportions matching reference */}
+      <div className="sidebar-logo-container border-b border-deep-purple/20 flex-shrink-0">
         <img 
           src="/logo.png" 
           alt="Love4Detailing" 
-          className="w-full h-auto object-contain"
+          className="sidebar-logo"
           style={{ 
             maxHeight: '60px'
           }}

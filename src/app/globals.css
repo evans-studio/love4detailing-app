@@ -1152,29 +1152,73 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .layout-theme-container {
-    padding: 0 1rem;
+  /* Sidebar Brand Button */
+  .btn-brand-accent {
+    background: #8A2B85;
+    color: #ffffff;
+    font-weight: 700;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
   }
 
-  .layout-theme-section {
-    padding: 2rem 0;
+  .btn-brand-accent:hover {
+    background: #A33AA1;
+    color: #ffffff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(138, 43, 133, 0.4);
   }
 
-  .layout-theme-grid {
-    gap: 1rem;
+  .btn-brand-accent:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(138, 43, 133, 0.2);
   }
 
-  .btn-theme-primary,
-  .btn-theme-secondary,
-  .btn-theme-ghost {
-    width: 100%;
+  /* Sidebar Logo Proportions */
+  .sidebar-logo-container {
+    padding: 2rem 1.5rem;
+    display: flex;
     justify-content: center;
+    align-items: center;
   }
 
-  .card-theme-default,
-  .card-theme-glass {
-    padding: 1rem;
+  .sidebar-logo {
+    width: 100%;
+    max-width: 160px;
+    height: auto;
+    object-fit: contain;
   }
-} 
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .layout-theme-container {
+      padding: 0 1rem;
+    }
+
+    .layout-theme-section {
+      padding: 2rem 0;
+    }
+
+    .layout-theme-grid {
+      gap: 1rem;
+    }
+
+    .btn-theme-primary,
+    .btn-theme-secondary,
+    .btn-theme-ghost {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .card-theme-default,
+    .card-theme-glass {
+      padding: 1rem;
+    }
+
+    .sidebar-logo-container {
+      padding: 1.5rem 1rem;
+    }
+
+    .sidebar-logo {
+      max-width: 120px;
+    }
+  } 

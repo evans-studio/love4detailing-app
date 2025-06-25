@@ -79,17 +79,17 @@ export default function LandingSidebar() {
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="h-full flex flex-col">
-      {/* Logo Section */}
-      <div className={`p-6 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4' : ''}`}>
+      {/* Logo Section - Updated proportions */}
+      <div className={`sidebar-logo-container flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4 py-6' : ''}`}>
         <Link href="/" className="flex items-center justify-center">
-          <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full h-16'}`}>
+          <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full max-w-[160px] h-16'}`}>
             <Image
               src="/logo.png"
               alt="Love4Detailing Logo"
               fill
-              className="object-contain"
+              className="sidebar-logo"
               priority
-              sizes={isCollapsed && !isMobile ? "48px" : "256px"}
+              sizes={isCollapsed && !isMobile ? "48px" : "160px"}
             />
           </div>
         </Link>
@@ -259,7 +259,11 @@ export default function LandingSidebar() {
               animate={isCollapsed && !isMobile ? "collapsed" : "expanded"}
               className="space-y-2"
             >
-              <Button variant="default" className="w-full btn-premium" asChild>
+              <Button 
+                variant="default" 
+                className="w-full btn-brand-accent" 
+                asChild
+              >
                 <Link href="/booking">Book Service Now</Link>
               </Button>
               <div className="flex gap-2">
@@ -282,7 +286,13 @@ export default function LandingSidebar() {
         
         {isCollapsed && !isMobile && (
           <div className="flex flex-col space-y-2">
-            <Button variant="default" size="sm" className="w-full p-2 btn-premium" asChild title="Book Service">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="w-full p-2 btn-brand-accent" 
+              asChild 
+              title="Book Service"
+            >
               <Link href="/booking">
                 <Calendar className="h-4 w-4" />
               </Link>
