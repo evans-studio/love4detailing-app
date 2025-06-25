@@ -75,6 +75,8 @@
   /* Z-Index Scale - Simplified and organized */
   --z-background: -10;
   --z-base: 0;
+  --z-admin-controls: 5;
+  --z-tabs: 10;
   --z-sidebar: 40;
   --z-mobile-menu: 50;
   --z-modal: 60;

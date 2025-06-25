@@ -14,6 +14,8 @@ import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/auth'
 import { useToast } from '@/hooks/use-toast'
 import { Settings, Clock, Users, DollarSign, Calendar, Shield, Save, RefreshCw } from 'lucide-react'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 
 interface AdminSetting {
   id: string
@@ -242,346 +244,334 @@ export default function AdminControlPanel() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Business Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-4 w-4 text-green-500" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">Total Revenue</p>
-                <p className="text-2xl font-bold text-green-500">£{businessStats.totalRevenue.toFixed(2)}</p>
+    <div className="space-y-6 relative">
+      {/* Business Stats Overview - Enhanced Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-green-500 rounded-full">
+                <DollarSign className="h-4 w-4 text-white" />
+              </div>
+              <div className="space-y-1 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">Total Revenue</p>
+                <p className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-300 truncate">
+                  £{businessStats.totalRevenue.toFixed(2)}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-blue-500" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">Monthly Revenue</p>
-                <p className="text-2xl font-bold text-blue-500">£{businessStats.monthlyRevenue.toFixed(2)}</p>
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-500 rounded-full">
+                <Calendar className="h-4 w-4 text-white" />
+              </div>
+              <div className="space-y-1 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">Monthly Revenue</p>
+                <p className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300 truncate">
+                  £{businessStats.monthlyRevenue.toFixed(2)}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-purple-500" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">Total Customers</p>
-                <p className="text-2xl font-bold text-purple-500">{businessStats.totalCustomers}</p>
+        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 sm:col-span-2 lg:col-span-1">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-purple-500 rounded-full">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              <div className="space-y-1 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400">Total Customers</p>
+                <p className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300">
+                  {businessStats.totalCustomers}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Admin Control Tabs */}
-      <Tabs defaultValue="settings" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Business Settings
-          </TabsTrigger>
-          <TabsTrigger value="hours" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Working Hours
-          </TabsTrigger>
-          <TabsTrigger value="loyalty" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Loyalty System
-          </TabsTrigger>
-        </TabsList>
+      {/* Enhanced Admin Control Tabs with Fixed Z-Index */}
+      <div className="relative z-0">
+        <Tabs defaultValue="settings" className="space-y-4">
+          <div className="w-full">
+            <ScrollArea className="w-full">
+              <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-muted/50">
+                <TabsTrigger value="settings" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Business </span>Settings
+                </TabsTrigger>
+                <TabsTrigger value="hours" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Working </span>Hours
+                </TabsTrigger>
+                <TabsTrigger value="loyalty" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Loyalty </span>System
+                </TabsTrigger>
+              </TabsList>
+            </ScrollArea>
+          </div>
 
-        <TabsContent value="settings" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Business Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="max-daily-bookings">Max Daily Bookings</Label>
-                  <Input
-                    id="max-daily-bookings"
-                    type="number"
-                    value={getSetting('max_daily_bookings') || 5}
-                    onChange={(e) => updateSetting('max_daily_bookings', parseInt(e.target.value))}
-                    disabled={isSaving}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="booking-advance-days">Booking Advance Days</Label>
-                  <Input
-                    id="booking-advance-days"
-                    type="number"
-                    value={getSetting('booking_advance_days') || 30}
-                    onChange={(e) => updateSetting('booking_advance_days', parseInt(e.target.value))}
-                    disabled={isSaving}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="loyalty-points-rate">Loyalty Points Rate (%)</Label>
-                  <Input
-                    id="loyalty-points-rate"
-                    type="number"
-                    value={getSetting('loyalty_points_rate') || 10}
-                    onChange={(e) => updateSetting('loyalty_points_rate', parseInt(e.target.value))}
-                    disabled={isSaving}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cancellation-window">Cancellation Window (hours)</Label>
-                  <Input
-                    id="cancellation-window"
-                    type="number"
-                    value={getSetting('cancellation_window_hours') || 24}
-                    onChange={(e) => updateSetting('cancellation_window_hours', parseInt(e.target.value))}
-                    disabled={isSaving}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center gap-2">
-                  <RefreshCw className="h-4 w-4" />
-                  <span className="text-sm text-muted-foreground">
-                    Last updated: {new Date().toLocaleDateString()}
-                  </span>
-                </div>
-                <Badge variant="outline" className="text-green-600">
-                  Auto-saved
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="hours" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Working Hours Management</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Configure your business hours. These will determine available booking slots.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Debug info */}
-                <div className="text-xs text-muted-foreground mb-4">
-                  Debug: Working hours loaded: {workingHours.length} entries
-                </div>
-                
-                {/* Only show Monday to Friday (index 1-5) */}
-                {dayNames.slice(1, 6).map((dayName, arrayIndex) => {
-                  const dayIndex = arrayIndex + 1 // Monday = 1, Tuesday = 2, etc.
-                  const workingHour = getWorkingHour(dayIndex)
-                  console.log(`Day ${dayIndex} (${dayName}):`, workingHour)
-                  
-                  // Use existing data or defaults
-                  const currentData = workingHour || {
-                    day_of_week: dayIndex,
-                    start_time: '10:00',
-                    end_time: '17:00',
-                    is_active: true,
-                    slot_duration_minutes: 90,
-                    max_bookings_per_slot: 1
-                  }
-                  
-                  return (
-                    <motion.div
-                      key={dayIndex}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: arrayIndex * 0.1 }}
-                      className="flex flex-col gap-4 p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-24">
-                            <Badge variant={currentData.is_active ? "default" : "secondary"}>
-                              {dayName}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={currentData.is_active}
-                              onCheckedChange={(checked: boolean) => 
-                                updateWorkingHours(dayIndex, { 
-                                  ...currentData,
-                                  is_active: checked 
-                                })
-                              }
-                              disabled={isSaving}
-                            />
-                            <span className="text-sm text-muted-foreground">Open</span>
-                          </div>
-                        </div>
-                        
-                        {currentData.is_active && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            <span>
-                              {currentData.start_time} - {currentData.end_time}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Always show time inputs */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pl-4 border-l-2 border-primary/20">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Start Time</Label>
-                          <Input
-                            type="time"
-                            value={currentData.start_time}
-                            onChange={(e) => 
-                              updateWorkingHours(dayIndex, { 
-                                ...currentData,
-                                start_time: e.target.value 
-                              })
-                            }
-                            className="w-full"
-                            disabled={isSaving}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">End Time</Label>
-                          <Input
-                            type="time"
-                            value={currentData.end_time}
-                            onChange={(e) => 
-                              updateWorkingHours(dayIndex, { 
-                                ...currentData,
-                                end_time: e.target.value 
-                              })
-                            }
-                            className="w-full"
-                            disabled={isSaving}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">Slot Duration (minutes)</Label>
-                          <Select
-                            value={currentData.slot_duration_minutes?.toString() || "90"}
-                            onValueChange={(value) => 
-                              updateWorkingHours(dayIndex, { 
-                                ...currentData,
-                                slot_duration_minutes: parseInt(value) 
-                              })
-                            }
-                            disabled={isSaving}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="60">60 minutes</SelectItem>
-                              <SelectItem value="90">90 minutes</SelectItem>
-                              <SelectItem value="120">120 minutes</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Show status */}
-                      {!workingHour && (
-                        <div className="text-xs text-platinum-silver bg-platinum-silver/10 px-2 py-1 rounded">
-                          ⚠️ Using default values - will be saved when you make changes
-                        </div>
-                      )}
-                    </motion.div>
-                  )
-                })}
-              </div>
-              
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-start gap-3">
-                  <div className="p-1 bg-blue-100 rounded">
-                    <Clock className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-blue-900">How Time Slots Work</h4>
-                    <p className="text-sm text-blue-700 mt-1">
-                      Time slots are automatically generated based on your working hours and slot duration. 
-                      For example: 10:00-17:00 with 90-minute slots creates slots at 10:00, 11:30, 13:00, 14:30, 16:00.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="loyalty" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Loyalty System Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Current Loyalty Settings</h4>
+          <TabsContent value="settings" className="space-y-4 relative z-0">
+            <Card className="border-0 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl">Business Settings</CardTitle>
+                <p className="text-sm text-muted-foreground">Configure your business operations and booking rules</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Points Rate:</span>
-                      <span className="font-medium">{getSetting('loyalty_points_rate') || 10}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Active Badges:</span>
-                      <span className="font-medium">7</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Loyalty Tiers:</span>
-                      <span className="font-medium">4</span>
-                    </div>
+                    <Label htmlFor="max-daily-bookings" className="text-sm font-medium">Max Daily Bookings</Label>
+                    <Input
+                      id="max-daily-bookings"
+                      type="number"
+                      className="touch-target"
+                      value={getSetting('max_daily_bookings') || 5}
+                      onChange={(e) => updateSetting('max_daily_bookings', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
                   </div>
-                </div>
 
-                <div className="space-y-4">
-                  <h4 className="font-medium">Quick Actions</h4>
                   <div className="space-y-2">
-                    <Button variant="outline" size="sm" className="w-full justify-start">
-                      <Shield className="h-4 w-4 mr-2" />
-                      Manage Badges
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start">
-                      <Users className="h-4 w-4 mr-2" />
-                      View Customer Tiers
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Configure Rewards
-                    </Button>
+                    <Label htmlFor="booking-advance-days" className="text-sm font-medium">Booking Advance Days</Label>
+                    <Input
+                      id="booking-advance-days"
+                      type="number"
+                      className="touch-target"
+                      value={getSetting('booking_advance_days') || 30}
+                      onChange={(e) => updateSetting('booking_advance_days', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="loyalty-points-rate" className="text-sm font-medium">Loyalty Points Rate (%)</Label>
+                    <Input
+                      id="loyalty-points-rate"
+                      type="number"
+                      className="touch-target"
+                      value={getSetting('loyalty_points_rate') || 10}
+                      onChange={(e) => updateSetting('loyalty_points_rate', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cancellation-window" className="text-sm font-medium">Cancellation Window (hours)</Label>
+                    <Input
+                      id="cancellation-window"
+                      type="number"
+                      className="touch-target"
+                      value={getSetting('cancellation_window_hours') || 24}
+                      onChange={(e) => updateSetting('cancellation_window_hours', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div className="pt-4 border-t">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Loyalty system is active and running
-                  </span>
-                  <Badge className="bg-green-100 text-green-800">
-                    Active
+                <Separator />
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Last updated: {new Date().toLocaleDateString()}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="text-green-600 border-green-200">
+                    <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                    Auto-saved
                   </Badge>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="hours" className="space-y-4 relative z-0">
+            <Card className="border-0 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl">Working Hours Management</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Configure your business hours. These will determine available booking slots.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px] pr-4">
+                  <div className="space-y-4">
+                    {/* Only show Monday to Friday (index 1-5) */}
+                    {dayNames.slice(1, 6).map((dayName, arrayIndex) => {
+                      const dayIndex = arrayIndex + 1 // Monday = 1, Tuesday = 2, etc.
+                      const workingHour = getWorkingHour(dayIndex)
+                      
+                      // Use existing data or defaults
+                      const currentData = workingHour || {
+                        day_of_week: dayIndex,
+                        start_time: '10:00',
+                        end_time: '17:00',
+                        is_active: true,
+                        slot_duration_minutes: 90,
+                        max_bookings_per_slot: 1
+                      }
+                      
+                      return (
+                        <Card key={dayIndex} className="border border-muted">
+                          <CardContent className="p-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <Switch
+                                  checked={currentData.is_active}
+                                  onCheckedChange={(checked) => 
+                                    updateWorkingHours(dayIndex, { is_active: checked })
+                                  }
+                                  disabled={isSaving}
+                                />
+                                <div>
+                                  <h4 className="font-medium text-sm sm:text-base">{dayName}</h4>
+                                  <p className="text-xs text-muted-foreground">
+                                    {currentData.is_active ? 'Open' : 'Closed'}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              {currentData.is_active && (
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="time"
+                                      value={currentData.start_time}
+                                      onChange={(e) => 
+                                        updateWorkingHours(dayIndex, { start_time: e.target.value })
+                                      }
+                                      disabled={isSaving}
+                                      className="w-24 sm:w-28 text-xs sm:text-sm touch-target"
+                                    />
+                                    <span className="text-xs text-muted-foreground">to</span>
+                                    <Input
+                                      type="time"
+                                      value={currentData.end_time}
+                                      onChange={(e) => 
+                                        updateWorkingHours(dayIndex, { end_time: e.target.value })
+                                      }
+                                      disabled={isSaving}
+                                      className="w-24 sm:w-28 text-xs sm:text-sm touch-target"
+                                    />
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-2">
+                                    <Select
+                                      value={currentData.slot_duration_minutes.toString()}
+                                      onValueChange={(value) => 
+                                        updateWorkingHours(dayIndex, { slot_duration_minutes: parseInt(value) })
+                                      }
+                                      disabled={isSaving}
+                                    >
+                                      <SelectTrigger className="w-20 sm:w-24 text-xs sm:text-sm touch-target">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="60">60m</SelectItem>
+                                        <SelectItem value="90">90m</SelectItem>
+                                        <SelectItem value="120">120m</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="loyalty" className="space-y-4 relative z-0">
+            <Card className="border-0 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl">Loyalty System</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Manage customer rewards and loyalty program settings
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="points-per-pound" className="text-sm font-medium">Points per £1 spent</Label>
+                    <Input
+                      id="points-per-pound"
+                      type="number"
+                      className="touch-target"
+                      value={getSetting('loyalty_points_per_pound') || 1}
+                      onChange={(e) => updateSetting('loyalty_points_per_pound', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="redemption-rate" className="text-sm font-medium">Points redemption rate</Label>
+                    <Input
+                      id="redemption-rate"
+                      type="number"
+                      className="touch-target"
+                      placeholder="100 points = £1"
+                      value={getSetting('points_redemption_rate') || 100}
+                      onChange={(e) => updateSetting('points_redemption_rate', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="welcome-bonus" className="text-sm font-medium">Welcome bonus points</Label>
+                    <Input
+                      id="welcome-bonus"
+                      type="number"
+                      className="touch-target"
+                      value={getSetting('welcome_bonus_points') || 100}
+                      onChange={(e) => updateSetting('welcome_bonus_points', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="referral-bonus" className="text-sm font-medium">Referral bonus points</Label>
+                    <Input
+                      id="referral-bonus"
+                      type="number"
+                      className="touch-target"
+                      value={getSetting('referral_bonus_points') || 500}
+                      onChange={(e) => updateSetting('referral_bonus_points', parseInt(e.target.value))}
+                      disabled={isSaving}
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-medium">Enable loyalty program</h4>
+                    <p className="text-xs text-muted-foreground">Allow customers to earn and redeem points</p>
+                  </div>
+                  <Switch
+                    checked={getSetting('loyalty_program_enabled') || true}
+                    onCheckedChange={(checked) => updateSetting('loyalty_program_enabled', checked)}
+                    disabled={isSaving}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 } 

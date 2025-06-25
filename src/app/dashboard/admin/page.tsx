@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useProtectedRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -34,7 +38,11 @@ import {
   UserCheck,
   CalendarDays,
   PoundSterling,
-  Award
+  Award,
+  MoreHorizontal,
+  Settings,
+  BarChart3,
+  Activity
 } from 'lucide-react'
 
 interface Booking {
@@ -390,29 +398,35 @@ export default function AdminDashboard() {
     return <LoadingSkeleton />
   }
 
+  if (!user) {
+    return null
+  }
+
   return (
-    <div className="space-y-8">
-      {/* Admin Header */}
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      {/* Header Section - Improved Mobile Layout */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
+        className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
       >
-        <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {user?.full_name} - Here's your business overview
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Welcome back, {user?.full_name || 'Admin'} - Here's your business overview
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
+        
+        {/* Mobile-First Action Buttons */}
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto touch-target" asChild>
             <Link href="/dashboard/admin/customers">
               <Users className="mr-2 h-4 w-4" />
-              Manage Customers
+              <span className="hidden sm:inline">Manage </span>Customers
             </Link>
           </Button>
-          <Button asChild>
+          <Button size="sm" className="w-full sm:w-auto touch-target" asChild>
             <Link href="/dashboard/book-service">
               <Calendar className="mr-2 h-4 w-4" />
               New Booking
@@ -421,183 +435,310 @@ export default function AdminDashboard() {
         </div>
       </motion.div>
 
-      {/* Primary Stats */}
+      {/* Enhanced Stats Grid with Better Cards */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <PoundSterling className="h-5 w-5 text-green-500" />
-              <div>
-                <div className="text-2xl font-bold">£{stats.totalRevenue.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">Total Revenue</p>
+              <div className="p-2 bg-green-500 rounded-full">
+                <PoundSterling className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-300 truncate">
+                  £{stats.totalRevenue.toFixed(0)}
+                </div>
+                <p className="text-xs text-green-600 dark:text-green-400">Total Revenue</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <CalendarDays className="h-5 w-5 text-blue-500" />
-              <div>
-                <div className="text-2xl font-bold">{stats.totalBookings}</div>
-                <p className="text-xs text-muted-foreground">Total Bookings</p>
+              <div className="p-2 bg-blue-500 rounded-full">
+                <CalendarDays className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  {stats.totalBookings}
+                </div>
+                <p className="text-xs text-blue-600 dark:text-blue-400">Total Bookings</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-purple-500" />
-              <div>
-                <div className="text-2xl font-bold">{stats.totalCustomers}</div>
-                <p className="text-xs text-muted-foreground">Total Customers</p>
+              <div className="p-2 bg-purple-500 rounded-full">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300">
+                  {stats.totalCustomers}
+                </div>
+                <p className="text-xs text-purple-600 dark:text-purple-400">Total Customers</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
-              <AlertCircle className="h-5 w-5 text-platinum-silver" />
-              <div>
-                <div className="text-2xl font-bold">{stats.pendingBookings}</div>
-                <p className="text-xs text-muted-foreground">Pending Bookings</p>
+              <div className="p-2 bg-orange-500 rounded-full">
+                <AlertCircle className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-orange-700 dark:text-orange-300">
+                  {stats.pendingBookings}
+                </div>
+                <p className="text-xs text-orange-600 dark:text-orange-400">Pending</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Secondary Stats */}
+      {/* Secondary Stats - Improved Layout */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-blue-400" />
-              <div>
-                <div className="text-xl font-bold">{stats.todayBookings}</div>
-                <p className="text-xs text-muted-foreground">Today's Bookings</p>
+              <Calendar className="h-4 w-4 text-blue-400 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="text-base sm:text-xl font-bold">{stats.todayBookings}</div>
+                <p className="text-xs text-muted-foreground">Today</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-green-400" />
-              <div>
-                <div className="text-xl font-bold">£{stats.monthlyRevenue.toFixed(0)}</div>
-                <p className="text-xs text-muted-foreground">Monthly Revenue</p>
+              <TrendingUp className="h-4 w-4 text-green-400 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="text-base sm:text-xl font-bold">£{stats.monthlyRevenue.toFixed(0)}</div>
+                <p className="text-xs text-muted-foreground">This Month</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-4 w-4 text-purple-400" />
-              <div>
-                <div className="text-xl font-bold">£{stats.averageBookingValue.toFixed(0)}</div>
-                <p className="text-xs text-muted-foreground">Avg Booking Value</p>
+              <DollarSign className="h-4 w-4 text-purple-400 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="text-base sm:text-xl font-bold">£{stats.averageBookingValue.toFixed(0)}</div>
+                <p className="text-xs text-muted-foreground">Avg Value</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <UserCheck className="h-4 w-4 text-indigo-400" />
-              <div>
-                <div className="text-xl font-bold">{stats.upcomingBookings}</div>
-                <p className="text-xs text-muted-foreground">Upcoming Bookings</p>
+              <UserCheck className="h-4 w-4 text-indigo-400 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="text-base sm:text-xl font-bold">{stats.upcomingBookings}</div>
+                <p className="text-xs text-muted-foreground">Upcoming</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Main Content Tabs */}
+      {/* Enhanced Tabs with Better Mobile Experience */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
+        className="space-y-6"
       >
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="bookings">Bookings ({stats.totalBookings})</TabsTrigger>
-            <TabsTrigger value="customers">Customers ({stats.totalCustomers})</TabsTrigger>
-            <TabsTrigger value="controls">Controls</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          </TabsList>
+          {/* Mobile-Optimized Tabs */}
+          <div className="w-full">
+            <ScrollArea className="w-full">
+              <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/50">
+                <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <Activity className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Overview</span>
+                </TabsTrigger>
+                <TabsTrigger value="bookings" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <Calendar className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Bookings</span>
+                  <span className="sm:hidden">({stats.totalBookings})</span>
+                  <span className="hidden sm:inline"> ({stats.totalBookings})</span>
+                </TabsTrigger>
+                <TabsTrigger value="customers" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <Users className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Customers</span>
+                  <span className="sm:hidden">({stats.totalCustomers})</span>
+                  <span className="hidden sm:inline"> ({stats.totalCustomers})</span>
+                </TabsTrigger>
+                <TabsTrigger value="controls" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <Settings className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Controls</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
+                  <BarChart3 className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Analytics</span>
+                </TabsTrigger>
+              </TabsList>
+            </ScrollArea>
+          </div>
 
           <TabsContent value="overview" className="space-y-6">
             {/* API Usage Tracker */}
             <ApiUsageTracker />
             
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Upcoming Bookings */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Upcoming Bookings - Enhanced Card */}
+              <Card className="border-0 shadow-md">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-md">
+                      <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
                     Upcoming Bookings
+                    <Badge variant="secondary" className="ml-auto">
+                      {bookings.filter(booking => 
+                        new Date(booking.booking_date) >= new Date() && 
+                        ['pending', 'confirmed'].includes(booking.status)
+                      ).length}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {upcomingBookings.length === 0 ? (
-                      <p className="text-muted-foreground text-center py-4">No upcoming bookings</p>
-                    ) : (
-                      upcomingBookings.map((booking) => (
-                        <div key={booking.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge variant="outline" className={`${getStatusColor(booking.status)} text-white`}>
-                                {booking.status}
-                              </Badge>
-                              <span className="font-medium">{booking.customer_name}</span>
+                <CardContent className="pt-0">
+                  <ScrollArea className="h-[300px] pr-4">
+                    <div className="space-y-3">
+                      {bookings
+                        .filter(booking => 
+                          new Date(booking.booking_date) >= new Date() && 
+                          ['pending', 'confirmed'].includes(booking.status)
+                        )
+                        .sort((a, b) => new Date(a.booking_date).getTime() - new Date(b.booking_date).getTime())
+                        .slice(0, 5).length === 0 ? (
+                        <div className="text-center py-8">
+                          <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                          <p className="text-muted-foreground">No upcoming bookings</p>
+                        </div>
+                      ) : (
+                        bookings
+                          .filter(booking => 
+                            new Date(booking.booking_date) >= new Date() && 
+                            ['pending', 'confirmed'].includes(booking.status)
+                          )
+                          .sort((a, b) => new Date(a.booking_date).getTime() - new Date(b.booking_date).getTime())
+                          .slice(0, 5)
+                          .map((booking) => (
+                          <div key={booking.id} className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className="flex-1 min-w-0 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className={`${getStatusColor(booking.status)} text-white text-xs`}>
+                                  {booking.status}
+                                </Badge>
+                                <span className="font-medium text-sm truncate">{booking.customer_name}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {format(new Date(booking.booking_date), 'MMM dd, yyyy')} at {booking.booking_time}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {booking.service} - £{booking.total_price}
+                              </div>
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              {format(new Date(booking.booking_date), 'MMM dd, yyyy')} at {booking.booking_time}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {booking.service} - £{booking.total_price}
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
                             <Button
                               size="sm"
                               variant="outline"
+                              className="ml-2 h-8 px-2 text-xs touch-target-sm"
                               onClick={() => updateBookingStatus(booking.id, 'confirmed')}
                               disabled={booking.status === 'confirmed' || booking.status === 'completed'}
                             >
                               Confirm
                             </Button>
                           </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
                 </CardContent>
               </Card>
+
+              {/* Recent Customers - Enhanced Card */}
+              <Card className="border-0 shadow-md">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="p-1.5 bg-purple-100 dark:bg-purple-900 rounded-md">
+                      <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    Recent Customers
+                    <Badge variant="secondary" className="ml-auto">
+                      {customers.slice(0, 5).length}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ScrollArea className="h-[300px] pr-4">
+                    <div className="space-y-3">
+                      {customers.slice(0, 5).length === 0 ? (
+                        <div className="text-center py-8">
+                          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                          <p className="text-muted-foreground">No customers yet</p>
+                        </div>
+                      ) : (
+                        customers
+                          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                          .slice(0, 5)
+                          .map((customer) => (
+                          <div key={customer.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Avatar className="w-10 h-10 flex-shrink-0">
+                                <AvatarImage src={customer.profile_image_url} alt={customer.full_name} />
+                                <AvatarFallback className="text-xs">
+                                  {customer.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm truncate">{customer.full_name}</div>
+                                <div className="text-xs text-muted-foreground truncate">{customer.email}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {customer.total_bookings} booking{customer.total_bookings !== 1 ? 's' : ''} • £{customer.total_spent.toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="ml-2 h-8 px-2 text-xs touch-target-sm"
+                              onClick={() => fetchCustomerProfile(customer.id)}
+                              disabled={isLoadingProfile}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
               {/* Recent Customers */}
               <Card>
@@ -799,7 +940,9 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="controls" className="space-y-4">
-            <AdminControlPanel />
+            <div className="relative z-10">
+              <AdminControlPanel />
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
