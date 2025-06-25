@@ -2,54 +2,75 @@
   "theme": {
       "mode": "dark",
       "colors": {
-          "background": "#0E0E0E",
+          "background": "#141414",
           "primary": "#8A2B85",
-          "secondary": "#CBA7D8",
-          "surface": "#1A1A1A",
-          "text": "#FFFFFF",
-          "text-muted": "#AAAAAA",
-          "border": "#2A2A2A",
-          "error": "#FF4D4D",
+          "secondary": "#F8F4EB",
+          "accent": "#DAD7CE",
+          "surface": "#1E1E1E",
+          "text": "#F0F0F0",
+          "text-muted": "#C7C7C7",
+          "text-contrast": "#F8F4EB",
+          "border": "#8A2B85",
+          "border-muted": "rgba(138, 43, 133, 0.2)",
+          "error": "#BA0C2F",
           "success": "#28C76F"
       },
       "typography": {
-          "font-body": "'Helvetica Neue', sans-serif",
-          "font-heading": "Helvetica, Arial, sans-serif",
+          "font-body": "'Inter', 'Helvetica', 'Arial', sans-serif",
+          "font-heading": "'Helvetica', 'Arial', sans-serif",
           "font-size-base": "1rem",
           "font-size-heading": "1.75rem",
-          "letter-spacing": "0.02em"
+          "letter-spacing": "0.02em",
+          "line-height": "1.6"
       },
       "borderRadius": {
           "base": "0.75rem",
           "button": "0.5rem",
-          "card": "1rem"
+          "card": "1rem",
+          "modal": "1.25rem"
       },
       "shadows": {
-          "card": "0 4px 12px rgba(0, 0, 0, 0.25)",
-          "button": "0 2px 6px rgba(138, 43, 133, 0.4)"
+          "card": "0 4px 16px rgba(20, 20, 20, 0.4)",
+          "button": "0 2px 8px rgba(138, 43, 133, 0.3)",
+          "button-hover": "0 4px 16px rgba(138, 43, 133, 0.5)",
+          "purple-glow": "0 0 20px rgba(138, 43, 133, 0.4)",
+          "glass": "0 8px 32px rgba(20, 20, 20, 0.6)"
+      },
+      "animations": {
+          "duration": "300ms",
+          "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+          "gsap-ease": "Power2.easeOut"
       }
   },
   "components": {
       "button": {
-          "primary": "bg-primary text-white font-semibold px-6 py-3 rounded-button shadow-button hover:brightness-110 transition",
-          "secondary": "bg-surface text-white border border-white px-6 py-3 rounded-button hover:border-primary hover:text-primary transition",
-          "ghost": "bg-transparent text-white border border-white px-6 py-3 rounded-button hover:border-primary transition"
+          "primary": "bg-deep-purple text-canvas-white font-semibold px-6 py-3 rounded-button shadow-button hover:shadow-button-hover transition-all duration-300 glow-purple",
+          "secondary": "bg-true-black text-canvas-white border border-deep-purple px-6 py-3 rounded-button hover:bg-deep-purple hover:text-canvas-white transition-all duration-300",
+          "ghost": "bg-transparent text-canvas-white border border-stone-grey px-6 py-3 rounded-button hover:border-deep-purple hover:text-deep-purple transition-all duration-300",
+          "glass": "glass-effect text-canvas-white px-6 py-3 rounded-button hover:glow-purple transition-all duration-300"
       },
       "card": {
-          "base": "bg-surface text-white rounded-card shadow-card p-6"
+          "base": "bg-sidebar-bg text-primary-text rounded-card shadow-card p-6 border border-deep-purple/20",
+          "glass": "glass-effect text-primary-text rounded-card p-6 hover:glow-purple transition-all duration-300",
+          "gradient": "gradient-card text-primary-text rounded-card p-6"
       },
       "input": {
-          "base": "bg-surface text-white border border-border rounded-base px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+          "base": "bg-true-black text-canvas-white border-2 border-stone-grey rounded-base px-4 py-3 placeholder-secondary-text focus:outline-none focus:border-deep-purple focus:glow-purple transition-all duration-300"
       },
       "upload": {
-          "base": "bg-surface border-2 border-dashed border-border rounded-card p-4 text-center text-white cursor-pointer hover:border-primary"
+          "base": "bg-sidebar-bg border-2 border-dashed border-stone-grey rounded-card p-6 text-center text-canvas-white cursor-pointer hover:border-deep-purple hover:glow-purple transition-all duration-300"
       },
       "navSidebar": {
-          "container": "fixed top-0 left-0 h-screen w-64 bg-background text-white p-6 flex flex-col gap-6 border-r border-border",
-          "item": "flex items-center gap-3 text-sm font-medium hover:text-primary transition"
+          "container": "fixed top-0 left-0 h-screen w-64 sidebar-gradient text-primary-text p-6 flex flex-col border-r border-deep-purple/20",
+          "item": "flex items-center gap-3 text-sm font-medium text-secondary-text hover:text-deep-purple hover:bg-deep-purple/10 transition-all duration-300 rounded-lg px-3 py-2",
+          "item-active": "flex items-center gap-3 text-sm font-medium text-deep-purple bg-deep-purple/10 rounded-lg px-3 py-2"
+      },
+      "modal": {
+          "overlay": "fixed inset-0 bg-true-black/80 backdrop-blur-sm z-50",
+          "content": "gradient-modal rounded-modal border border-deep-purple/20 shadow-glass"
       },
       "formSection": {
-          "wrapper": "space-y-6 bg-surface rounded-card p-6 shadow-card"
+          "wrapper": "space-y-6 bg-sidebar-bg/50 backdrop-blur-sm rounded-card p-6 shadow-card border border-deep-purple/20"
       }
   },
   "motion": {
@@ -64,7 +85,8 @@
               "opacity": 0
           },
           "transition": {
-              "duration": 0.35
+              "duration": 0.3,
+              "ease": [0.4, 0, 0.2, 1]
           }
       },
       "slideUp": {
@@ -81,7 +103,44 @@
               "y": 40
           },
           "transition": {
-              "duration": 0.4
+              "duration": 0.4,
+              "ease": [0.4, 0, 0.2, 1]
+          }
+      },
+      "slideLeft": {
+          "initial": {
+              "opacity": 0,
+              "x": -300
+          },
+          "animate": {
+              "opacity": 1,
+              "x": 0
+          },
+          "exit": {
+              "opacity": 0,
+              "x": -300
+          },
+          "transition": {
+              "duration": 0.4,
+              "ease": [0.4, 0, 0.2, 1]
+          }
+      },
+      "scale": {
+          "initial": {
+              "opacity": 0,
+              "scale": 0.95
+          },
+          "animate": {
+              "opacity": 1,
+              "scale": 1
+          },
+          "exit": {
+              "opacity": 0,
+              "scale": 0.95
+          },
+          "transition": {
+              "duration": 0.3,
+              "ease": [0.4, 0, 0.2, 1]
           }
       }
   },
@@ -89,12 +148,34 @@
       "pageContainer": {
           "maxWidth": "1280px",
           "padding": "2rem",
-          "centered": true
+          "centered": true,
+          "background": "#141414"
       },
       "sidebar": {
           "enabled": true,
           "width": "16rem",
-          "background": "#0E0E0E"
+          "background": "linear-gradient(135deg, #141414 0%, #1E1E1E 100%)",
+          "border": "rgba(138, 43, 133, 0.2)"
+      },
+      "responsive": {
+          "breakpoints": {
+              "mobile": "640px",
+              "tablet": "768px",
+              "desktop": "1024px",
+              "wide": "1280px"
+          }
       }
+  },
+  "glassmorphism": {
+      "enabled": true,
+      "backdrop-blur": "10px",
+      "background": "rgba(20, 20, 20, 0.85)",
+      "border": "rgba(138, 43, 133, 0.2)"
+  },
+  "gsap": {
+      "enabled": true,
+      "easing": "Power2.easeOut",
+      "duration": 0.6,
+      "stagger": 0.1
   }
 }
