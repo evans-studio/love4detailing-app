@@ -13,6 +13,9 @@ export default function BackButton() {
   // Don't show back button on home page
   if (pathname === '/') return null
 
+  // Check if we're on a dashboard page to avoid conflicts with mobile menu
+  const isDashboard = pathname.startsWith('/dashboard')
+
   const handleBack = () => {
     // Check if there's browser history
     if (window.history.length > 1) {
@@ -30,9 +33,11 @@ export default function BackButton() {
   return (
     <div 
       className={`fixed top-4 z-50 flex gap-2 transition-all duration-300 ${
-        isCollapsed 
-          ? 'left-4' // When collapsed, position in sidebar area
-          : 'left-4 lg:left-auto lg:right-4' // When expanded, move to right on desktop
+        isDashboard 
+          ? 'right-4' // Dashboard: always on right to avoid mobile menu button
+          : isCollapsed 
+            ? 'left-4' // Landing: when collapsed, position in sidebar area
+            : 'left-4 lg:left-auto lg:right-4' // Landing: when expanded, move to right on desktop
       }`}
     >
       {/* Back Button - Always circular */}
@@ -47,7 +52,7 @@ export default function BackButton() {
       </Button>
 
       {/* Home Button - only show when sidebar is expanded and not on dashboard pages */}
-      {!isCollapsed && !pathname.startsWith('/dashboard') && (
+      {!isCollapsed && !isDashboard && (
         <Button
           variant="outline"
           size="icon"

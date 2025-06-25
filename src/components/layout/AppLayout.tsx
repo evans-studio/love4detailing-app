@@ -27,10 +27,14 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             : 'ml-0 lg:ml-64' // Landing: margin only on lg+ screens since mobile uses Sheet
         }`}
       >
-        {/* Mobile content padding to account for mobile menu button */}
-        <div className={`${isDashboard ? 'md:hidden' : 'lg:hidden'} h-16 w-full`} />
+        {/* Mobile content padding to account for mobile menu button - Always show on mobile */}
+        <div className={`${isDashboard ? 'block md:hidden' : 'block lg:hidden'} h-16 w-full flex-shrink-0`} />
         <BackButton />
-        {children}
+        
+        {/* Content wrapper with proper padding */}
+        <div className={`w-full ${isDashboard ? 'p-4 md:p-8' : ''}`}>
+          {children}
+        </div>
       </main>
     </div>
   )
