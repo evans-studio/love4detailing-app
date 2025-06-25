@@ -13,6 +13,8 @@ export default function BackButton() {
   // Don't show back button on home page
   if (pathname === '/') return null
 
+  const isDashboard = pathname.startsWith('/dashboard')
+
   const handleBack = () => {
     // Check if there's browser history
     if (window.history.length > 1) {
@@ -29,30 +31,31 @@ export default function BackButton() {
 
   return (
     <div 
-      className={`fixed top-4 z-50 flex gap-2 transition-all duration-300 ${
-        isCollapsed 
-          ? 'left-4' // When collapsed, position in sidebar area
-          : 'left-4 lg:left-auto lg:right-4' // When expanded, move to right on desktop
+      className={`fixed top-4 z-30 flex gap-2 transition-all duration-300 ${
+        // Position based on screen size and sidebar presence
+        isDashboard 
+          ? 'right-4' // Dashboard: always on right to avoid mobile menu button
+          : 'left-4 lg:right-4' // Landing: left on mobile, right on desktop when sidebar is present
       }`}
     >
-      {/* Back Button - Always circular */}
+      {/* Back Button */}
       <Button
         variant="outline"
         size="icon"
         onClick={handleBack}
-        className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm border-border/50 hover:bg-accent shadow-lg flex-shrink-0"
+        className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm border-border/50 hover:bg-accent shadow-lg flex-shrink-0 touch-target"
         title="Go Back"
       >
         <ArrowLeft className="w-4 h-4" />
       </Button>
 
-      {/* Home Button - only show when sidebar is expanded and not on dashboard pages */}
-      {!isCollapsed && !pathname.startsWith('/dashboard') && (
+      {/* Home Button - only show when not on dashboard pages and not collapsed */}
+      {!isDashboard && !isCollapsed && (
         <Button
           variant="outline"
           size="icon"
           onClick={handleHome}
-          className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm border-border/50 hover:bg-accent shadow-lg flex-shrink-0"
+          className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm border-border/50 hover:bg-accent shadow-lg flex-shrink-0 touch-target hidden lg:flex"
           title="Go Home"
         >
           <Home className="w-4 h-4" />

@@ -79,21 +79,23 @@ export default function LandingSidebar() {
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="h-full flex flex-col">
-      {/* Logo Section - Fixed proportions */}
-      <div className={`sidebar-logo-container flex-shrink-0 ${isCollapsed && !isMobile ? 'px-4 py-6' : 'px-6 py-6'}`}>
+      {/* Logo Section - Responsive sizing */}
+      <div className={`flex-shrink-0 border-b border-[#8A2B85]/20 ${
+        isCollapsed && !isMobile ? 'p-4' : 'p-6'
+      }`}>
         <Link href="/" className="flex items-center justify-center">
-          <div className={`relative ${isCollapsed && !isMobile ? 'w-12 h-12' : 'w-full max-w-[160px] h-16'}`}>
+          <div className={`relative ${
+            isCollapsed && !isMobile 
+              ? 'w-12 h-12' 
+              : 'w-full max-w-[160px] h-16'
+          }`}>
             <Image
               src="/logo.png"
               alt="Love4Detailing Logo"
               fill
-              className="sidebar-logo object-contain"
+              className="object-contain"
               priority
               sizes={isCollapsed && !isMobile ? "48px" : "160px"}
-              style={{
-                objectFit: 'contain',
-                objectPosition: 'center'
-              }}
               onError={(e) => {
                 console.error('Logo failed to load:', e)
                 const target = e.target as HTMLImageElement
@@ -137,7 +139,7 @@ export default function LandingSidebar() {
         </div>
       )}
 
-      {/* Quick Info Section - Updated brand colors */}
+      {/* Quick Info Section */}
       <div className={`px-4 flex-shrink-0 ${isCollapsed && !isMobile ? 'px-2' : ''}`}>
         <AnimatePresence>
           {(!isCollapsed || isMobile) && (
@@ -288,9 +290,9 @@ export default function LandingSidebar() {
     </div>
   )
 
-  // Mobile Menu Button - Improved positioning and touch targets
+  // Mobile Menu Button - Improved positioning
   const MobileMenuButton = () => (
-    <div className="lg:hidden fixed top-4 left-4 z-50">
+    <div className="sidebar-mobile-button lg:hidden">
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetTrigger asChild>
           <Button
@@ -318,11 +320,11 @@ export default function LandingSidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - Simplified positioning */}
       <motion.aside
         variants={sidebarVariants}
         animate={isCollapsed ? "collapsed" : "expanded"}
-        className="hidden lg:flex fixed left-0 top-0 h-full bg-[#141414] border-r border-[#8A2B85]/20 z-40"
+        className="sidebar-desktop hidden lg:flex bg-[#141414] border-r border-[#8A2B85]/20"
         style={{
           background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)',
         }}

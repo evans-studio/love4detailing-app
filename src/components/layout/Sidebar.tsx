@@ -4,22 +4,17 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/Input'
-import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Menu, Shield, Users, Calendar, Star, BarChart3, Settings, ChevronLeft, ChevronRight, User, Home, FileText, Trophy, LogOut, Phone, MapPin } from 'lucide-react'
+import { Menu, Shield, Users, Calendar, Star, BarChart3, Settings, User, Home, FileText, Trophy, LogOut, Phone, MapPin } from 'lucide-react'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { useAuth, signOut } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
 import { useSidebar } from './SidebarContext'
-import { cn } from '@/lib/utils'
 
 const getNavItems = (isAdmin: boolean) => {
   if (isAdmin) {
@@ -36,38 +31,6 @@ const getNavItems = (isAdmin: boolean) => {
       { href: '/dashboard/rewards', label: 'Rewards', icon: Trophy },
       { href: '/dashboard/profile', label: 'My Profile', icon: User },
     ]
-  }
-}
-
-const sidebarVariants = {
-  expanded: { 
-    width: 256,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 20
-    }
-  },
-  collapsed: { 
-    width: 80,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 20
-    }
-  }
-}
-
-const contentVariants = {
-  expanded: { 
-    opacity: 1,
-    x: 0,
-    transition: { delay: 0.1 }
-  },
-  collapsed: { 
-    opacity: 0,
-    x: -10,
-    transition: { duration: 0.1 }
   }
 }
 
@@ -121,70 +84,31 @@ export default function Sidebar() {
     }
   }
 
-  const AuthDialog = ({ type }: { type: 'login' | 'signup' }) => (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button 
-          variant={type === 'signup' ? 'default' : 'outline'} 
-          className="w-full"
-        >
-          {type === 'signup' ? 'Sign Up' : 'Log In'}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="bg-true-black border border-deep-purple/20">
-        <DialogHeader>
-          <DialogTitle className="text-primary-text">
-            {type === 'signup' ? 'Create an account' : 'Welcome back'}
-          </DialogTitle>
-          <DialogDescription className="text-secondary-text">
-            {type === 'signup' 
-              ? 'Create an account to track your bookings and earn rewards.'
-              : 'Sign in to manage your bookings and rewards.'}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-secondary-text">Email</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="hello@example.com"
-              variant="default"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-secondary-text">Password</Label>
-            <Input 
-              id="password" 
-              type="password"
-              variant="default"
-            />
-          </div>
-          <Button className="w-full" variant="default">
-            {type === 'signup' ? 'Create Account' : 'Sign In'}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
+  if (!user) {
+    return (
+      <>
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          defaultTab="sign-in"
+        />
+      </>
+    )
+  }
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="h-full flex flex-col border-r border-[#8A2B85]/20 w-64" style={{ background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)' }}>
-      {/* Logo - Fixed proportions */}
-      <div className="sidebar-logo-container border-b border-[#8A2B85]/20 flex-shrink-0">
+      {/* Logo - Responsive sizing */}
+      <div className="flex-shrink-0 border-b border-[#8A2B85]/20">
         <Link href="/" className="flex items-center justify-center p-6">
           <div className="relative w-full max-w-[160px] h-16">
             <Image
               src="/logo.png"
               alt="Love4Detailing Logo"
               fill
-              className="sidebar-logo object-contain"
+              className="object-contain"
               priority
               sizes="160px"
-              style={{
-                objectFit: 'contain',
-                objectPosition: 'center'
-              }}
               onError={(e) => {
                 console.error('Logo failed to load:', e)
                 const target = e.target as HTMLImageElement
@@ -200,24 +124,29 @@ export default function Sidebar() {
       </div>
 
       {/* User Profile Section */}
-      <div className="p-6 border-b border-[#8A2B85]/20 flex-shrink-0">
+      <div className="p-4 border-b border-[#8A2B85]/20 flex-shrink-0">
         <div className="flex items-center space-x-3">
-          <Avatar className="h-12 w-12 border-2 border-[#8A2B85]/20">
-            <AvatarImage src={profileImageUrl || undefined} alt={user?.email || 'User'} />
-            <AvatarFallback className="bg-[#8A2B85]/10 text-[#8A2B85] font-semibold">
-              {user?.email?.charAt(0).toUpperCase() || 'U'}
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={profileImageUrl || ''} alt={user.email || ''} />
+            <AvatarFallback className="bg-[#8A2B85] text-white">
+              {user.email?.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-[#F8F4EB] truncate">
-              {(user as any)?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+              {user.email}
             </p>
-            <p className="text-xs text-[#C7C7C7] truncate">{user?.email}</p>
-            {isAdmin && (
-              <Badge variant="secondary" className="mt-1 text-xs bg-[#8A2B85]/10 text-[#8A2B85] border-[#8A2B85]/20">
-                Admin
-              </Badge>
-            )}
+            <div className="flex items-center gap-1">
+              {isAdmin && (
+                <Badge variant="secondary" className="text-xs bg-[#8A2B85]/20 text-[#8A2B85] border-[#8A2B85]/30">
+                  Admin
+                </Badge>
+              )}
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                <span className="text-xs text-[#C7C7C7]">4.9</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -273,9 +202,9 @@ export default function Sidebar() {
     </div>
   )
 
-  // Mobile Menu Button - Improved positioning and touch targets
+  // Mobile Menu Button - Improved positioning
   const MobileMenuButton = () => (
-    <div className="md:hidden fixed top-4 left-4 z-50">
+    <div className="sidebar-mobile-button md:hidden">
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetTrigger asChild>
           <Button
@@ -303,8 +232,8 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed left-0 top-0 h-full z-40">
+      {/* Desktop Sidebar - Simplified positioning */}
+      <aside className="sidebar-desktop hidden md:flex">
         <SidebarContent />
       </aside>
 

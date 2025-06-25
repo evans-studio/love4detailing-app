@@ -27,12 +27,11 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             : 'ml-0 lg:ml-64' // Landing: margin only on lg+ screens since mobile uses Sheet
         }`}
         style={{
-          // Ensure main content doesn't get hidden behind sidebar on mobile
           position: 'relative',
           zIndex: 1,
         }}
       >
-        {/* Mobile content padding to account for mobile menu button - improved spacing */}
+        {/* Mobile content padding to account for mobile menu button */}
         <div className={`${isDashboard ? 'md:hidden' : 'lg:hidden'} h-16 w-full flex-shrink-0`} />
         <BackButton />
         <div className="w-full max-w-[100vw] overflow-x-hidden">
@@ -46,7 +45,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-x-hidden w-full max-w-[100vw]">
-      {/* Global WebGL Background with Fluid Gradients */}
+      {/* Global Background with Fluid Gradients */}
       <BackgroundCanvas intensity="medium" speed={0.8} opacity={0.8} />
       
       {/* Main App Content */}
