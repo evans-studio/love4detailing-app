@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import emailjs from '@emailjs/browser'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()

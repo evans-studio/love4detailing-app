@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { vehicleLogger } from '@/lib/utils/logger'
 import type { ApiResponse, VehicleData } from '@/types'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 // DVLA Vehicle Enquiry Service API
 const DVLA_API_URL = 'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles'
 
