@@ -1,4 +1,4 @@
-import { WebVitals } from 'web-vitals';
+import type { Metric } from 'web-vitals';
 
 declare global {
   interface Window {
@@ -44,13 +44,13 @@ export const event = ({ action, category, label, value }: {
 };
 
 // Track Web Vitals
-export const reportWebVitals = ({ id, name, label, value }: WebVitals) => {
+export const reportWebVitals = (metric: Metric) => {
   if (typeof window === 'undefined') return;
   
-  window.gtag('event', name, {
-    event_category: label === 'web-vital' ? 'Web Vitals' : 'Next.js custom metric',
-    value: Math.round(name === 'CLS' ? value * 1000 : value),
-    event_label: id,
+  window.gtag('event', metric.name, {
+    event_category: 'Web Vitals',
+    value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+    event_label: metric.id,
     non_interaction: true,
   });
 }; 
