@@ -351,18 +351,20 @@ export default function BookingForm() {
           // Show success message and redirect
           toast({
             title: "Booking Created Successfully!",
-            description: "Your booking has been created. We'll contact you to confirm the details.",
-            variant: "default",
+            description: "We'll be in touch shortly to confirm your booking.",
           })
           
-          router.push('/booking/success')
+          router.push('/dashboard/bookings')
         } else {
-          setDirection(1)
           setCurrentStep(currentStep + 1)
         }
       } catch (error) {
-        // Handle error
-        console.error('Error in nextStep:', error)
+        console.error('Error creating booking:', error)
+        toast({
+          title: "Error",
+          description: "There was a problem creating your booking. Please try again.",
+          variant: "destructive"
+        })
       } finally {
         setIsLoading(false)
       }

@@ -1,55 +1,34 @@
 "use client"
 
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { format, addDays } from 'date-fns'
-import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabase/client'
-import { calculateTravelFee } from '@/lib/utils/calculateTravelFee'
-import { calculateTimeSlots, getWorkingDays, isWorkingDay } from '@/lib/utils/calculateTimeSlots'
-import type { TimeSlot } from '@/types'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/use-toast'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/Card'
+import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
+import { cn } from '@/lib/utils'
+import { Car, Calendar, MapPin, CheckCircle, Clock, Plus, Minus, Sparkles, Star, CreditCard, User, ChevronRight, ChevronLeft, Loader2, Info } from 'lucide-react'
+import { calculateTravelFee } from '@/lib/utils/calculateTravelFee'
+import { calculateTimeSlots, getWorkingDays, isWorkingDay } from '@/lib/utils/calculateTimeSlots'
+import { format, addDays } from 'date-fns'
+import { motion, AnimatePresence } from 'framer-motion'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { useToast } from '@/hooks/use-toast'
-import { ImageUpload } from '@/components/booking/ImageUpload'
-import { v4 as uuidv4 } from 'uuid'
 import { useAuth } from '@/lib/auth'
-import { useRouter } from 'next/navigation'
-import { detectVehicle, getFallbackSize, VehicleSearchResult, LicensePlateResult } from '@/lib/utils/vehicleDatabase'
-import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Car, 
-  Camera, 
-  Plus, 
-  Minus,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  Star,
-  Sparkles,
-  CreditCard,
-  User,
-  ChevronRight,
-  ChevronLeft,
-  Loader2
-} from 'lucide-react'
 import { ServiceIcons } from '@/components/ui/icons'
-import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
-import Image from 'next/image'
+import { detectVehicle, getFallbackSize, type VehicleSearchResult, type LicensePlateResult } from '@/lib/utils/vehicleDatabase'
+import type { TimeSlot } from '@/types'
 
-// Vehicle size categories - purely size-based classification
+// Vehicle size categories
 const vehicleSizes = {
   s: { label: 'Small', description: 'Fiesta, Polo, Mini', price: 55 },
   m: { label: 'Medium', description: 'Focus, Golf, Civic', price: 60 },
@@ -75,8 +54,6 @@ const addOns = [
   { id: 'engineBay', label: 'Engine Bay Clean', price: 20, description: 'Professional engine bay cleaning' },
   { id: 'headlightRestoration', label: 'Headlight Restoration', price: 18, description: 'Restore cloudy headlights' },
 ] as const
-
-// Time slots are now calculated dynamically from admin settings
 
 const formSchema = z.object({
   serviceType: z.enum(['basic']),
@@ -407,7 +384,7 @@ export default function DashboardBookingForm() {
       if (!user) return
       
       try {
-        const { data: profile, error } = await supabase
+        const { data: profile, error } = await createClientComponentClient()
           .from('profiles')
           .select('*')
           .eq('id', user.id)
@@ -557,7 +534,7 @@ export default function DashboardBookingForm() {
 
   const fetchBookedSlots = async (date: string) => {
     try {
-      const { data: bookings } = await supabase
+      const { data: bookings } = await createClientComponentClient()
         .from('bookings')
         .select('booking_time')
         .eq('booking_date', date)
@@ -607,7 +584,7 @@ export default function DashboardBookingForm() {
     if (!isFirstTime || !user?.id) return true
 
     try {
-      const { error: profileError } = await supabase
+      const { error: profileError } = await createClientComponentClient()
         .from('profiles')
         .update({
           vehicle_make: data.vehicle.split(' ')[0],
@@ -644,7 +621,7 @@ export default function DashboardBookingForm() {
 
   const createBookingRecord = async (formData: FormData) => {
     try {
-      const { data: booking, error } = await supabase
+      const { data: booking, error } = await createClientComponentClient()
         .from('bookings')
         .insert({
           user_id: user?.id,
@@ -706,7 +683,7 @@ export default function DashboardBookingForm() {
     try {
       if (createdBookingId) {
         // Update booking status to confirmed
-        const { error: updateError } = await supabase
+        const { error: updateError } = await createClientComponentClient()
           .from('bookings')
           .update({
             status: 'confirmed',
@@ -724,11 +701,12 @@ export default function DashboardBookingForm() {
         if (user?.id) {
           const pointsToAdd = Math.floor(totalPrice * 0.1)
           
-          const { error: rewardsError } = await supabase.rpc('add_rewards_points', {
-            user_id: user.id,
-            points_to_add: pointsToAdd,
-            booking_id: createdBookingId
-          })
+          const { error: rewardsError } = await createClientComponentClient()
+            .rpc('add_rewards_points', {
+              user_id: user.id,
+              points_to_add: pointsToAdd,
+              booking_id: createdBookingId
+            })
 
           if (rewardsError) console.error('Rewards error:', rewardsError)
         }
