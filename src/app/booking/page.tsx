@@ -1,4 +1,6 @@
 import BookingForm from '@/components/booking/BookingForm'
+import Container from '@/components/ui/Container'
+import { cn } from '@/lib/utils'
 
 export const metadata = {
   title: 'Book a Service | Love 4 Detailing',
@@ -7,16 +9,29 @@ export const metadata = {
 
 export default function BookingPage() {
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-center">
+    <Container 
+      as="main" 
+      maxWidth="lg"
+      className="py-6 sm:py-8 lg:py-12"
+    >
+      <div className="w-full">
+        <h1 className={cn(
+          "text-2xl sm:text-3xl font-bold",
+          "text-[#F8F4EB] text-center",
+          "mb-4 sm:mb-6"
+        )}>
           Book Your Car Valeting Service
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-8 text-center">
+        <p className={cn(
+          "text-[#C7C7C7]",
+          "text-base sm:text-lg",
+          "mb-6 sm:mb-8 text-center",
+          "max-w-2xl mx-auto"
+        )}>
           Choose your preferred service options and we'll take care of the rest.
         </p>
         <BookingForm />
       </div>
-    </main>
+    </Container>
   )
 } 

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion, AnimatePresence, Variants } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
+import Container from '@/components/ui/Container'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { useAuth, signOut } from '@/lib/auth'
 import {
@@ -20,35 +21,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Menu, Home, Calendar, Star, LogOut } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { breakpoints } from '@/lib/constants/breakpoints'
 
 const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/services', label: 'Services' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/services', label: 'Services', icon: Calendar },
+  { href: '/faq', label: 'FAQ', icon: Star },
 ]
-
-const navVariants: Variants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: { opacity: 1, y: 0 }
-}
-
-const linkVariants: Variants = {
-  normal: { scale: 1 },
-  hover: { scale: 1.05 }
-}
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
+  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
 
+  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
     }
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -60,169 +58,212 @@ export default function Navigation() {
     }
   }
 
+  // Mobile menu animations
+  const menuVariants = {
+    closed: {
+      opacity: 0,
+      x: "-100%",
+      transition: {
+        duration: 0.2,
+        ease: "easeInOut"
+      }
+    },
+    open: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }
+  }
+
   return (
     <>
-      <motion.header
-        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
-          isScrolled ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'bg-transparent'
-        }`}
-        initial="hidden"
-        animate="visible"
-        variants={navVariants}
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-40",
+          "transition-colors duration-300",
+          "min-h-[64px] flex items-center",
+          isScrolled && "bg-[#141414]/90 backdrop-blur-sm border-b border-[#8A2B85]/20"
+        )}
       >
-        <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="font-bold text-xl text-foreground">
-            Love4Detailing
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <motion.div key={item.href} variants={linkVariants} whileHover="hover">
-                <Link
-                  href={item.href}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === item.href ? 'text-primary' : 'text-muted-foreground'
-                  }`}
+        <Container className="h-full" maxWidth="2xl">
+          <div className="flex items-center justify-between h-full py-2">
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden">
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={cn(
+                      "bg-[#141414]/90 backdrop-blur-sm",
+                      "border-[#8A2B85]/20 text-[#F8F4EB]",
+                      "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+                      "shadow-lg touch-target",
+                      "min-h-[44px] min-w-[44px]",
+                      "rounded-full"
+                    )}
+                  >
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent 
+                  side="left" 
+                  className={cn(
+                    "p-0 bg-[#141414] border-r border-[#8A2B85]/20",
+                    "w-[85vw] max-w-[320px] sm:max-w-[360px]"
+                  )}
                 >
-                  {item.label}
-                </Link>
-              </motion.div>
-            ))}
+                  <motion.div
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    variants={menuVariants}
+                  >
+                    <SheetHeader className="p-4 border-b border-[#8A2B85]/20">
+                      <SheetTitle className="text-[#F8F4EB]">Menu</SheetTitle>
+                    </SheetHeader>
+                    <nav className="flex flex-col p-4 space-y-1">
+                      {navItems.map((item) => {
+                        const Icon = item.icon
+                        const isActive = pathname === item.href
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className={cn(
+                              "flex items-center space-x-3 px-3 py-3 rounded-lg",
+                              "transition-all duration-200 touch-target min-h-[44px]",
+                              isActive 
+                                ? "bg-[#8A2B85]/10 text-[#8A2B85] border border-[#8A2B85]/20"
+                                : "text-[#C7C7C7] hover:bg-[#8A2B85]/5 hover:text-[#F8F4EB]"
+                            )}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <Icon className="w-5 h-5 flex-shrink-0" />
+                            <span className="font-medium">{item.label}</span>
+                          </Link>
+                        )
+                      })}
+                    </nav>
+                  </motion.div>
+                </SheetContent>
+              </Sheet>
+            </div>
 
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-8">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "text-sm font-medium transition-colors",
+                      isActive 
+                        ? "text-[#8A2B85]"
+                        : "text-[#C7C7C7] hover:text-[#F8F4EB]"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </nav>
+
+            {/* Auth Buttons */}
             {!isLoading && (
-              <>
+              <div className="flex items-center space-x-4">
                 {user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline">Account</Button>
+                      <Button 
+                        variant="outline" 
+                        className={cn(
+                          "border-[#8A2B85]/20 text-[#F8F4EB]",
+                          "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+                          "touch-target min-h-[44px]"
+                        )}
+                      >
+                        Account
+                      </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent 
+                      align="end"
+                      className="bg-[#141414] border-[#8A2B85]/20"
+                    >
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard">Dashboard</Link>
+                        <Link 
+                          href="/dashboard"
+                          className="text-[#F8F4EB] hover:bg-[#8A2B85]/10"
+                        >
+                          Dashboard
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/bookings">My Bookings</Link>
+                        <Link 
+                          href="/dashboard/bookings"
+                          className="text-[#F8F4EB] hover:bg-[#8A2B85]/10"
+                        >
+                          My Bookings
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/rewards">Rewards</Link>
+                        <Link 
+                          href="/dashboard/rewards"
+                          className="text-[#F8F4EB] hover:bg-[#8A2B85]/10"
+                        >
+                          Rewards
+                        </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleSignOut}>
+                      <DropdownMenuItem 
+                        onClick={handleSignOut}
+                        className="text-[#F8F4EB] hover:bg-[#8A2B85]/10"
+                      >
                         Sign Out
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <div className="flex items-center space-x-4">
-                    <Button variant="ghost" onClick={() => setIsAuthModalOpen(true)}>
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setIsAuthModalOpen(true)}
+                      className={cn(
+                        "text-[#C7C7C7] hover:text-[#F8F4EB] hover:bg-[#8A2B85]/10",
+                        "touch-target min-h-[44px]",
+                        "hidden sm:inline-flex"
+                      )}
+                    >
                       Sign In
                     </Button>
-                    <Button variant="default" asChild>
+                    <Button 
+                      variant="default" 
+                      asChild
+                      className={cn(
+                        "bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white",
+                        "touch-target min-h-[44px]"
+                      )}
+                    >
                       <Link href="/booking">Book Now</Link>
                     </Button>
-                  </div>
+                  </>
                 )}
-              </>
+              </div>
             )}
           </div>
+        </Container>
+      </header>
 
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground">
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col space-y-4 mt-8">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`block py-2 text-lg font-medium transition-colors hover:text-primary ${
-                        pathname === item.href ? 'text-primary' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                  
-                  {!isLoading && (
-                    <>
-                      {user ? (
-                        <>
-                          <Link
-                            href="/dashboard"
-                            className="block py-2 text-lg font-medium text-muted-foreground hover:text-primary"
-                          >
-                            Dashboard
-                          </Link>
-                          <Link
-                            href="/dashboard/bookings"
-                            className="block py-2 text-lg font-medium text-muted-foreground hover:text-primary"
-                          >
-                            My Bookings
-                          </Link>
-                          <Link
-                            href="/dashboard/rewards"
-                            className="block py-2 text-lg font-medium text-muted-foreground hover:text-primary"
-                          >
-                            Rewards
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start p-0 h-auto font-medium text-lg text-muted-foreground hover:text-primary"
-                            onClick={handleSignOut}
-                          >
-                            Sign Out
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start"
-                            onClick={() => setIsAuthModalOpen(true)}
-                          >
-                            Sign In
-                          </Button>
-                          <Button
-                            variant="default"
-                            className="w-full"
-                            asChild
-                          >
-                            <Link href="/booking">Book Now</Link>
-                          </Button>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </nav>
-      </motion.header>
-
+      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        defaultTab="sign-in"
       />
     </>
   )

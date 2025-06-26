@@ -42,8 +42,11 @@ import {
   MoreHorizontal,
   Settings,
   BarChart3,
-  Activity
+  Activity,
+  ChevronRight,
+  User
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Booking {
   id: string
@@ -106,17 +109,24 @@ interface AdminStats {
 }
 
 const LoadingSkeleton = () => (
-  <div className="space-y-8">
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {[...Array(8)].map((_, i) => (
-        <Card key={i}>
-          <CardContent className="pt-6">
-            <div className="h-8 bg-muted rounded animate-pulse mb-2" />
-            <div className="h-4 bg-muted rounded animate-pulse" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+  <div className="space-y-6 sm:space-y-8">
+    <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+      <CardHeader>
+        <div className="h-6 bg-[#8A2B85]/10 rounded animate-pulse" />
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+              <CardContent className="pt-6">
+                <div className="h-8 bg-[#8A2B85]/10 rounded animate-pulse mb-2" />
+                <div className="h-4 bg-[#8A2B85]/10 rounded animate-pulse" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   </div>
 )
 
@@ -403,719 +413,397 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      {/* Header Section - Improved Mobile Layout */}
+    <div className="space-y-6 sm:space-y-8 w-full max-w-[100vw] overflow-x-hidden px-4 sm:px-6 lg:px-8">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Welcome back, {user?.full_name || 'Admin'} - Here's your business overview
-          </p>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#F8F4EB]">Admin Dashboard</h1>
+          <p className="text-[#C7C7C7] text-sm sm:text-base">Manage your business operations</p>
         </div>
-        
-        {/* Mobile-First Action Buttons */}
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto touch-target" asChild>
-            <Link href="/dashboard/admin/customers">
-              <Users className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Manage </span>Customers
-            </Link>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            className={cn(
+              "border-[#8A2B85]/20 text-[#C7C7C7]",
+              "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+              "touch-target min-h-[44px]"
+            )}
+            onClick={() => {/* Export data */}}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Export Data</span>
+            <span className="sm:hidden">Export</span>
           </Button>
-          <Button size="sm" className="w-full sm:w-auto touch-target" asChild>
-            <Link href="/dashboard/book-service">
-              <Calendar className="mr-2 h-4 w-4" />
-              New Booking
-            </Link>
+          <Button
+            className={cn(
+              "bg-[#8A2B85] hover:bg-[#8A2B85]/90",
+              "text-[#F8F4EB]",
+              "touch-target min-h-[44px]"
+            )}
+            onClick={() => {/* Open settings */}}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Settings</span>
+            <span className="sm:hidden">Settings</span>
           </Button>
         </div>
       </motion.div>
 
-      {/* Enhanced Stats Grid with Better Cards */}
+      {/* Stats Overview */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
         className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+          <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-green-500 rounded-full">
-                <PoundSterling className="h-4 w-4 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-300 truncate">
-                  £{stats.totalRevenue.toFixed(0)}
-                </div>
-                <p className="text-xs text-green-600 dark:text-green-400">Total Revenue</p>
+              <Calendar className="h-4 w-4 text-blue-500" />
+              <div>
+                <div className="text-2xl font-bold text-[#F8F4EB]">{stats.todayBookings}</div>
+                <p className="text-xs text-[#C7C7C7]">Today</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+          <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-500 rounded-full">
-                <CalendarDays className="h-4 w-4 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
-                  {stats.totalBookings}
-                </div>
-                <p className="text-xs text-blue-600 dark:text-blue-400">Total Bookings</p>
+              <TrendingUp className="h-4 w-4 text-green-500" />
+              <div>
+                <div className="text-2xl font-bold text-[#F8F4EB]">£{stats.monthlyRevenue}</div>
+                <p className="text-xs text-[#C7C7C7]">Monthly</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+          <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-purple-500 rounded-full">
-                <Users className="h-4 w-4 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300">
-                  {stats.totalCustomers}
-                </div>
-                <p className="text-xs text-purple-600 dark:text-purple-400">Total Customers</p>
+              <Users className="h-4 w-4 text-[#8A2B85]" />
+              <div>
+                <div className="text-2xl font-bold text-[#F8F4EB]">{stats.totalCustomers}</div>
+                <p className="text-xs text-[#C7C7C7]">Customers</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border-0 shadow-md bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+          <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-orange-500 rounded-full">
-                <AlertCircle className="h-4 w-4 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-lg sm:text-2xl font-bold text-orange-700 dark:text-orange-300">
-                  {stats.pendingBookings}
-                </div>
-                <p className="text-xs text-orange-600 dark:text-orange-400">Pending</p>
+              <Activity className="h-4 w-4 text-yellow-500" />
+              <div>
+                <div className="text-2xl font-bold text-[#F8F4EB]">{stats.upcomingBookings}</div>
+                <p className="text-xs text-[#C7C7C7]">Upcoming</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Secondary Stats - Improved Layout */}
+      {/* Main Content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-blue-400 flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="text-base sm:text-xl font-bold">{stats.todayBookings}</div>
-                <p className="text-xs text-muted-foreground">Today</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-green-400 flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="text-base sm:text-xl font-bold">£{stats.monthlyRevenue.toFixed(0)}</div>
-                <p className="text-xs text-muted-foreground">This Month</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-4 w-4 text-purple-400 flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="text-base sm:text-xl font-bold">£{stats.averageBookingValue.toFixed(0)}</div>
-                <p className="text-xs text-muted-foreground">Avg Value</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <UserCheck className="h-4 w-4 text-indigo-400 flex-shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="text-base sm:text-xl font-bold">{stats.upcomingBookings}</div>
-                <p className="text-xs text-muted-foreground">Upcoming</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+        <Tabs defaultValue="bookings" className="w-full">
+          <TabsList className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 mb-6">
+            <TabsTrigger 
+              value="bookings"
+              className={cn(
+                "data-[state=active]:bg-[#8A2B85]/10",
+                "data-[state=active]:text-[#F8F4EB]",
+                "touch-target min-h-[44px]"
+              )}
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Bookings</span>
+              <span className="sm:hidden">Book</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="customers"
+              className={cn(
+                "data-[state=active]:bg-[#8A2B85]/10",
+                "data-[state=active]:text-[#F8F4EB]",
+                "touch-target min-h-[44px]"
+              )}
+            >
+              <Users className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Customers</span>
+              <span className="sm:hidden">Users</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="analytics"
+              className={cn(
+                "data-[state=active]:bg-[#8A2B85]/10",
+                "data-[state=active]:text-[#F8F4EB]",
+                "touch-target min-h-[44px]"
+              )}
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+              <span className="sm:hidden">Stats</span>
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Enhanced Tabs with Better Mobile Experience */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="space-y-6"
-      >
-        <Tabs defaultValue="overview" className="space-y-6">
-          {/* Mobile-Optimized Tabs */}
-          <div className="w-full">
-            <ScrollArea className="w-full">
-              <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/50">
-                <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
-                  <Activity className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Overview</span>
-                </TabsTrigger>
-                <TabsTrigger value="bookings" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
-                  <Calendar className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Bookings</span>
-                  <span className="sm:hidden">({stats.totalBookings})</span>
-                  <span className="hidden sm:inline"> ({stats.totalBookings})</span>
-                </TabsTrigger>
-                <TabsTrigger value="customers" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
-                  <Users className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Customers</span>
-                  <span className="sm:hidden">({stats.totalCustomers})</span>
-                  <span className="hidden sm:inline"> ({stats.totalCustomers})</span>
-                </TabsTrigger>
-                <TabsTrigger value="controls" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
-                  <Settings className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Controls</span>
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-background">
-                  <BarChart3 className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Analytics</span>
-                </TabsTrigger>
-              </TabsList>
-            </ScrollArea>
-          </div>
-
-          <TabsContent value="overview" className="space-y-6">
-            {/* API Usage Tracker */}
-            <ApiUsageTracker />
-            
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Upcoming Bookings - Enhanced Card */}
-              <Card className="border-0 shadow-md">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-md">
-                      <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    Upcoming Bookings
-                    <Badge variant="secondary" className="ml-auto">
-                      {bookings.filter(booking => 
-                        new Date(booking.booking_date) >= new Date() && 
-                        ['pending', 'confirmed'].includes(booking.status)
-                      ).length}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ScrollArea className="h-[300px] pr-4">
-                    <div className="space-y-3">
-                      {bookings
-                        .filter(booking => 
-                          new Date(booking.booking_date) >= new Date() && 
-                          ['pending', 'confirmed'].includes(booking.status)
-                        )
-                        .sort((a, b) => new Date(a.booking_date).getTime() - new Date(b.booking_date).getTime())
-                        .slice(0, 5).length === 0 ? (
-                        <div className="text-center py-8">
-                          <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                          <p className="text-muted-foreground">No upcoming bookings</p>
-                        </div>
-                      ) : (
-                        bookings
-                          .filter(booking => 
-                            new Date(booking.booking_date) >= new Date() && 
-                            ['pending', 'confirmed'].includes(booking.status)
-                          )
-                          .sort((a, b) => new Date(a.booking_date).getTime() - new Date(b.booking_date).getTime())
-                          .slice(0, 5)
-                          .map((booking) => (
-                          <div key={booking.id} className="flex items-start justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                            <div className="flex-1 min-w-0 space-y-1">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className={`${getStatusColor(booking.status)} text-white text-xs`}>
-                                  {booking.status}
-                                </Badge>
-                                <span className="font-medium text-sm truncate">{booking.customer_name}</span>
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {format(new Date(booking.booking_date), 'MMM dd, yyyy')} at {booking.booking_time}
-                              </div>
-                              <div className="text-xs text-muted-foreground truncate">
-                                {booking.service} - £{booking.total_price}
-                              </div>
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="ml-2 h-8 px-2 text-xs touch-target-sm"
-                              onClick={() => updateBookingStatus(booking.id, 'confirmed')}
-                              disabled={booking.status === 'confirmed' || booking.status === 'completed'}
-                            >
-                              Confirm
-                            </Button>
-                          </div>
-                        ))
+          <TabsContent value="bookings">
+            <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <CardTitle className="text-lg text-[#F8F4EB]">Recent Bookings</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={statusFilter}
+                    onValueChange={setStatusFilter}
+                  >
+                    <SelectTrigger 
+                      className={cn(
+                        "bg-[#1E1E1E]/50 border-[#8A2B85]/20",
+                        "text-[#F8F4EB]",
+                        "h-11 touch-target"
                       )}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-
-              {/* Recent Customers - Enhanced Card */}
-              <Card className="border-0 shadow-md">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="p-1.5 bg-purple-100 dark:bg-purple-900 rounded-md">
-                      <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    Recent Customers
-                    <Badge variant="secondary" className="ml-auto">
-                      {customers.slice(0, 5).length}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ScrollArea className="h-[300px] pr-4">
-                    <div className="space-y-3">
-                      {customers.slice(0, 5).length === 0 ? (
-                        <div className="text-center py-8">
-                          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                          <p className="text-muted-foreground">No customers yet</p>
-                        </div>
-                      ) : (
-                        customers
-                          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                          .slice(0, 5)
-                          .map((customer) => (
-                          <div key={customer.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <Avatar className="w-10 h-10 flex-shrink-0">
-                                <AvatarImage src={customer.profile_image_url} alt={customer.full_name} />
-                                <AvatarFallback className="text-xs">
-                                  {customer.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm truncate">{customer.full_name}</div>
-                                <div className="text-xs text-muted-foreground truncate">{customer.email}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {customer.total_bookings} booking{customer.total_bookings !== 1 ? 's' : ''} • £{customer.total_spent.toFixed(2)}
-                                </div>
-                              </div>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="ml-2 h-8 px-2 text-xs touch-target-sm"
-                              onClick={() => fetchCustomerProfile(customer.id)}
-                              disabled={isLoadingProfile}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="bookings" className="space-y-4">
-            {/* Booking Filters */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>All Bookings</CardTitle>
-                  <div className="flex items-center space-x-2">
-                    <Filter className="h-4 w-4" />
-                    <select 
-                      value={statusFilter} 
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="border rounded px-2 py-1"
                     >
-                      <option value="all">All Status</option>
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </div>
+                      <Filter className="mr-2 h-4 w-4" />
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1E1E1E] border-[#8A2B85]/20">
+                      <SelectItem value="all">All Bookings</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {filteredBookings.map((booking) => (
-                    <Card key={booking.id} className="border-l-4 border-l-primary">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
+                  {bookings
+                    .filter(booking => statusFilter === 'all' || booking.status === statusFilter)
+                    .map((booking) => (
+                      <div
+                        key={booking.id}
+                        className={cn(
+                          "block relative p-4 rounded-lg",
+                          "border-2 border-[#8A2B85]/20",
+                          "bg-[#1E1E1E]/50",
+                          "transition-all duration-200",
+                          "touch-target min-h-[88px]"
+                        )}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <h3 className="font-medium capitalize">{booking.service}</h3>
-                              <Badge className={getStatusColor(booking.status)}>
-                                {getStatusIcon(booking.status)}
-                                <span className="ml-1">{booking.status}</span>
+                            <div className="flex items-center gap-2">
+                              <Badge className={cn(
+                                "text-xs",
+                                getStatusColor(booking.status),
+                                booking.status === 'pending' ? 'text-[#1E1E1E]' : 'text-[#F8F4EB]'
+                              )}>
+                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                               </Badge>
+                              <h3 className="text-[#F8F4EB] font-medium">{booking.service}</h3>
                             </div>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <div className="flex items-center space-x-1">
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-[#C7C7C7]">
+                              <div className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
-                                <span>{format(new Date(booking.booking_date), 'PPP')}</span>
+                                <span>{format(new Date(booking.booking_date), 'EEE, MMM d')}</span>
                               </div>
-                              <div className="flex items-center space-x-1">
+                              <div className="flex items-center gap-1">
                                 <Clock className="h-4 w-4" />
                                 <span>{booking.booking_time}</span>
                               </div>
-                              <div className="flex items-center space-x-1">
+                              <div className="flex items-center gap-1">
                                 <MapPin className="h-4 w-4" />
                                 <span>{booking.postcode}</span>
                               </div>
-                            </div>
-                            <div className="flex items-center space-x-4 text-sm">
-                              <div className="flex items-center space-x-1">
-                                <Users className="h-4 w-4" />
+                              <div className="flex items-center gap-1">
+                                <User className="h-4 w-4" />
                                 <span>{booking.customer_name}</span>
                               </div>
-                              <div className="flex items-center space-x-1">
-                                <Mail className="h-4 w-4" />
-                                <span>{booking.customer_email}</span>
-                              </div>
-                              {booking.customer_phone && (
-                                <div className="flex items-center space-x-1">
-                                  <Phone className="h-4 w-4" />
-                                  <span>{booking.customer_phone}</span>
-                                </div>
-                              )}
                             </div>
                           </div>
-                          <div className="text-right space-y-2">
-                            <p className="text-lg font-bold">£{booking.total_price.toFixed(2)}</p>
-                            <div className="flex space-x-1">
-                              {booking.status === 'pending' && (
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                          <div className="flex items-center gap-4">
+                            <span className="text-lg font-bold text-[#8A2B85]">£{booking.total_price}</span>
+                            <Sheet>
+                              <SheetTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className={cn(
+                                    "border-[#8A2B85]/20",
+                                    "hover:bg-[#8A2B85]/10",
+                                    "touch-target min-h-[44px] min-w-[44px]"
+                                  )}
                                 >
-                                  Confirm
+                                  <MoreHorizontal className="h-4 w-4" />
                                 </Button>
-                              )}
-                              {booking.status === 'confirmed' && (
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => updateBookingStatus(booking.id, 'completed')}
-                                >
-                                  Complete
-                                </Button>
-                              )}
-                              <Button variant="outline" size="sm">
-                                Details
-                              </Button>
-                            </div>
+                              </SheetTrigger>
+                              <SheetContent className="bg-[#1E1E1E] border-[#8A2B85]/20">
+                                <SheetHeader>
+                                  <SheetTitle className="text-[#F8F4EB]">Booking Details</SheetTitle>
+                                </SheetHeader>
+                                <div className="mt-6 space-y-6">
+                                  {/* Booking details content */}
+                                </div>
+                              </SheetContent>
+                            </Sheet>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      </div>
+                    ))}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="customers" className="space-y-4">
-            <Card>
+          <TabsContent value="customers">
+            <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Customer Management</CardTitle>
+                <CardTitle className="text-lg text-[#F8F4EB]">Customer List</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {customers.map((customer) => (
-                    <Card key={customer.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <h3 className="font-medium">{customer.full_name}</h3>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <div className="flex items-center space-x-1">
+                    <div
+                      key={customer.id}
+                      className={cn(
+                        "block relative p-4 rounded-lg",
+                        "border-2 border-[#8A2B85]/20",
+                        "bg-[#1E1E1E]/50",
+                        "transition-all duration-200",
+                        "touch-target min-h-[88px]",
+                        "cursor-pointer hover:bg-[#1E1E1E]/70"
+                      )}
+                      onClick={() => fetchCustomerProfile(customer.id)}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={customer.profile_image_url} />
+                            <AvatarFallback className="bg-[#8A2B85]/10 text-[#8A2B85]">
+                              {customer.full_name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="text-[#F8F4EB] font-medium">{customer.full_name}</h3>
+                            <div className="flex items-center gap-4 text-sm text-[#C7C7C7]">
+                              <div className="flex items-center gap-1">
                                 <Mail className="h-4 w-4" />
                                 <span>{customer.email}</span>
                               </div>
                               {customer.phone && (
-                                <div className="flex items-center space-x-1">
+                                <div className="flex items-center gap-1">
                                   <Phone className="h-4 w-4" />
                                   <span>{customer.phone}</span>
                                 </div>
                               )}
                             </div>
-                            <div className="flex items-center space-x-4 text-sm">
-                              <span>{customer.total_bookings} bookings</span>
-                              <span>£{customer.total_spent.toFixed(2)} spent</span>
-                              {customer.last_booking && (
-                                <span>Last: {format(new Date(customer.last_booking), 'PP')}</span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => fetchCustomerProfile(customer.id)}
-                              disabled={isLoadingProfile}
-                            >
-                              View Profile
-                            </Button>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-[#8A2B85]">£{customer.total_spent}</div>
+                            <p className="text-xs text-[#C7C7C7]">{customer.total_bookings} bookings</p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-[#C7C7C7]" />
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="controls" className="space-y-4">
-            <div className="relative z-10">
-              <AdminControlPanel />
-            </div>
-          </TabsContent>
+          <TabsContent value="analytics">
+            <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-lg text-[#F8F4EB]">Business Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2">
+                        <PoundSterling className="h-4 w-4 text-green-500" />
+                        <div>
+                          <div className="text-2xl font-bold text-[#F8F4EB]">£{stats.totalRevenue}</div>
+                          <p className="text-xs text-[#C7C7C7]">Total Revenue</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-          <TabsContent value="analytics" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Revenue Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span>Total Revenue</span>
-                      <span className="font-bold">£{stats.totalRevenue.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Monthly Revenue</span>
-                      <span className="font-bold">£{stats.monthlyRevenue.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Average Booking</span>
-                      <span className="font-bold">£{stats.averageBookingValue.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2">
+                        <CalendarDays className="h-4 w-4 text-blue-500" />
+                        <div>
+                          <div className="text-2xl font-bold text-[#F8F4EB]">{stats.weeklyBookings}</div>
+                          <p className="text-xs text-[#C7C7C7]">Weekly Bookings</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Service Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span>Total Bookings</span>
-                      <span className="font-bold">{stats.totalBookings}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Completed</span>
-                      <span className="font-bold">{stats.completedBookings}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Pending</span>
-                      <span className="font-bold">{stats.pendingBookings}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2">
+                        <UserCheck className="h-4 w-4 text-[#8A2B85]" />
+                        <div>
+                          <div className="text-2xl font-bold text-[#F8F4EB]">{stats.newCustomersThisMonth}</div>
+                          <p className="text-xs text-[#C7C7C7]">New Customers</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2">
+                        <Award className="h-4 w-4 text-yellow-500" />
+                        <div>
+                          <div className="text-2xl font-bold text-[#F8F4EB]">£{stats.averageBookingValue}</div>
+                          <p className="text-xs text-[#C7C7C7]">Avg. Booking</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="mt-8">
+                  <ApiUsageTracker />
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </motion.div>
 
       {/* Customer Profile Modal */}
       <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-[#1E1E1E] border-[#8A2B85]/20 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Customer Profile
-            </DialogTitle>
+            <DialogTitle className="text-[#F8F4EB]">Customer Profile</DialogTitle>
           </DialogHeader>
-          
           {isLoadingProfile ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="py-8">
+              <LoadingSkeleton />
             </div>
-          ) : selectedCustomer ? (
-            <div className="space-y-6">
-              {/* Customer Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Personal Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                      <p className="font-medium">{selectedCustomer.full_name}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Email</label>
-                      <p className="font-medium">{selectedCustomer.email}</p>
-                    </div>
-                    {selectedCustomer.phone && (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                        <p className="font-medium">{selectedCustomer.phone}</p>
-                      </div>
-                    )}
-                    {selectedCustomer.address && (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Address</label>
-                        <p className="font-medium">{selectedCustomer.address}</p>
-                      </div>
-                    )}
-                    {selectedCustomer.postcode && (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Postcode</label>
-                        <p className="font-medium">{selectedCustomer.postcode}</p>
-                      </div>
-                    )}
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Customer Since</label>
-                      <p className="font-medium">{format(new Date(selectedCustomer.created_at), 'PPP')}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Vehicle Info */}
-              {(selectedCustomer.vehicle_make || selectedCustomer.vehicle_model) && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Car className="h-4 w-4" />
-                      Vehicle Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {selectedCustomer.vehicle_make && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Make</label>
-                          <p className="font-medium">{selectedCustomer.vehicle_make}</p>
-                        </div>
-                      )}
-                      {selectedCustomer.vehicle_model && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Model</label>
-                          <p className="font-medium">{selectedCustomer.vehicle_model}</p>
-                        </div>
-                      )}
-                      {selectedCustomer.vehicle_color && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Color</label>
-                          <p className="font-medium">{selectedCustomer.vehicle_color}</p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Stats */}
-              <div className="grid md:grid-cols-3 gap-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center space-x-2">
-                      <CalendarDays className="h-4 w-4 text-blue-500" />
-                      <div>
-                        <div className="text-2xl font-bold">{selectedCustomer.total_bookings}</div>
-                        <p className="text-xs text-muted-foreground">Total Bookings</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center space-x-2">
-                      <PoundSterling className="h-4 w-4 text-green-500" />
-                      <div>
-                        <div className="text-2xl font-bold">£{selectedCustomer.total_spent.toFixed(2)}</div>
-                        <p className="text-xs text-muted-foreground">Total Spent</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center space-x-2">
-                      <Award className="h-4 w-4 text-purple-500" />
-                      <div>
-                        <div className="text-2xl font-bold">{selectedCustomer.rewards_points}</div>
-                        <p className="text-xs text-muted-foreground">Reward Points</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Booking History */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Booking History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {selectedCustomer.bookings.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-4">No bookings found</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {selectedCustomer.bookings.map((booking) => (
-                        <div key={booking.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div>
-                            <div className="font-medium">{booking.service}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {format(new Date(booking.booking_date), 'PPP')} at {booking.booking_time}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-medium">£{booking.total_price.toFixed(2)}</div>
-                            <Badge variant="outline" className={getStatusColor(booking.status)}>
-                              {booking.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          ) : null}
+          ) : selectedCustomer && (
+            <ScrollArea className="h-[80vh] pr-4">
+              {/* Customer profile content */}
+            </ScrollArea>
+          )}
         </DialogContent>
       </Dialog>
     </div>

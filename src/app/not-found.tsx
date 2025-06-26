@@ -1,29 +1,67 @@
 import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/Button'
+import { Home } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md space-y-6 sm:space-y-8 text-center"
+      >
         <div className="space-y-4">
-          <h1 className="text-6xl font-bold text-primary">404</h1>
-          <h2 className="text-2xl font-bold">Page Not Found</h2>
-          <p className="text-muted-foreground">
+          <motion.h1
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-4xl sm:text-6xl font-bold text-[#8A2B85]"
+          >
+            404
+          </motion.h1>
+          <motion.h2
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-xl sm:text-2xl font-bold text-[#F8F4EB]"
+          >
+            Page Not Found
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-sm sm:text-base text-[#C7C7C7]"
+          >
             Sorry, we couldn't find the page you're looking for.
-          </p>
+          </motion.p>
         </div>
         
-        <div className="flex justify-center">
-          <Link 
-            href="/"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="flex justify-center"
+        >
+          <Button
+            asChild
+            className={cn(
+              "flex items-center gap-2",
+              "bg-[#8A2B85] hover:bg-[#8A2B85]/90",
+              "text-[#F8F4EB]",
+              "touch-target min-h-[44px]"
+            )}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            Go Home
-          </Link>
-        </div>
-      </div>
+            <Link href="/">
+              <Home className="w-4 h-4" />
+              Go Home
+            </Link>
+          </Button>
+        </motion.div>
+      </motion.div>
     </div>
   )
 } 

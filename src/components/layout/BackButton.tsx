@@ -4,11 +4,39 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { ArrowLeft, Home } from 'lucide-react'
 import { useSidebar } from './SidebarContext'
+import { cn } from '@/lib/utils'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { breakpoints } from '@/lib/constants/breakpoints'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const buttonVariants = {
+  initial: { 
+    opacity: 0,
+    scale: 0.9
+  },
+  animate: { 
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.2,
+      ease: "easeOut"
+    }
+  },
+  exit: { 
+    opacity: 0,
+    scale: 0.9,
+    transition: {
+      duration: 0.15,
+      ease: "easeIn"
+    }
+  }
+}
 
 export default function BackButton() {
   const router = useRouter()
   const pathname = usePathname()
   const { isCollapsed } = useSidebar()
+  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
 
   // Don't show back button on home page
   if (pathname === '/') return null
@@ -29,38 +57,67 @@ export default function BackButton() {
     router.push('/')
   }
 
+  const commonButtonClasses = cn(
+    "rounded-full",
+    "bg-[#141414]/90 backdrop-blur-sm",
+    "border-[#8A2B85]/20 text-[#F8F4EB]",
+    "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+    "shadow-lg touch-target",
+    "min-h-[44px] min-w-[44px]",
+    "transition-all duration-200"
+  )
+
   return (
-    <div 
-      className={`fixed top-4 z-30 flex gap-2 transition-all duration-300 ${
-        // Position based on screen size and sidebar presence
+    <motion.div 
+      className={cn(
+        "fixed z-30 flex gap-2",
+        "transition-all duration-300",
         isDashboard 
-          ? 'right-4' // Dashboard: always on right to avoid mobile menu button
-          : 'left-4 lg:right-4' // Landing: left on mobile, right on desktop when sidebar is present
-      }`}
+          ? "top-4 right-4" // Dashboard: always on right to avoid mobile menu button
+          : isDesktop
+            ? "top-4 left-4" // Desktop landing: standard position
+            : "top-4 left-16" // Mobile landing: account for mobile menu button
+      )}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
       {/* Back Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={handleBack}
-        className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm border-border/50 hover:bg-accent shadow-lg flex-shrink-0 touch-target"
-        title="Go Back"
-      >
-        <ArrowLeft className="w-4 h-4" />
-      </Button>
-
-      {/* Home Button - only show when not on dashboard pages and not collapsed */}
-      {!isDashboard && !isCollapsed && (
+      <motion.div variants={buttonVariants}>
         <Button
           variant="outline"
           size="icon"
-          onClick={handleHome}
-          className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm border-border/50 hover:bg-accent shadow-lg flex-shrink-0 touch-target hidden lg:flex"
-          title="Go Home"
+          onClick={handleBack}
+          className={commonButtonClasses}
+          title="Go Back"
         >
-          <Home className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" />
+          <span className="sr-only">Go Back</span>
         </Button>
-      )}
-    </div>
+      </motion.div>
+
+      {/* Home Button - only show on larger screens when not on dashboard */}
+      <AnimatePresence>
+        {!isDashboard && !isCollapsed && isDesktop && (
+          <motion.div
+            variants={buttonVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleHome}
+              className={commonButtonClasses}
+              title="Go Home"
+            >
+              <Home className="w-4 h-4" />
+              <span className="sr-only">Go Home</span>
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 } 

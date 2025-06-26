@@ -10,8 +10,9 @@ import { useProtectedRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import Link from 'next/link'
-import { Calendar, Clock, MapPin, Star, Car, Gift, TrendingUp, User } from 'lucide-react'
+import { Calendar, Clock, MapPin, Star, Car, Gift, TrendingUp, User, ChevronRight } from 'lucide-react'
 import LoyaltyBadges from '@/components/loyalty/LoyaltyBadges'
+import { cn } from '@/lib/utils'
 
 interface Booking {
   id: string
@@ -36,17 +37,17 @@ interface DashboardData {
 
 const LoadingSkeleton = () => (
   <div className="space-y-6 sm:space-y-8">
-    <Card>
+    <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
       <CardHeader>
-        <div className="h-6 bg-muted rounded animate-pulse" />
+        <div className="h-6 bg-[#8A2B85]/10 rounded animate-pulse" />
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i}>
+            <Card key={i} className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
               <CardContent className="pt-6">
-                <div className="h-8 bg-muted rounded animate-pulse mb-2" />
-                <div className="h-4 bg-muted rounded animate-pulse" />
+                <div className="h-8 bg-[#8A2B85]/10 rounded animate-pulse mb-2" />
+                <div className="h-4 bg-[#8A2B85]/10 rounded animate-pulse" />
               </CardContent>
             </Card>
           ))}
@@ -140,7 +141,7 @@ export default function CustomerDashboard() {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 w-full max-w-[100vw] overflow-x-hidden">
+    <div className="space-y-6 sm:space-y-8 w-full max-w-[100vw] overflow-x-hidden px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -154,7 +155,7 @@ export default function CustomerDashboard() {
           </h1>
           <p className="text-[#C7C7C7] text-sm sm:text-base">Here's what's happening with your bookings</p>
         </div>
-        <Button asChild size="lg" className="bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target">
+        <Button asChild size="lg" className="bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-[#F8F4EB] touch-target min-h-[44px]">
           <Link href="/dashboard/book-service">
             <Car className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Book New Service</span>
@@ -169,7 +170,7 @@ export default function CustomerDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.05 }}
       >
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-lg text-[#F8F4EB]">Your Achievements</CardTitle>
           </CardHeader>
@@ -184,21 +185,21 @@ export default function CustomerDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4 text-blue-500" />
               <div>
                 <div className="text-2xl font-bold text-[#F8F4EB]">{dashboardData.upcomingBookings.length}</div>
-                <p className="text-xs text-[#C7C7C7]">Upcoming Bookings</p>
+                <p className="text-xs text-[#C7C7C7]">Upcoming</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4 text-green-500" />
@@ -210,25 +211,25 @@ export default function CustomerDashboard() {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Gift className="h-4 w-4 text-[#8A2B85]" />
               <div>
                 <div className="text-2xl font-bold text-[#F8F4EB]">{dashboardData.rewardsPoints}</div>
-                <p className="text-xs text-[#C7C7C7]">Reward Points</p>
+                <p className="text-xs text-[#C7C7C7]">Points</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Star className="h-4 w-4 text-yellow-500" />
               <div>
                 <div className="text-2xl font-bold text-[#F8F4EB]">{dashboardData.totalBookings}</div>
-                <p className="text-xs text-[#C7C7C7]">Total Services</p>
+                <p className="text-xs text-[#C7C7C7]">Services</p>
               </div>
             </div>
           </CardContent>
@@ -242,144 +243,144 @@ export default function CustomerDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+          <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-lg text-[#F8F4EB]">Upcoming Bookings</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {dashboardData.upcomingBookings.slice(0, 3).map((booking) => (
-                  <div key={booking.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#141414]/50 rounded-lg border border-[#8A2B85]/10">
-                    <div className="space-y-1 mb-2 sm:mb-0">
-                      <div className="flex items-center space-x-2">
-                        <Badge className={`${getStatusColor(booking.status)} text-white text-xs`}>
-                          {booking.status}
-                        </Badge>
-                        <span className="font-medium text-[#F8F4EB]">{booking.service}</span>
+                {dashboardData.upcomingBookings.map((booking) => (
+                  <Link
+                    key={booking.id}
+                    href={`/dashboard/bookings/${booking.id}`}
+                    className={cn(
+                      "block relative p-4 rounded-lg",
+                      "border-2 border-[#8A2B85]/20",
+                      "bg-[#1E1E1E]/50 hover:bg-[#1E1E1E]/70",
+                      "transition-all duration-200",
+                      "touch-target min-h-[88px]"
+                    )}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge className={cn(
+                            "text-xs",
+                            getStatusColor(booking.status),
+                            booking.status === 'pending' ? 'text-[#1E1E1E]' : 'text-[#F8F4EB]'
+                          )}>
+                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                          </Badge>
+                          <h3 className="text-[#F8F4EB] font-medium">{booking.service}</h3>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-[#C7C7C7]">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{format(new Date(booking.booking_date), 'EEE, MMM d')}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{booking.booking_time}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            <span>{booking.postcode}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-sm text-[#C7C7C7]">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="h-3 w-3" />
-                          <span>{booking.booking_time}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="h-3 w-3" />
-                          <span>{booking.postcode}</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-[#8A2B85]">£{booking.total_price}</span>
+                        <ChevronRight className="h-4 w-4 text-[#C7C7C7]" />
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-[#F8F4EB]">£{booking.total_price}</div>
-                    </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
-              {dashboardData.upcomingBookings.length > 3 && (
-                <div className="mt-4 text-center">
-                  <Button variant="outline" asChild className="border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target">
-                    <Link href="/dashboard/bookings">View All Bookings</Link>
-                  </Button>
-                </div>
-              )}
             </CardContent>
           </Card>
         </motion.div>
       )}
 
-      {/* Recent Activity */}
+      {/* Past Bookings */}
       {dashboardData.pastBookings.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+          <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-lg text-[#F8F4EB]">Recent Services</CardTitle>
+              <CardTitle className="text-lg text-[#F8F4EB]">Past Bookings</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {dashboardData.pastBookings.slice(0, 3).map((booking) => (
-                  <div key={booking.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#141414]/50 rounded-lg border border-[#8A2B85]/10">
-                    <div className="space-y-1 mb-2 sm:mb-0">
-                      <div className="flex items-center space-x-2">
-                        <Badge className="bg-green-500 text-white text-xs">
-                          completed
-                        </Badge>
-                        <span className="font-medium text-[#F8F4EB]">{booking.service}</span>
+                {dashboardData.pastBookings.slice(0, 5).map((booking) => (
+                  <Link
+                    key={booking.id}
+                    href={`/dashboard/bookings/${booking.id}`}
+                    className={cn(
+                      "block relative p-4 rounded-lg",
+                      "border-2 border-[#8A2B85]/20",
+                      "bg-[#1E1E1E]/50 hover:bg-[#1E1E1E]/70",
+                      "transition-all duration-200",
+                      "touch-target min-h-[88px]"
+                    )}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge className={cn(
+                            "text-xs",
+                            getStatusColor(booking.status),
+                            booking.status === 'pending' ? 'text-[#1E1E1E]' : 'text-[#F8F4EB]'
+                          )}>
+                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                          </Badge>
+                          <h3 className="text-[#F8F4EB] font-medium">{booking.service}</h3>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-[#C7C7C7]">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{format(new Date(booking.booking_date), 'EEE, MMM d')}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{booking.booking_time}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            <span>{booking.postcode}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-sm text-[#C7C7C7]">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="h-3 w-3" />
-                          <span>{booking.postcode}</span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-[#8A2B85]">£{booking.total_price}</span>
+                        <ChevronRight className="h-4 w-4 text-[#C7C7C7]" />
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-[#F8F4EB]">£{booking.total_price}</div>
-                    </div>
-                  </div>
+                  </Link>
                 ))}
+                {dashboardData.pastBookings.length > 5 && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className={cn(
+                      "w-full border-[#8A2B85]/20 text-[#C7C7C7]",
+                      "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+                      "touch-target min-h-[44px]"
+                    )}
+                  >
+                    <Link href="/dashboard/bookings">
+                      View All Bookings
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
         </motion.div>
       )}
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <Car className="h-8 w-8 text-[#8A2B85] mx-auto" />
-              <h3 className="font-medium text-[#F8F4EB]">Book Service</h3>
-              <p className="text-xs text-[#C7C7C7]">Schedule your next car service</p>
-              <Button asChild className="w-full bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-white touch-target">
-                <Link href="/dashboard/book-service">Book Now</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <Gift className="h-8 w-8 text-[#8A2B85] mx-auto" />
-              <h3 className="font-medium text-[#F8F4EB]">Rewards</h3>
-              <p className="text-xs text-[#C7C7C7]">Check your loyalty points</p>
-              <Button asChild variant="outline" className="w-full border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target">
-                <Link href="/dashboard/rewards">View Rewards</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 sm:col-span-2 lg:col-span-1">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <User className="h-8 w-8 text-[#8A2B85] mx-auto" />
-              <h3 className="font-medium text-[#F8F4EB]">Profile</h3>
-              <p className="text-xs text-[#C7C7C7]">Update your information</p>
-              <Button asChild variant="outline" className="w-full border-[#8A2B85]/20 text-[#C7C7C7] hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB] touch-target">
-                <Link href="/dashboard/profile">Edit Profile</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
     </div>
   )
 } 

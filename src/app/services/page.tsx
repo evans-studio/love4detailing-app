@@ -6,6 +6,10 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/badge"
 import { Car, Clock, CheckCircle, ArrowLeft } from 'lucide-react'
+import Container, { Section } from '@/components/ui/Container'
+import { cn } from '@/lib/utils'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { breakpoints } from '@/lib/constants/breakpoints'
 
 const services = [
   {
@@ -78,10 +82,37 @@ const services = [
   }
 ]
 
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut"
+    }
+  }
+}
+
 export default function ServicesPage() {
+  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
+  const isMedium = useMediaQuery(`(min-width: ${breakpoints.md}px)`)
+
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#141414]">
+      <Container as="main" className="py-6 sm:py-8 lg:py-12">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -89,7 +120,14 @@ export default function ServicesPage() {
           transition={{ duration: 0.3 }}
           className="mb-8"
         >
-          <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
+          <Link 
+            href="/" 
+            className={cn(
+              "inline-flex items-center",
+              "text-[#C7C7C7] hover:text-[#F8F4EB]",
+              "transition-colors touch-target"
+            )}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
@@ -100,34 +138,53 @@ export default function ServicesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <Badge variant="secondary" className="mb-4">
+          <Badge 
+            variant="secondary" 
+            className={cn(
+              "mb-4 bg-[#8A2B85]/10 text-[#8A2B85]",
+              "border-[#8A2B85]/30"
+            )}
+          >
             Our Services
           </Badge>
-          <h1 className="text-4xl font-bold text-foreground mb-4">Professional Car Detailing</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#F8F4EB] mb-4">
+            Professional Car Detailing
+          </h1>
+          <p className="text-base sm:text-lg text-[#C7C7C7] max-w-2xl mx-auto px-4 sm:px-0">
             Choose the perfect service for your vehicle. All services include professional mobile detailing at your location.
           </p>
         </motion.div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {services.map((service, index) => (
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className={cn(
+            "grid gap-6 sm:gap-8",
+            "grid-cols-1",
+            isMedium ? "grid-cols-2" : "",
+            "max-w-6xl mx-auto"
+          )}
+        >
+          {services.map((service) => (
             <motion.div
               key={service.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              variants={itemVariants}
+              className="h-full"
             >
-              <Card className={`relative h-full hover:shadow-xl transition-all duration-300 group ${
-                service.popular 
-                  ? 'border-primary shadow-lg ring-1 ring-primary/20' 
-                  : 'hover:border-primary/50'
-              }`}>
+              <Card className={cn(
+                "relative h-full",
+                "bg-[#1E1E1E]/80 border-[#8A2B85]/20",
+                "hover:shadow-xl transition-all duration-300",
+                "touch-target",
+                service.popular && "border-[#8A2B85] shadow-lg ring-1 ring-[#8A2B85]/20"
+              )}>
                 {service.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-3 py-1">
+                    <Badge className="bg-[#8A2B85] text-[#F8F4EB] px-3 py-1">
                       Most Popular
                     </Badge>
                   </div>
@@ -136,17 +193,22 @@ export default function ServicesPage() {
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-colors">
-                        <Car className="h-6 w-6 text-primary" />
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl",
+                        "bg-gradient-to-br from-[#8A2B85]/20 to-[#8A2B85]/10",
+                        "flex items-center justify-center",
+                        "transition-colors"
+                      )}>
+                        <Car className="h-6 w-6 text-[#8A2B85]" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-foreground">{service.title}</h3>
-                        <p className="text-sm text-muted-foreground">{service.description}</p>
+                        <h3 className="text-xl font-bold text-[#F8F4EB]">{service.title}</h3>
+                        <p className="text-sm text-[#C7C7C7]">{service.description}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-primary">{service.price}</p>
-                      <div className="flex items-center text-xs text-muted-foreground">
+                      <p className="text-2xl font-bold text-[#8A2B85]">{service.price}</p>
+                      <div className="flex items-center text-xs text-[#C7C7C7]">
                         <Clock className="h-3 w-3 mr-1" />
                         {service.duration}
                       </div>
@@ -156,10 +218,17 @@ export default function ServicesPage() {
 
                 <CardContent className="space-y-6">
                   <div>
-                    <h4 className="text-sm font-semibold text-foreground mb-3">Vehicle Examples</h4>
+                    <h4 className="text-sm font-semibold text-[#F8F4EB] mb-3">Vehicle Examples</h4>
                     <div className="flex flex-wrap gap-2">
-                      {service.vehicleTypes.map((type, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">
+                      {service.vehicleTypes.map((type) => (
+                        <Badge 
+                          key={type} 
+                          variant="outline" 
+                          className={cn(
+                            "text-xs border-[#8A2B85]/20",
+                            "text-[#C7C7C7] bg-[#8A2B85]/5"
+                          )}
+                        >
                           {type}
                         </Badge>
                       ))}
@@ -167,20 +236,20 @@ export default function ServicesPage() {
                   </div>
                   
                   <div>
-                    <h4 className="text-sm font-semibold text-foreground mb-3">What's Included</h4>
+                    <h4 className="text-sm font-semibold text-[#F8F4EB] mb-3">What's Included</h4>
                     <div className="grid grid-cols-1 gap-2">
-                      {service.features.map((feature, i) => (
-                        <div key={i} className="flex items-center space-x-2">
+                      {service.features.map((feature) => (
+                        <div key={feature} className="flex items-center space-x-2">
                           <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                          <span className="text-sm text-muted-foreground">{feature}</span>
+                          <span className="text-sm text-[#C7C7C7]">{feature}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-semibold text-foreground mb-2">Perfect For</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <h4 className="text-sm font-semibold text-[#F8F4EB] mb-2">Perfect For</h4>
+                    <p className="text-sm text-[#C7C7C7]">
                       {service.bestFor.join(', ')}
                     </p>
                   </div>
@@ -188,11 +257,12 @@ export default function ServicesPage() {
 
                 <CardFooter className="pt-6">
                   <Button 
-                    className={`w-full ${
+                    className={cn(
+                      "w-full touch-target min-h-[44px]",
                       service.popular 
-                        ? 'bg-primary hover:bg-primary/90' 
-                        : ''
-                    }`}
+                        ? "bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-[#F8F4EB]" 
+                        : "border-[#8A2B85]/20 hover:bg-[#8A2B85]/10"
+                    )}
                     variant={service.popular ? "default" : "outline"}
                     asChild
                   >
@@ -204,29 +274,49 @@ export default function ServicesPage() {
               </Card>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* CTA Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="text-center mt-16"
+          className="text-center mt-12 sm:mt-16"
         >
-          <div className="bg-muted/50 rounded-xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
+          <div className={cn(
+            "bg-[#1E1E1E]/50 rounded-xl",
+            "p-6 sm:p-8",
+            "max-w-2xl mx-auto"
+          )}>
+            <h3 className="text-xl sm:text-2xl font-bold text-[#F8F4EB] mb-4">
               Ready to Book Your Service?
             </h3>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-[#C7C7C7] mb-6">
               Professional mobile car detailing that comes to you. No queues, no waiting, just results.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
+              <Button 
+                size="lg" 
+                className={cn(
+                  "bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-[#F8F4EB]",
+                  "touch-target min-h-[44px]"
+                )}
+                asChild
+              >
                 <Link href="/booking">
                   Book Now
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className={cn(
+                  "border-[#8A2B85]/20 text-[#C7C7C7]",
+                  "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+                  "touch-target min-h-[44px]"
+                )}
+                asChild
+              >
                 <Link href="/">
                   Back to Home
                 </Link>
@@ -234,7 +324,7 @@ export default function ServicesPage() {
             </div>
           </div>
         </motion.div>
-      </main>
+      </Container>
     </div>
   )
 } 

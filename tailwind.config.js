@@ -10,12 +10,29 @@ module.exports = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: '1rem',
+        sm: '1.5rem',
+        lg: '2rem',
+      },
       screens: {
-        "2xl": "1400px",
+        xs: '375px',
+        sm: '600px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1280px',
+        '2xl': '1440px',
       },
     },
     extend: {
+      screens: {
+        xs: '375px',
+        sm: '600px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1280px',
+        '2xl': '1440px',
+      },
       colors: {
         // Final Color Palette Specification (Dev Guidelines Compliant)
         'true-black': '#141414',        // Primary Background (app shell) - Dev Guidelines
@@ -42,15 +59,15 @@ module.exports = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "#141414",
+        background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#A64AFB",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#8A2B85",
+          foreground: "#F8F4EB",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#141414",
+          foreground: "#F8F4EB",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -159,6 +176,27 @@ module.exports = {
       fontFamily: {
         'heading': ['Helvetica', 'Arial', 'sans-serif'],
         'sans': ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      spacing: {
+        'touch': '44px', // Minimum touch target size
+      },
+      minHeight: {
+        'touch': '44px', // Minimum touch target size
+      },
+      minWidth: {
+        'touch': '44px', // Minimum touch target size
+      },
+      zIndex: {
+        'base': '0',
+        'above': '1',
+        'dropdown': '10',
+        'sticky': '20',
+        'fixed': '30',
+        'drawer': '40',
+        'modal': '50',
+        'popover': '60',
+        'toast': '70',
+        'tooltip': '80',
       },
     },
   },
