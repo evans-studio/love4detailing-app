@@ -38,11 +38,16 @@ import {
   Info,
   Star,
   Sparkles,
-  CreditCard
+  CreditCard,
+  User,
+  ChevronRight,
+  ChevronLeft,
+  Loader2
 } from 'lucide-react'
 import { ServiceIcons } from '@/components/ui/icons'
 import { Label } from '@/components/ui/label'
-import PaymentButton from '@/components/payments/PaymentButton'
+import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 // Vehicle size categories - purely size-based classification
 const vehicleSizes = {
@@ -637,106 +642,52 @@ export default function DashboardBookingForm() {
     }
   }
 
-  const createBookingRecord = async (data: FormData) => {
-    console.log('Creating booking with data:', data)
-    console.log('User:', user)
-    console.log('Total price:', totalPrice)
-    
+  const createBookingRecord = async (formData: FormData) => {
     try {
-      // Validate required fields
-      if (!data.date || !data.timeSlot || !data.vehicleSize || !user?.id) {
-        const missingFields = []
-        if (!data.date) missingFields.push('date')
-        if (!data.timeSlot) missingFields.push('timeSlot')
-        if (!data.vehicleSize) missingFields.push('vehicleSize')
-        if (!user?.id) missingFields.push('user')
-        
-        const errorMsg = `Missing required fields: ${missingFields.join(', ')}`
-        console.error(errorMsg)
-        toast({
-          title: "Validation Error",
-          description: errorMsg,
-          variant: "destructive",
-        })
-        throw new Error(errorMsg)
-      }
-
-      // Check if time slot is still available (max 5 bookings per day)
-      console.log('Checking time slot availability...')
-      const { data: existingBookings, error: checkError } = await supabase
+      const { data: booking, error } = await supabase
         .from('bookings')
-        .select('id')
-        .eq('booking_date', data.date)
-        .eq('booking_time', data.timeSlot)
-        .eq('status', 'confirmed')
-
-      if (checkError) {
-        console.error('Error checking availability:', checkError)
-        throw checkError
-      }
-
-      if (existingBookings && existingBookings.length >= 5) {
-        toast({
-          title: "Booking Failed",
-          description: "This time slot is no longer available",
-          variant: "destructive",
+        .insert({
+          user_id: user?.id,
+          service_type: formData.serviceType,
+          vehicle_size: formData.vehicleSize,
+          vehicle: formData.vehicle,
+          vehicle_year: formData.vehicleYear,
+          vehicle_color: formData.vehicleColor,
+          date: formData.date,
+          time_slot: formData.timeSlot,
+          postcode: formData.postcode,
+          address: formData.address,
+          add_ons: formData.addOns,
+          special_requests: formData.specialRequests,
+          access_instructions: formData.accessInstructions,
+          status: 'pending',
+          payment_status: 'pending',
+          total_amount: totalPrice,
+          travel_fee: travelFee
         })
-        throw new Error('Time slot not available')
-      }
-
-      const serviceType = serviceTypes.find(s => s.id === data.serviceType)
-      const vehicleInfo = `${data.vehicleYear} ${data.vehicle.split(' ')[0]} ${data.vehicle.split(' ')[1]}`
-      
-      const bookingData = {
-        service_id: data.vehicleSize, // Use vehicle size as service identifier
-        booking_date: data.date,
-        booking_time: data.timeSlot,
-        postcode: data.postcode,
-        address: data.address,
-        customer_name: user?.email?.split('@')[0] || 'Customer',
-        email: user?.email,
-        vehicle_make: data.vehicle.split(' ')[0],
-        vehicle_model: data.vehicle.split(' ')[1],
-        vehicle_year: parseInt(data.vehicleYear),
-        vehicle_size: data.vehicleSize,
-        vehicle_color: data.vehicleColor || null,
-        add_ons: data.addOns || [],
-        special_requests: data.specialRequests || null,
-        access_instructions: data.accessInstructions || null,
-        notes: `Service: ${serviceType?.name}\nVehicle: ${vehicleInfo}\nSize: ${vehicleSizes[data.vehicleSize].label}\nAdd-ons: ${data.addOns.join(', ')}\nSpecial Requests: ${data.specialRequests || 'None'}\nAccess Instructions: ${data.accessInstructions || 'None'}`,
-        total_price: totalPrice,
-        user_id: user?.id,
-        status: 'pending',
-        payment_status: 'pending',
-        booking_reference: `L4D-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`
-      }
-      
-      console.log('Inserting booking with data:', bookingData)
-      
-      const { data: booking, error: bookingError } = await supabase
-        .from('bookings')
-        .insert(bookingData)
         .select()
         .single()
 
-      if (bookingError) {
-        console.error('Booking insertion error:', bookingError)
-        toast({
-          title: "Database Error",
-          description: `Failed to create booking: ${bookingError.message}`,
-          variant: "destructive",
-        })
-        throw bookingError
-      }
+      if (error) throw error
 
-      console.log('Booking created successfully:', booking)
-      setCreatedBookingId(booking.id)
-      
+      // Store booking reference for success page
+      localStorage.setItem('lastBooking', JSON.stringify({
+        id: booking.id,
+        service: serviceTypes.find(s => s.id === formData.serviceType)?.name,
+        date: formData.date,
+        time: formData.timeSlot
+      }))
+
       toast({
         title: "Booking Created Successfully!",
-        description: `Your booking has been created. Please complete payment to confirm your appointment.`,
+        description: `Your booking has been created. We'll contact you to confirm the details.`,
         variant: "default",
       })
+
+      // Redirect to bookings page after a short delay
+      setTimeout(() => {
+        router.push('/dashboard/bookings')
+      }, 2000)
 
       return booking.id
     } catch (error) {
@@ -812,9 +763,14 @@ export default function DashboardBookingForm() {
   }
 
   const onSubmit = async (data: FormData) => {
-    // This function is no longer used for booking creation
-    // The booking is created when moving to the final step
-    console.log('Form submitted with data:', data)
+    try {
+      setIsLoading(true)
+      await createBookingRecord(data)
+    } catch (error) {
+      console.error('Form submission error:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const renderStep0 = () => (
@@ -1516,9 +1472,9 @@ export default function DashboardBookingForm() {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-2">
-          <CreditCard className="w-16 h-16 text-primary mx-auto mb-4" />
-          <h2 className="text-2xl font-bold">Review & Pay</h2>
-          <p className="text-muted-foreground">Please review your booking details and complete payment</p>
+          <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+          <h2 className="text-2xl font-bold">Review & Confirm</h2>
+          <p className="text-muted-foreground">Please review your booking details</p>
         </div>
 
         {/* Booking Summary */}
@@ -1544,100 +1500,30 @@ export default function DashboardBookingForm() {
               </div>
             </div>
 
-            {values.addOns && values.addOns.length > 0 && (
-              <div>
-                <h4 className="font-medium text-muted-foreground mb-2">Add-on Services</h4>
-                <ul className="space-y-1">
-                  {values.addOns.map(id => {
-                    const addon = addOns.find(a => a.id === id)
-                    return addon ? (
-                      <li key={id} className="flex justify-between text-sm">
-                        <span>{addon.label}</span>
-                        <span>+£{addon.price}</span>
-                      </li>
-                    ) : null
-                  })}
-                </ul>
-              </div>
-            )}
-
-            <div className="border-t pt-4">
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Service Price</span>
-                  <span>£{vehicleSizes[values.vehicleSize]?.price || 0}</span>
-                </div>
-                {values.addOns && values.addOns.length > 0 && (
-                  <div className="flex justify-between">
-                    <span>Add-ons</span>
-                    <span>+£{values.addOns.reduce((total, id) => {
-                      const addon = addOns.find(a => a.id === id)
-                      return total + (addon ? addon.price : 0)
-                    }, 0)}</span>
-                  </div>
-                )}
-                {travelFee > 0 && (
-                  <div className="flex justify-between">
-                    <span>Travel Surcharge</span>
-                    <span>+£{travelFee}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-lg font-bold border-t pt-2">
-                  <span>Total</span>
-                  <span className="text-primary">£{totalPrice}</span>
-                </div>
-              </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-muted-foreground mb-2">Total Price</h4>
+              <p className="text-2xl font-bold">£{totalPrice.toFixed(2)}</p>
+              {travelFee > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Includes travel fee: £{travelFee.toFixed(2)}
+                </p>
+              )}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Payment Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {createdBookingId ? (
-              <div className="space-y-4">
-                <PaymentButton
-                  bookingData={{
-                    id: createdBookingId,
-                    amount: totalPrice,
-                    customerEmail: user?.email || '',
-                    customerName: user?.email?.split('@')[0] || '',
-                    service: `Car Valeting Service - ${vehicleSizes[values.vehicleSize]?.label || 'Service'}`,
-                    vehicleSize: values.vehicleSize
-                  }}
-                  onSuccess={handlePaymentSuccess}
-                  onError={handlePaymentError}
-                  disabled={isLoading}
-                />
-                <p className="text-xs text-muted-foreground text-center">
-                  Secure payment powered by PayPal
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-8 space-y-4">
-                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm text-muted-foreground">Creating booking...</span>
-                <p className="text-xs text-muted-foreground text-center max-w-md">
-                  Please wait while we create your booking record. This should only take a moment.
-                </p>
-                {isLoading && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      console.log('Debug: Current form values:', form.getValues())
-                      console.log('Debug: createdBookingId:', createdBookingId)
-                      console.log('Debug: isLoading:', isLoading)
-                    }}
-                  >
-                    Debug Info
-                  </Button>
-                )}
-              </div>
-            )}
+            <Button
+              type="submit"
+              className="w-full mt-4"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <span className="mr-2">Creating Booking...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </>
+              ) : (
+                'Confirm Booking'
+              )}
+            </Button>
           </CardContent>
         </Card>
       </div>

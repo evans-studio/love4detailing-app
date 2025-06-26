@@ -18,8 +18,6 @@ export const initSectionTransitions = () => {
     
     elements.forEach((element, index) => {
       try {
-        const { ScrollTrigger } = require('gsap/ScrollTrigger')
-        
         gsap.fromTo(element, 
           {
             y: 60,

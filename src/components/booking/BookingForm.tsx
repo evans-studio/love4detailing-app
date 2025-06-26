@@ -38,10 +38,10 @@ import {
   ChevronLeft,
   CheckCircle,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react'
 import { ServiceIcons } from '@/components/ui/icons'
-import PaymentButton from '@/components/payments/PaymentButton'
 import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
 import { VehicleSearchResult, LicensePlateResult } from '@/lib/utils/vehicleDatabase'
 import { cn } from '@/lib/utils'
@@ -342,22 +342,30 @@ export default function BookingForm() {
 
   const nextStep = async () => {
     if (currentStep < steps.length - 1) {
-      // If moving to the final step (payment), create the booking record
-      if (currentStep === steps.length - 2) {
-        try {
+      try {
+        if (currentStep === steps.length - 2) {
           setIsLoading(true)
           const formData = form.getValues()
           await createBookingRecord(formData)
-        } catch (error) {
-          // Don't proceed to payment step if booking creation failed
-          return
-        } finally {
-          setIsLoading(false)
+          
+          // Show success message and redirect
+          toast({
+            title: "Booking Created Successfully!",
+            description: "Your booking has been created. We'll contact you to confirm the details.",
+            variant: "default",
+          })
+          
+          router.push('/booking/success')
+        } else {
+          setDirection(1)
+          setCurrentStep(currentStep + 1)
         }
+      } catch (error) {
+        // Handle error
+        console.error('Error in nextStep:', error)
+      } finally {
+        setIsLoading(false)
       }
-      
-      setDirection(1)
-      setCurrentStep(currentStep + 1)
     }
   }
 
@@ -397,10 +405,27 @@ export default function BookingForm() {
   }
 
   const onSubmit = async (data: FormData) => {
-    // This function is no longer used for booking creation
-    // The booking is created when moving to the final step
-    // This is just a fallback in case the form is submitted directly
-    bookingLogger.debug('Form submitted', data)
+    try {
+      setIsLoading(true)
+      await createBookingRecord(data)
+      
+      toast({
+        title: "Booking Created Successfully!",
+        description: "Your booking has been created. We'll contact you to confirm the details.",
+        variant: "default",
+      })
+      
+      router.push('/booking/success')
+    } catch (error) {
+      console.error('Form submission error:', error)
+      toast({
+        title: "Booking Creation Failed",
+        description: "There was an error creating your booking. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handlePaymentSuccess = async (paymentDetails: PaymentResult) => {
@@ -896,78 +921,60 @@ export default function BookingForm() {
 
                 {currentStep === 4 && (
                   <motion.div
+                    key="confirmation"
                     variants={fadeInUp}
-                    initial="hidden"
-                    animate="show"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
                     className="space-y-6"
                   >
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between pb-4 border-b border-[#8A2B85]/20">
-                        <div>
-                          <h3 className="font-medium text-[#F8F4EB]">Contact Details</h3>
-                          <div className="text-sm text-[#C7C7C7] space-y-1">
-                            <p>Name: {form.getValues('fullName')}</p>
-                            <p>Email: {form.getValues('email')}</p>
-                            <p>Postcode: {form.getValues('postcode')}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-4 border-b border-[#8A2B85]/20">
-                        <div>
-                          <h3 className="font-medium text-[#F8F4EB]">Selected Service</h3>
-                          <p className="text-sm text-[#C7C7C7]">
-                            {selectedVehicleSize && vehicleSizes[selectedVehicleSize].label}
-                          </p>
-                        </div>
-                        <span className="text-lg font-bold text-[#8A2B85]">
-                          £{selectedVehicleSize && vehicleSizes[selectedVehicleSize].price}
-                        </span>
-                      </div>
-
-                      {selectedAddOns?.length > 0 && (
-                        <div className="space-y-2">
-                          <h3 className="font-medium text-[#F8F4EB]">Add-ons</h3>
-                          {selectedAddOns.map((id) => {
-                            const addon = addOns.find(a => a.id === id)
-                            return addon ? (
-                              <div key={id} className="flex items-center justify-between">
-                                <span className="text-sm text-[#C7C7C7]">{addon.label}</span>
-                                <span className="text-sm font-medium text-[#8A2B85]">+£{addon.price}</span>
-                              </div>
-                            ) : null
-                          })}
-                        </div>
-                      )}
-
-                      {travelFee > 0 && (
-                        <div className="flex items-center justify-between pb-4 border-b border-[#8A2B85]/20">
-                          <div>
-                            <h3 className="font-medium text-[#F8F4EB]">Travel Fee</h3>
-                            <p className="text-sm text-[#C7C7C7]">Based on your location</p>
-                          </div>
-                          <span className="text-lg font-bold text-[#8A2B85]">£{travelFee}</span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between pt-4">
-                        <h3 className="text-lg font-bold text-[#F8F4EB]">Total</h3>
-                        <span className="text-2xl font-bold text-[#8A2B85]">£{totalPrice}</span>
-                      </div>
+                    <div className="text-center">
+                      <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                      <h2 className="text-2xl font-bold">Booking Summary</h2>
+                      <p className="text-muted-foreground">Please review your booking details</p>
                     </div>
 
-                    <PaymentButton
-                      bookingData={{
-                        id: createdBookingId || '',
-                        amount: totalPrice,
-                        customerEmail: form.getValues('email'),
-                        customerName: form.getValues('fullName'),
-                        service: selectedVehicleSize ? vehicleSizes[selectedVehicleSize].label : '',
-                        vehicleSize: selectedVehicleSize
-                      }}
-                      onSuccess={handlePaymentSuccess}
-                      onError={handlePaymentError}
-                    />
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <h3 className="font-semibold mb-2">Service Details</h3>
+                          <p><strong>Vehicle:</strong> {form.getValues('vehicleLookup')}</p>
+                          <p><strong>Size:</strong> {vehicleSizes[form.getValues('vehicleSize')]?.label}</p>
+                          <p><strong>Date:</strong> {form.getValues('date')}</p>
+                          <p><strong>Time:</strong> {form.getValues('timeSlot')}</p>
+                        </div>
+                        
+                        <div>
+                          <h3 className="font-semibold mb-2">Contact Details</h3>
+                          <p><strong>Name:</strong> {form.getValues('fullName')}</p>
+                          <p><strong>Email:</strong> {form.getValues('email')}</p>
+                          <p><strong>Postcode:</strong> {form.getValues('postcode')}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6">
+                        <h3 className="font-semibold mb-2">Total Price</h3>
+                        <p className="text-2xl font-bold">£{totalPrice.toFixed(2)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {travelFee > 0 && `Includes travel fee: £${travelFee.toFixed(2)}`}
+                        </p>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full mt-4"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <span className="mr-2">Creating Booking...</span>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          </>
+                        ) : (
+                          'Confirm Booking'
+                        )}
+                      </Button>
+                    </div>
                   </motion.div>
                 )}
 

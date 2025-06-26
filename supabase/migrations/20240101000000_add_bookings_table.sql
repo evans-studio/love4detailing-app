@@ -3,23 +3,30 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'bookings') THEN
     -- Create bookings table
-    CREATE TABLE bookings (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID NOT NULL,
-      service_id TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
-      booking_date DATE NOT NULL,
-      booking_time TIME NOT NULL,
+    CREATE TABLE IF NOT EXISTS bookings (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      user_id UUID REFERENCES auth.users(id),
+      service_type TEXT NOT NULL,
+      vehicle_size TEXT NOT NULL,
+      vehicle TEXT NOT NULL,
+      vehicle_year INTEGER,
+      vehicle_color TEXT,
+      date DATE NOT NULL,
+      time_slot TEXT NOT NULL,
       postcode TEXT NOT NULL,
-      travel_fee DECIMAL(10,2),
-      total_price DECIMAL(10,2) NOT NULL,
-      notes TEXT,
+      address TEXT,
+      add_ons TEXT[],
+      special_requests TEXT,
+      access_instructions TEXT,
+      status TEXT DEFAULT 'pending',
+      total_amount DECIMAL(10,2) NOT NULL,
+      travel_fee DECIMAL(10,2) DEFAULT 0,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
 
     -- Create index for querying bookings by date and time
-    CREATE INDEX idx_bookings_date_time ON bookings(booking_date, booking_time);
+    CREATE INDEX idx_bookings_date_time ON bookings(date, time_slot);
     
     -- Create index for status
     CREATE INDEX idx_bookings_status ON bookings(status);
