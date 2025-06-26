@@ -214,18 +214,18 @@ export const revealText = (
       span.style.display = 'inline-block'
       el.appendChild(span)
     })
-    return el.children
+    return el.querySelectorAll('span')
   }
 
-  const chars = typeof element === 'string' 
-    ? document.querySelectorAll(element)
-    : [element]
-
-  chars.forEach(el => {
-    if (el instanceof Element) {
-      splitText(el)
-    }
-  })
+  let spans: Element[] = []
+  
+  if (typeof element === 'string') {
+    document.querySelectorAll(element).forEach(el => {
+      spans = [...spans, ...splitText(el)]
+    })
+  } else {
+    spans = [...splitText(element)]
+  }
 
   const animation = {
     opacity: 0,
@@ -236,10 +236,10 @@ export const revealText = (
   }
 
   if (options.scrollTrigger) {
-    return gsap.from(`${element} span`, {
+    return gsap.from(spans, {
       ...animation,
       scrollTrigger: {
-        trigger: element,
+        trigger: typeof element === 'string' ? element : element,
         start: 'top bottom-=100',
         end: 'bottom top+=100',
         toggleActions: 'play none none reverse',
@@ -247,7 +247,7 @@ export const revealText = (
     })
   }
 
-  return gsap.from(`${element} span`, animation)
+  return gsap.from(spans, animation)
 }
 
 // Button hover animation

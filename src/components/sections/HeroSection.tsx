@@ -21,7 +21,10 @@ export default function HeroSection() {
 
     // Animate heading text
     if (headingRef.current) {
-      animations.revealText(headingRef.current, {
+      const heading = headingRef.current
+      heading.style.opacity = '0'  // Hide initially
+      
+      animations.revealText(heading, {
         y: 30,
         duration: animations.timings.slow,
         stagger: 0.02,
