@@ -22,6 +22,7 @@ import {
   Plus
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import Image from 'next/image'
 
 interface Booking {
   id: string
@@ -34,6 +35,8 @@ interface Booking {
   postcode: string
   notes?: string
   created_at: string
+  vehicle_make: string
+  vehicle_model: string
 }
 
 const LoadingSkeleton = () => (
@@ -182,10 +185,12 @@ export default function CustomerBookingsPage() {
             <div className="flex space-x-2 overflow-x-auto">
               {booking.vehicle_images.slice(0, 3).map((image, index) => (
                 <div key={index} className="flex-shrink-0">
-                  <img
+                  <Image
                     src={image}
                     alt={`Vehicle ${index + 1}`}
-                    className="w-16 h-16 object-cover rounded"
+                    width={120}
+                    height={80}
+                    className="rounded-lg object-cover"
                   />
                 </div>
               ))}

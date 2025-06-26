@@ -114,7 +114,7 @@ export default function AdminCustomersPage() {
 
   useEffect(() => {
     filterAndSortCustomers()
-  }, [customers, searchTerm, sortBy])
+  }, [filterAndSortCustomers])
 
   async function fetchCustomers() {
     try {

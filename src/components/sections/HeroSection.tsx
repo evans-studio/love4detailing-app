@@ -72,14 +72,14 @@ export default function HeroSection() {
 
       {/* Content container */}
       <FlexContainer
-        direction="col"
+        direction={{ xs: 'col' }}
         items="center"
         justify="center"
         className="relative z-10 py-16 lg:py-24"
       >
         <div className="w-full max-w-7xl">
           <FlexContainer
-            direction="col"
+            direction={{ xs: 'col', lg: 'row' }}
             items="center"
             justify="center"
             gap="lg"

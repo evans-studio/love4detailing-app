@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/Card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
+import Image from 'next/image'
 
 interface ImageUploadProps {
   form: any // Replace with your form type
@@ -259,10 +260,12 @@ export function ImageUpload({ form, name }: ImageUploadProps) {
                       >
                         <Card className="relative overflow-hidden group hover:shadow-md transition-shadow">
                           <div className="aspect-square relative">
-                            <img
+                            <Image
                               src={file.preview}
-                              alt={`Vehicle photo ${index + 1}`}
-                              className="object-cover w-full h-full"
+                              alt={`Vehicle image ${index + 1}`}
+                              width={120}
+                              height={80}
+                              className="rounded-lg object-cover"
                             />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                             
