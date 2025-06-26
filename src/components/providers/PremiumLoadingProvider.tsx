@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import * as React from 'react'
+import { useEffect, useState } from 'react'
 import PremiumLoadingScreen from '../ui/PremiumLoadingScreen'
 
 interface PremiumLoadingContextType {
@@ -10,10 +11,10 @@ interface PremiumLoadingContextType {
   hideLoading: () => void
 }
 
-const PremiumLoadingContext = createContext<PremiumLoadingContextType | undefined>(undefined)
+const PremiumLoadingContext = React.createContext<PremiumLoadingContextType | undefined>(undefined)
 
 export function usePremiumLoadingContext() {
-  const context = useContext(PremiumLoadingContext)
+  const context = React.useContext(PremiumLoadingContext)
   if (context === undefined) {
     throw new Error('usePremiumLoadingContext must be used within a PremiumLoadingProvider')
   }
@@ -31,40 +32,49 @@ export default function PremiumLoadingProvider({
   initialDelay = 0,
   duration = 3000 
 }: PremiumLoadingProviderProps) {
-  const [isLoading, setIsLoading] = useState(true)
-  const [isVisible, setIsVisible] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    // Show loading screen immediately on mount, then start timer
+    setIsMounted(true)
+    // Show loading screen after initial delay
     const timer = setTimeout(() => {
       setIsLoading(true)
       setIsVisible(true)
     }, initialDelay)
 
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+    }
   }, [initialDelay])
 
-  const showLoading = () => {
+  const showLoading = React.useCallback(() => {
     setIsLoading(true)
     setIsVisible(true)
-  }
+  }, [])
 
-  const hideLoading = () => {
+  const hideLoading = React.useCallback(() => {
     setIsLoading(false)
     // Keep visible for smoother exit animation
     setTimeout(() => setIsVisible(false), 1000)
-  }
+  }, [])
 
-  const handleLoadingComplete = () => {
+  const handleLoadingComplete = React.useCallback(() => {
     setIsLoading(false)
     setTimeout(() => setIsVisible(false), 1000)
-  }
+  }, [])
 
-  const contextValue: PremiumLoadingContextType = {
+  const contextValue = React.useMemo(() => ({
     isLoading,
     setIsLoading,
     showLoading,
     hideLoading
+  }), [isLoading, showLoading, hideLoading])
+
+  // Don't render anything during SSR
+  if (!isMounted) {
+    return null
   }
 
   return (

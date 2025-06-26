@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState } from 'react'
+import * as React from 'react'
+import { useState, useEffect } from 'react'
 
 interface SidebarContextType {
   isCollapsed: boolean
@@ -8,22 +9,40 @@ interface SidebarContextType {
   toggleCollapsed: () => void
 }
 
-const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
+const SidebarContext = React.createContext<SidebarContextType | undefined>(undefined)
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
-  const toggleCollapsed = () => setIsCollapsed(!isCollapsed)
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const toggleCollapsed = React.useCallback(() => {
+    setIsCollapsed(prev => !prev)
+  }, [])
+
+  const contextValue = React.useMemo(() => ({
+    isCollapsed,
+    setIsCollapsed,
+    toggleCollapsed
+  }), [isCollapsed, toggleCollapsed])
+
+  // Don't render anything during SSR
+  if (!isMounted) {
+    return null
+  }
 
   return (
-    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed, toggleCollapsed }}>
+    <SidebarContext.Provider value={contextValue}>
       {children}
     </SidebarContext.Provider>
   )
 }
 
 export function useSidebar() {
-  const context = useContext(SidebarContext)
+  const context = React.useContext(SidebarContext)
   if (context === undefined) {
     throw new Error('useSidebar must be used within a SidebarProvider')
   }
