@@ -23,9 +23,13 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     <div className="relative min-h-screen w-full">
       {/* Mobile-first layout container */}
       <div className="flex min-h-screen w-full">
-        {/* Sidebars - hidden on mobile by default */}
+        {/* Single Sidebar Container - Only one will be shown */}
         <div className={`hidden ${isDashboard ? 'md:block' : 'lg:block'} flex-shrink-0`}>
-          {isDashboard ? <Sidebar /> : <LandingSidebar />}
+          {isDashboard ? (
+            <Sidebar />
+          ) : pathname !== '/' ? (
+            <LandingSidebar />
+          ) : null}
         </div>
 
         {/* Main content area - full width on mobile, adjusted for sidebar on larger screens */}
@@ -34,12 +38,12 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             flex-1 min-h-screen w-full 
             ${isDashboard 
               ? 'md:max-w-[calc(100%-16rem)]' // 16rem = 256px sidebar width
-              : 'lg:max-w-[calc(100%-16rem)]'
+              : pathname !== '/' ? 'lg:max-w-[calc(100%-16rem)]' : ''
             }
           `}
         >
           {/* Mobile header spacing */}
-          <div className={`h-16 ${isDashboard ? 'md:hidden' : 'lg:hidden'}`} />
+          <div className={`h-16 ${isDashboard ? 'md:hidden' : pathname !== '/' ? 'lg:hidden' : ''}`} />
           
           {/* Back button */}
           <BackButton />
