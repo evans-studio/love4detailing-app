@@ -7,7 +7,7 @@ import BackButton from './BackButton'
 import { SidebarProvider, useSidebar } from './SidebarContext'
 import BackgroundCanvas from '@/components/ui/BackgroundCanvas'
 import { UserFeedbackForm } from '../feedback/UserFeedbackForm'
-import { Dialog } from '@headlessui/react'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useState } from 'react'
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
@@ -78,40 +78,12 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </button>
 
       {/* Feedback Modal */}
-      <Dialog
-        open={isFeedbackOpen}
-        onClose={() => setIsFeedbackOpen(false)}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-3xl rounded bg-white">
-            <div className="relative">
-              <button
-                onClick={() => setIsFeedbackOpen(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-500"
-                aria-label="Close feedback form"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <UserFeedbackForm />
-            </div>
-          </Dialog.Panel>
-        </div>
+      <Dialog open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
+        <DialogContent className="sm:max-w-3xl">
+          <div className="relative">
+            <UserFeedbackForm />
+          </div>
+        </DialogContent>
       </Dialog>
     </div>
   )
