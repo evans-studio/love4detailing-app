@@ -19,10 +19,17 @@ export async function POST(request: NextRequest) {
     const supabase = createClient()
     const paymentManager = getPaymentManager()
 
+    let paymentId: string
+    let amount: number
+    let orderId: string
+    let status: string
+    let error: string | undefined
+    let paymentData: any
+
     switch (paypalEvent.event_type) {
       case 'CHECKOUT.ORDER.APPROVED':
         // Order was approved by customer
-        const orderId = paypalEvent.resource.id
+        orderId = paypalEvent.resource.id
         console.log('PayPal order approved:', orderId)
         
         // Update booking status to approved
@@ -37,35 +44,43 @@ export async function POST(request: NextRequest) {
         break
 
       case 'PAYMENT.CAPTURE.COMPLETED':
-        // Payment was captured successfully
-        const captureId = paypalEvent.resource.id
-        const parentPayment = paypalEvent.resource.supplementary_data?.related_ids?.order_id
+        paymentId = paypalEvent.resource.id
+        orderId = paypalEvent.resource.supplementary_data?.related_ids?.order_id
+        amount = parseFloat(paypalEvent.resource.amount.value)
+        status = 'completed'
         
-        console.log('PayPal payment captured:', captureId, 'for order:', parentPayment)
+        console.log('PayPal payment captured:', paymentId, 'for order:', orderId)
         
-        if (parentPayment) {
+        if (orderId) {
           // Update booking to confirmed
           await supabase
             .from('bookings')
             .update({ 
               status: 'confirmed',
               payment_status: 'completed',
-              transaction_id: captureId,
+              transaction_id: paymentId,
               paid_at: new Date(paypalEvent.resource.create_time).toISOString(),
               updated_at: new Date().toISOString()
             })
-            .eq('payment_id', parentPayment)
+            .eq('payment_id', orderId)
         }
         
+        await paymentManager.updatePayment(paymentId, {
+          status,
+          amount,
+          orderId,
+        })
         break
 
       case 'PAYMENT.CAPTURE.DENIED':
-        // Payment was denied
-        const deniedOrderId = paypalEvent.resource.supplementary_data?.related_ids?.order_id
+        paymentId = paypalEvent.resource.id
+        orderId = paypalEvent.resource.supplementary_data?.related_ids?.order_id
+        error = 'Payment was denied'
+        status = 'failed'
         
-        console.log('PayPal payment denied for order:', deniedOrderId)
+        console.log('PayPal payment denied for order:', orderId)
         
-        if (deniedOrderId) {
+        if (orderId) {
           await supabase
             .from('bookings')
             .update({ 
@@ -73,18 +88,24 @@ export async function POST(request: NextRequest) {
               payment_status: 'failed',
               updated_at: new Date().toISOString()
             })
-            .eq('payment_id', deniedOrderId)
+            .eq('payment_id', orderId)
         }
         
+        await paymentManager.updatePayment(paymentId, {
+          status,
+          error,
+          orderId,
+        })
         break
 
       case 'PAYMENT.CAPTURE.REFUNDED':
-        // Payment was refunded
-        const refundOrderId = paypalEvent.resource.supplementary_data?.related_ids?.order_id
+        paymentId = paypalEvent.resource.id
+        orderId = paypalEvent.resource.supplementary_data?.related_ids?.order_id
+        status = 'refunded'
         
-        console.log('PayPal payment refunded for order:', refundOrderId)
+        console.log('PayPal payment refunded for order:', orderId)
         
-        if (refundOrderId) {
+        if (orderId) {
           await supabase
             .from('bookings')
             .update({ 
@@ -92,21 +113,29 @@ export async function POST(request: NextRequest) {
               payment_status: 'refunded',
               updated_at: new Date().toISOString()
             })
-            .eq('payment_id', refundOrderId)
+            .eq('payment_id', orderId)
         }
         
+        await paymentManager.updatePayment(paymentId, {
+          status,
+          orderId,
+        })
         break
 
       default:
         console.log('Unhandled PayPal webhook event:', paypalEvent.event_type)
+        return NextResponse.json(
+          { error: 'Unhandled webhook event' },
+          { status: 400 }
+        )
     }
 
-    return NextResponse.json({ received: true })
+    return NextResponse.json({ success: true })
 
   } catch (error) {
     console.error('PayPal webhook error:', error)
     return NextResponse.json(
-      { error: 'Webhook processing failed' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/auth'
 import { Trophy, Star, Crown, Award, Target } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 interface LoyaltyBadge {
   id: string
@@ -41,14 +42,9 @@ export default function LoyaltyBadges({ showProgress = true, compact = false }: 
     currentPoints: 0
   })
   const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
 
-  useEffect(() => {
-    if (user) {
-      fetchBadgesAndProgress()
-    }
-  }, [user])
-
-  async function fetchBadgesAndProgress() {
+  const fetchBadgesAndProgress = useCallback(async () => {
     try {
       // Fetch user's earned badges
       const { data: userBadges } = await supabase
@@ -99,10 +95,19 @@ export default function LoyaltyBadges({ showProgress = true, compact = false }: 
 
     } catch (error) {
       console.error('Error fetching badges:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load loyalty badges',
+        variant: 'destructive'
+      })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user, toast])
+
+  useEffect(() => {
+    fetchBadgesAndProgress()
+  }, [fetchBadgesAndProgress])
 
   const calculateProgress = (requirements: any): number => {
     if (requirements.bookings) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -63,29 +63,28 @@ export default function CustomerBookingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
 
-  useEffect(() => {
-    if (user) {
-      fetchBookings()
-    }
-  }, [user])
-
-  async function fetchBookings() {
+  const fetchBookings = useCallback(async () => {
     try {
-      const { data } = await supabase
+      const { data: bookings, error } = await supabase
         .from('bookings')
         .select('*')
-        .eq('user_id', user?.id)
         .order('booking_date', { ascending: false })
 
-      if (data) {
-        setBookings(data)
-      }
+      if (error) throw error
+      setBookings(bookings)
     } catch (error) {
       console.error('Error fetching bookings:', error)
-    } finally {
-      setIsLoading(false)
+      toast({
+        title: 'Error',
+        description: 'Failed to load bookings',
+        variant: 'destructive'
+      })
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    fetchBookings()
+  }, [fetchBookings])
 
   const getStatusColor = (status: string) => {
     switch (status) {

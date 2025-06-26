@@ -328,6 +328,8 @@ export default function DashboardBookingForm() {
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null)
   const [maxSteps, setMaxSteps] = useState(5)
   const [selectedVehicleData, setSelectedVehicleData] = useState<VehicleSearchResult | LicensePlateResult | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [bookingError, setBookingError] = useState<string | null>(null)
   const { toast } = useToast()
   const { user } = useAuth()
   const router = useRouter()
@@ -335,7 +337,6 @@ export default function DashboardBookingForm() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      serviceType: 'basic',
       vehicleSize: 'm',
       vehicle: '',
       vehicleYear: '',
@@ -353,12 +354,18 @@ export default function DashboardBookingForm() {
 
   const { watch } = form
   const selectedDate = watch('date')
-  const selectedVehicleSize = watch('vehicleSize')
+  const vehicleSize = watch('vehicleSize') as keyof typeof vehicleSizes
   const selectedServiceType = watch('serviceType')
   const selectedAddOns = watch('addOns')
   const selectedPostcode = watch('postcode')
   const watchedVehicle = watch('vehicle')
   const watchedYear = watch('vehicleYear')
+
+  useEffect(() => {
+    if (selectedVehicleData) {
+      form.setValue('vehicleSize', selectedVehicleData.size || 'medium')
+    }
+  }, [selectedVehicleData, form])
 
   // Auto-update vehicle size when make/model changes
   useEffect(() => {
@@ -387,7 +394,7 @@ export default function DashboardBookingForm() {
       setWorkingDays(days)
     }
     fetchWorkingDays()
-  }, [])
+  }, [toast])
 
   // Fetch user profile and vehicle details on component mount
   useEffect(() => {
@@ -447,7 +454,7 @@ export default function DashboardBookingForm() {
     }
 
     fetchUserProfile()
-  }, [user, form])
+  }, [user, form, toast])
 
   // Helper function to get popular models for a given make
   const getPopularModels = (make: string): string => {
@@ -512,9 +519,9 @@ export default function DashboardBookingForm() {
 
   useEffect(() => {
     const calculatePrice = () => {
-      if (!selectedVehicleSize || !selectedServiceType) return
+      if (!vehicleSize || !selectedServiceType) return
 
-      const basePrice = vehicleSizes[selectedVehicleSize].price
+      const basePrice = vehicleSizes[vehicleSize].price
       const serviceMultiplier = serviceTypes.find(s => s.id === selectedServiceType)?.multiplier ?? 1
       let price = Math.round(basePrice * serviceMultiplier)
       
@@ -530,7 +537,7 @@ export default function DashboardBookingForm() {
     }
 
     calculatePrice()
-  }, [selectedVehicleSize, selectedServiceType, selectedAddOns, travelFee])
+  }, [vehicleSize, selectedServiceType, selectedAddOns, travelFee])
 
   useEffect(() => {
     const checkTravelFee = async () => {
@@ -1638,7 +1645,31 @@ export default function DashboardBookingForm() {
   }
 
   const selectedService = serviceTypes.find(s => s.id === selectedServiceType)
-  const selectedVehicle = selectedVehicleSize ? vehicleSizes[selectedVehicleSize] : null
+  const selectedVehicle = vehicleSize ? vehicleSizes[vehicleSize] : null
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Error',
+        description: error,
+        variant: 'destructive'
+      })
+    }
+  }, [error, toast])
+
+  useEffect(() => {
+    if (bookingError) {
+      toast({
+        title: 'Error',
+        description: bookingError,
+        variant: 'destructive'
+      })
+    }
+  }, [bookingError, toast])
+
+  const handleBookingError = (message: string) => {
+    setBookingError(message)
+  }
 
   return (
     <div className="max-w-4xl mx-auto">

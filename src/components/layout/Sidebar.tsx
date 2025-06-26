@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
@@ -54,27 +54,25 @@ export default function Sidebar() {
   const isAdmin = user?.email === 'd.dimpauls@gmail.com'
 
   // Fetch user profile image
-  useEffect(() => {
-    if (user) {
-      fetchProfileImage()
-    }
-  }, [user])
-
-  async function fetchProfileImage() {
+  const fetchProfileImage = useCallback(async () => {
     try {
-      const { data } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('profile_image_url')
-        .eq('id', user?.id)
         .single()
 
-      if (data?.profile_image_url) {
-        setProfileImageUrl(data.profile_image_url)
+      if (error) throw error
+      if (profile?.profile_image_url) {
+        setProfileImageUrl(profile.profile_image_url)
       }
     } catch (error) {
-      console.log('Could not fetch profile image:', error)
+      console.error('Error fetching profile image:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchProfileImage()
+  }, [fetchProfileImage])
 
   const handleSignOut = async () => {
     setIsLoading(true)

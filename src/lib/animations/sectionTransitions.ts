@@ -1,10 +1,10 @@
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { easePresets } from './utils'
 
 // Try to register ScrollTrigger if available
 try {
   if (typeof window !== 'undefined') {
-    const { ScrollTrigger } = require('gsap/ScrollTrigger')
     gsap.registerPlugin(ScrollTrigger)
   }
 } catch (error) {
@@ -206,4 +206,99 @@ export const initSectionTransitions = () => {
     animateCards,
     animateTextReveal
   }
+}
+
+export const fadeInOnScroll = (element: HTMLElement, delay = 0) => {
+  gsap.fromTo(
+    element,
+    {
+      opacity: 0,
+      y: 50,
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      delay,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: element,
+        start: 'top 80%',
+        end: 'bottom 20%',
+        toggleActions: 'play none none reverse',
+      },
+    }
+  )
+}
+
+export const staggerChildren = (
+  container: HTMLElement,
+  childSelector: string,
+  staggerDelay = 0.2
+) => {
+  const children = container.querySelectorAll(childSelector)
+  gsap.fromTo(
+    children,
+    {
+      opacity: 0,
+      y: 20,
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: staggerDelay,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: container,
+        start: 'top 80%',
+        end: 'bottom 20%',
+        toggleActions: 'play none none reverse',
+      },
+    }
+  )
+}
+
+export const parallaxScroll = (element: HTMLElement, speed = 0.5) => {
+  gsap.to(element, {
+    y: () => element.offsetHeight * speed,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: element,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true,
+    },
+  })
+}
+
+export const scaleOnScroll = (element: HTMLElement, scale = 1.2) => {
+  gsap.fromTo(
+    element,
+    {
+      scale: 1,
+    },
+    {
+      scale,
+      scrollTrigger: {
+        trigger: element,
+        start: 'top center',
+        end: 'bottom center',
+        scrub: true,
+      },
+    }
+  )
+}
+
+export const rotateOnScroll = (element: HTMLElement, rotation = 360) => {
+  gsap.to(element, {
+    rotation,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: element,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true,
+    },
+  })
 } 

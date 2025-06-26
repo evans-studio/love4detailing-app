@@ -1,41 +1,82 @@
-import { 
-  PaymentProvider, 
-  PaymentData, 
-  PaymentResult, 
-  PaymentConfirmation, 
-  RefundResult, 
-  PaymentStatus,
-  PaymentConfig 
-} from '../types'
+import Stripe from 'stripe'
 
-export class StripeProvider implements PaymentProvider {
-  private apiKey: string
-  private webhookSecret: string
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+}
 
-  constructor(config: PaymentConfig) {
-    this.apiKey = config.apiKey || process.env.STRIPE_SECRET_KEY || ''
-    this.webhookSecret = config.webhookSecret || process.env.STRIPE_WEBHOOK_SECRET || ''
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16',
+  typescript: true,
+})
+
+export class StripeProvider {
+  private stripe: Stripe
+
+  constructor() {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+    }
+    this.stripe = stripe
   }
 
-  async createPayment(data: PaymentData): Promise<PaymentResult> {
-    // TODO: Implement Stripe payment creation
-    // This will be implemented when switching from PayPal to Stripe
-    throw new Error('Stripe provider not implemented yet. Currently using PayPal.')
+  async createPayment(amount: number, currency: string = 'GBP', metadata: Record<string, string> = {}) {
+    try {
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        metadata,
+      })
+
+      return {
+        success: true,
+        paymentId: paymentIntent.id,
+        clientSecret: paymentIntent.client_secret,
+      }
+    } catch (error) {
+      console.error('Stripe payment creation error:', error)
+      throw error
+    }
   }
 
-  async confirmPayment(paymentId: string): Promise<PaymentConfirmation> {
-    // TODO: Implement Stripe payment confirmation
-    throw new Error('Stripe provider not implemented yet. Currently using PayPal.')
+  async cancelPayment(paymentId: string) {
+    try {
+      await this.stripe.paymentIntents.cancel(paymentId)
+      return { success: true }
+    } catch (error) {
+      console.error('Stripe payment cancellation error:', error)
+      throw error
+    }
   }
 
-  async refundPayment(paymentId: string, amount?: number): Promise<RefundResult> {
-    // TODO: Implement Stripe refund
-    throw new Error('Stripe provider not implemented yet. Currently using PayPal.')
+  async refundPayment(paymentId: string, amount?: number) {
+    try {
+      const refund = await this.stripe.refunds.create({
+        payment_intent: paymentId,
+        amount: amount ? Math.round(amount * 100) : undefined,
+      })
+
+      return {
+        success: true,
+        refundId: refund.id,
+      }
+    } catch (error) {
+      console.error('Stripe refund error:', error)
+      throw error
+    }
   }
 
-  async getPaymentStatus(paymentId: string): Promise<PaymentStatus> {
-    // TODO: Implement Stripe status check
-    throw new Error('Stripe provider not implemented yet. Currently using PayPal.')
+  async getPaymentStatus(paymentId: string) {
+    try {
+      const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentId)
+      return {
+        success: true,
+        status: paymentIntent.status,
+        amount: paymentIntent.amount / 100, // Convert from cents
+      }
+    } catch (error) {
+      console.error('Stripe payment status error:', error)
+      throw error
+    }
   }
 }
 

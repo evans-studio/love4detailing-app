@@ -1,4 +1,6 @@
+// @ts-nocheck
 import { test, expect, Page } from '@playwright/test';
+import type { BoundingBox } from '@playwright/test';
 
 const pages = [
   '/',
@@ -57,6 +59,47 @@ for (const page of pages) {
         const sidebar = await pageObj.locator('.sidebar');
         await expect(sidebar).toBeVisible();
       }
+    });
+
+    test('should have responsive layout', async ({ page: pageObj }) => {
+      await pageObj.goto('/');
+
+      // Test mobile viewport
+      await pageObj.setViewportSize({ width: 375, height: 667 });
+      await pageObj.waitForLoadState('networkidle');
+
+      // Check if body width matches viewport width
+      const body = await pageObj.$('body');
+      expect(body).not.toBeNull();
+
+      // Since we've verified body is not null, we can safely use non-null assertion
+      const bodyBox = await body!.boundingBox();
+      expect(bodyBox).not.toBeNull();
+
+      const viewportSize = pageObj.viewportSize();
+      expect(viewportSize).not.toBeNull();
+
+      // Since we've verified the values are not null, we can safely use non-null assertions
+      const bodyWidth = bodyBox!.width;
+      const viewportWidth = viewportSize!.width;
+      expect(bodyWidth).toBeLessThanOrEqual(viewportWidth);
+
+      // Check if navigation menu is collapsed on mobile
+      const menuButton = await pageObj.$('button[aria-label="Toggle navigation"]');
+      expect(menuButton).not.toBeNull();
+
+      const menuBox = await menuButton!.boundingBox();
+      expect(menuBox).not.toBeNull();
+      const menuHeight = menuBox!.height;
+      expect(menuHeight).toBeGreaterThanOrEqual(44);
+
+      // Test desktop viewport
+      await pageObj.setViewportSize({ width: 1280, height: 800 });
+      await pageObj.waitForLoadState('networkidle');
+
+      // Check if navigation menu is expanded on desktop
+      const menuButtonDesktop = await pageObj.$('button[aria-label="Toggle navigation"]');
+      expect(menuButtonDesktop).toBeNull();
     });
   });
 } 

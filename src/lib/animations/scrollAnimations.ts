@@ -5,7 +5,8 @@ import { easePresets } from './utils'
 let ScrollTrigger: any = null
 try {
   if (typeof window !== 'undefined') {
-    ScrollTrigger = require('gsap/ScrollTrigger').ScrollTrigger
+    const { ScrollTrigger: ST } = await import('gsap/ScrollTrigger')
+    ScrollTrigger = ST
     gsap.registerPlugin(ScrollTrigger)
   }
 } catch (error) {
@@ -14,8 +15,8 @@ try {
 
 export const createScrollTrigger = (
   trigger: string | HTMLElement,
-  animation: any,
-  options: any = {}
+  animation: gsap.core.Animation,
+  options: Record<string, unknown> = {}
 ) => {
   if (!ScrollTrigger) {
     console.warn('ScrollTrigger not available, running animation immediately')

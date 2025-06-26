@@ -10,26 +10,30 @@ import { Button } from '@/components/ui/Button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { supabase } from '@/lib/supabase/client'
+import Image from 'next/image'
 
 interface Customer {
   id: string
   full_name: string
   email: string
-  phone?: string
+  phone: string
   postcode: string
+  vehicle_images?: string[]
+  profile_image_url?: string
+  created_at: string
   total_bookings: number
   total_spent: number
+  loyalty_points: number
   rewards_points: number
-  last_booking_date: string
-  vehicle_images: string[]
-  bookings: {
+  last_booking_date?: string
+  bookings?: {
     id: string
     booking_date: string
     booking_time: string
     service: string
     total_price: number
     status: string
-    vehicle_images: string[]
+    vehicle_images?: string[]
   }[]
 }
 
@@ -113,13 +117,13 @@ export default function CustomersPage() {
               <CardContent className="flex items-center justify-between p-6">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-12 w-12">
-                    {customer.vehicle_images?.[0] ? (
-                      <AvatarImage src={customer.vehicle_images[0]} alt="Vehicle" />
-                    ) : (
-                      <AvatarFallback>
-                        {customer.full_name?.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    )}
+                    <Image
+                      src={customer.profile_image_url || '/assets/default-avatar.png'}
+                      alt={`${customer.full_name}'s profile`}
+                      width={48}
+                      height={48}
+                      className="rounded-full"
+                    />
                   </Avatar>
                   <div>
                     <h3 className="font-medium">{customer.full_name}</h3>
@@ -155,13 +159,13 @@ export default function CustomersPage() {
                 {/* Customer Overview */}
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-16 w-16">
-                    {selectedCustomer.vehicle_images?.[0] ? (
-                      <AvatarImage src={selectedCustomer.vehicle_images[0]} alt="Vehicle" />
-                    ) : (
-                      <AvatarFallback>
-                        {selectedCustomer.full_name?.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    )}
+                    <Image
+                      src={selectedCustomer.profile_image_url || '/assets/default-avatar.png'}
+                      alt={`${selectedCustomer.full_name}'s profile`}
+                      width={64}
+                      height={64}
+                      className="rounded-full"
+                    />
                   </Avatar>
                   <div>
                     <h2 className="text-xl font-bold">{selectedCustomer.full_name}</h2>
@@ -223,28 +227,22 @@ export default function CustomersPage() {
                 </Card>
 
                 {/* Vehicle Images */}
-                {selectedCustomer.vehicle_images?.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Vehicle Images</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-3 gap-4">
-                        {selectedCustomer.vehicle_images.map((image, index) => (
-                          <div
-                            key={index}
-                            className="aspect-square rounded-lg overflow-hidden"
-                          >
-                            <img
-                              src={image}
-                              alt={`Vehicle ${index + 1}`}
-                              className="object-cover w-full h-full"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                {selectedCustomer.vehicle_images && selectedCustomer.vehicle_images.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold mb-2">Vehicle Images</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedCustomer.vehicle_images.map((image, index) => (
+                        <Image
+                          key={index}
+                          src={image}
+                          alt={`Vehicle image ${index + 1}`}
+                          width={200}
+                          height={150}
+                          className="rounded-lg"
+                        />
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             </ScrollArea>

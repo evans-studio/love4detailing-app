@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -13,6 +13,7 @@ import Link from 'next/link'
 import { Calendar, Clock, MapPin, Star, Car, Gift, TrendingUp, User, ChevronRight } from 'lucide-react'
 import LoyaltyBadges from '@/components/loyalty/LoyaltyBadges'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/use-toast'
 
 interface Booking {
   id: string
@@ -69,6 +70,30 @@ export default function CustomerDashboard() {
     totalBookings: 0
   })
   const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      const { data: dashboardData, error } = await supabase
+        .from('dashboard_stats')
+        .select('*')
+        .single()
+
+      if (error) throw error
+      setDashboardData(dashboardData)
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load dashboard data',
+        variant: 'destructive'
+      })
+    }
+  }, [toast])
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [fetchDashboardData])
 
   // Check if user is admin and redirect
   useEffect(() => {
@@ -80,46 +105,7 @@ export default function CustomerDashboard() {
       }
       fetchDashboardData()
     }
-  }, [user, authLoading, router])
-
-  async function fetchDashboardData() {
-    try {
-      // Fetch bookings
-      const { data: bookings } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('booking_date', { ascending: true })
-
-      if (bookings) {
-        const now = new Date()
-        const upcoming = bookings.filter(b => new Date(b.booking_date) >= now)
-        const past = bookings.filter(b => new Date(b.booking_date) < now)
-        const totalSpent = bookings.reduce((sum, b) => sum + (b.total_price || 0), 0)
-        const allImages = bookings.flatMap(b => b.vehicle_images || [])
-
-        // Fetch rewards points
-        const { data: rewards } = await supabase
-          .from('rewards')
-          .select('points, total_saved')
-          .eq('user_id', user?.id)
-          .single()
-
-        setDashboardData({
-          upcomingBookings: upcoming,
-          pastBookings: past,
-          totalSpent,
-          rewardsPoints: rewards?.points || 0,
-          vehicleImages: allImages,
-          totalBookings: bookings.length
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  }, [user, authLoading, router, fetchDashboardData])
 
   const getStatusColor = (status: string) => {
     switch (status) {

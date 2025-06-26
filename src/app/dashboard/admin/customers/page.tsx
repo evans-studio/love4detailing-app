@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -30,26 +30,30 @@ interface Customer {
   id: string
   full_name: string
   email: string
-  phone?: string
+  phone: string
+  postcode: string
   total_spent: number
   total_bookings: number
-  rewards_points: number
-  last_booking: string | null
+  loyalty_points: number
+  last_booking_date?: string
   created_at: string
   status: 'active' | 'inactive'
 }
 
-interface CustomerProfile extends Customer {
-  address?: string
+interface CustomerProfile extends Omit<Customer, 'postcode'> {
   postcode?: string
+  vehicle_reg?: string
   vehicle_make?: string
   vehicle_model?: string
   vehicle_color?: string
-  bookings: Booking[]
-  rewards: {
-    points: number
-    total_saved: number
-  }
+  bookings: {
+    id: string
+    booking_date: string
+    booking_time: string
+    service: string
+    total_price: number
+    status: string
+  }[]
 }
 
 interface Booking {
@@ -86,7 +90,8 @@ export default function AdminCustomersPage() {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'spent' | 'bookings' | 'date'>('name')
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'high_value' | 'loyal'>('all')
+  const [sortBy, setSortBy] = useState<'name' | 'spent' | 'loyalty' | 'recent'>('name')
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerProfile | null>(null)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
@@ -112,9 +117,40 @@ export default function AdminCustomersPage() {
     }
   }, [user])
 
+  const filterAndSortCustomers = useCallback((customers: Customer[]) => {
+    return customers
+      .filter(customer => {
+        const matchesSearch = searchTerm === '' ||
+          customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+        const matchesFilter = selectedFilter === 'all' ||
+          (selectedFilter === 'high_value' && customer.total_spent > 1000) ||
+          (selectedFilter === 'loyal' && customer.loyalty_points > 500)
+
+        return matchesSearch && matchesFilter
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'name':
+            return a.full_name.localeCompare(b.full_name)
+          case 'spent':
+            return b.total_spent - a.total_spent
+          case 'loyalty':
+            return b.loyalty_points - a.loyalty_points
+          case 'recent':
+            return new Date(b.last_booking_date || 0).getTime() - new Date(a.last_booking_date || 0).getTime()
+          default:
+            return 0
+        }
+      })
+  }, [searchTerm, selectedFilter, sortBy])
+
   useEffect(() => {
-    filterAndSortCustomers()
-  }, [filterAndSortCustomers])
+    if (customers) {
+      setFilteredCustomers(filterAndSortCustomers(customers))
+    }
+  }, [customers, filterAndSortCustomers])
 
   async function fetchCustomers() {
     try {
@@ -165,10 +201,11 @@ export default function AdminCustomersPage() {
             full_name: customer.full_name || 'Unknown',
             email: customer.email,
             phone: customer.phone,
+            postcode: customer.postcode,
             total_spent: totalSpent,
             total_bookings: customerBookings.length,
-            rewards_points: customerRewards?.points || 0,
-            last_booking: lastBooking,
+            loyalty_points: customerRewards?.points || 0,
+            last_booking_date: lastBooking,
             created_at: customer.created_at,
             status: customerBookings.length > 0 ? 'active' : 'inactive' as 'active' | 'inactive'
           }
@@ -185,31 +222,6 @@ export default function AdminCustomersPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  function filterAndSortCustomers() {
-    let filtered = customers.filter(customer =>
-      customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
-    // Sort customers
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.full_name.localeCompare(b.full_name)
-        case 'spent':
-          return b.total_spent - a.total_spent
-        case 'bookings':
-          return b.total_bookings - a.total_bookings
-        case 'date':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        default:
-          return 0
-      }
-    })
-
-    setFilteredCustomers(filtered)
   }
 
   async function fetchCustomerProfile(customerId: string) {
@@ -257,10 +269,17 @@ export default function AdminCustomersPage() {
           ...profileData,
           total_spent: bookings.reduce((sum, b) => sum + (b.total_price || 0), 0),
           total_bookings: bookings.length,
-          rewards_points: rewardsData?.points || 0,
-          last_booking: bookings.length > 0 ? bookings[0].booking_date : null,
+          loyalty_points: rewardsData?.points || 0,
+          last_booking_date: bookings.length > 0 ? bookings[0].booking_date : null,
           status: bookings.length > 0 ? 'active' : 'inactive',
-          bookings: bookings,
+          bookings: bookings.map(b => ({
+            id: b.id,
+            booking_date: b.booking_date,
+            booking_time: b.booking_time,
+            service: b.service_id,
+            total_price: b.total_price,
+            status: b.status
+          })),
           rewards: {
             points: rewardsData?.points || 0,
             total_saved: rewardsData?.total_saved || 0
@@ -499,8 +518,8 @@ export default function AdminCustomersPage() {
                   >
                     <option value="name">Sort by Name</option>
                     <option value="spent">Sort by Spent</option>
-                    <option value="bookings">Sort by Bookings</option>
-                    <option value="date">Sort by Join Date</option>
+                    <option value="loyalty">Sort by Loyalty Points</option>
+                    <option value="recent">Sort by Recent Bookings</option>
                   </select>
                 </div>
               </div>
@@ -544,9 +563,9 @@ export default function AdminCustomersPage() {
                           <span className="font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
                             £{customer.total_spent.toFixed(2)} spent
                           </span>
-                          {customer.last_booking && (
+                          {customer.last_booking_date && (
                             <span className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
-                              Last: {format(new Date(customer.last_booking), 'MMM dd')}
+                              Last: {format(new Date(customer.last_booking_date), 'MMM dd')}
                             </span>
                           )}
                         </div>
@@ -622,15 +641,6 @@ export default function AdminCustomersPage() {
                         <p className="text-sm flex items-center space-x-1">
                           <Phone className="h-4 w-4" />
                           <span>{selectedCustomer.phone}</span>
-                        </p>
-                      </div>
-                    )}
-                    {selectedCustomer.address && (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Address</label>
-                        <p className="text-sm flex items-center space-x-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{selectedCustomer.address}</span>
                         </p>
                       </div>
                     )}
@@ -716,8 +726,8 @@ export default function AdminCustomersPage() {
                     <div className="flex items-center space-x-2">
                       <Award className="h-4 w-4 text-purple-500" />
                       <div>
-                        <div className="text-2xl font-bold">{selectedCustomer.rewards.points}</div>
-                        <p className="text-xs text-muted-foreground">Reward Points</p>
+                        <div className="text-2xl font-bold">{selectedCustomer.loyalty_points}</div>
+                        <p className="text-xs text-muted-foreground">Loyalty Points</p>
                       </div>
                     </div>
                   </CardContent>
@@ -736,7 +746,7 @@ export default function AdminCustomersPage() {
                         <div key={booking.id} className="flex items-center justify-between p-3 border rounded-lg">
                           <div className="space-y-1">
                             <div className="flex items-center space-x-2">
-                              <span className="font-medium">{booking.service_id}</span>
+                              <span className="font-medium">{booking.service}</span>
                               <Badge variant={booking.status === 'completed' ? 'default' : 'secondary'}>
                                 {booking.status}
                               </Badge>
@@ -744,9 +754,6 @@ export default function AdminCustomersPage() {
                             <p className="text-sm text-muted-foreground">
                               {format(new Date(booking.booking_date), 'PPP')} at {booking.booking_time}
                             </p>
-                            {booking.notes && (
-                              <p className="text-sm text-muted-foreground">{booking.notes}</p>
-                            )}
                           </div>
                           <div className="text-right">
                             <p className="font-medium">£{booking.total_price.toFixed(2)}</p>
@@ -757,6 +764,34 @@ export default function AdminCustomersPage() {
                   ) : (
                     <p className="text-center text-muted-foreground py-8">No bookings found</p>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Contact and Vehicle Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Users className="h-5 w-5" />
+                    <span>Contact and Vehicle Information</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-medium">Contact</h4>
+                      <p className="text-sm text-muted-foreground">{selectedCustomer.email}</p>
+                      <p className="text-sm text-muted-foreground">{selectedCustomer.phone}</p>
+                      <p className="text-sm text-muted-foreground">{selectedCustomer.postcode}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Vehicle</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedCustomer.vehicle_make} {selectedCustomer.vehicle_model}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{selectedCustomer.vehicle_color}</p>
+                      <p className="text-sm text-muted-foreground">{selectedCustomer.vehicle_reg}</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

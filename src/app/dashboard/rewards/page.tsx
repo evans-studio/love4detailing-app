@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Progress } from '@/components/ui/progress'
@@ -49,47 +49,28 @@ export default function RewardsPage() {
   const [selectedReward, setSelectedReward] = useState<RewardOption | null>(null)
   const { toast } = useToast()
 
-  useEffect(() => {
-    fetchRewardsData()
-  }, [])
-
-  async function fetchRewardsData() {
+  const fetchRewardsData = useCallback(async () => {
     try {
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData?.user?.id) return
-
-      const { data: rewardsData } = await supabase
+      const { data: rewards, error } = await supabase
         .from('rewards')
         .select('*')
-        .eq('user_id', userData.user.id)
         .single()
 
-      const { data: historyData } = await supabase
-        .from('rewards_history')
-        .select('*')
-        .eq('user_id', userData.user.id)
-        .order('created_at', { ascending: false })
-
-      if (rewardsData) {
-        setRewardsData({
-          points: rewardsData.points,
-          totalSaved: rewardsData.total_saved,
-          pointsToNextReward: getNextRewardThreshold(rewardsData.points),
-          nextRewardValue: getNextRewardValue(rewardsData.points),
-          rewardsHistory: historyData || []
-        })
-      }
+      if (error) throw error
+      setRewardsData(rewards)
     } catch (error) {
-      console.error('Error fetching rewards data:', error)
+      console.error('Error fetching rewards:', error)
       toast({
-        title: "Error",
-        description: "Failed to load rewards data",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load rewards data',
+        variant: 'destructive'
       })
-    } finally {
-      setIsLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    fetchRewardsData()
+  }, [fetchRewardsData])
 
   function getNextRewardThreshold(currentPoints: number): number {
     const nextReward = rewardOptions.find(option => option.points > currentPoints)

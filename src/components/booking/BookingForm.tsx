@@ -45,6 +45,7 @@ import PaymentButton from '@/components/payments/PaymentButton'
 import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
 import { VehicleSearchResult, LicensePlateResult } from '@/lib/utils/vehicleDatabase'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 const vehicleSizes = {
   small: { label: 'Small Vehicle', description: 'Fiesta, Polo, Mini, Corsa', price: 55 },
@@ -873,10 +874,12 @@ export default function BookingForm() {
                                 )}
                               >
                                 {field.value?.[index] ? (
-                                  <img
+                                  <Image
                                     src={field.value[index]}
                                     alt={`Vehicle photo ${index + 1}`}
-                                    className="w-full h-full object-cover rounded-lg"
+                                    width={200}
+                                    height={150}
+                                    className="rounded-lg object-cover"
                                   />
                                 ) : (
                                   <Camera className="w-8 h-8 text-[#C7C7C7]" />

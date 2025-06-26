@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -62,13 +62,7 @@ export default function AdminControlPanel() {
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-  useEffect(() => {
-    if (user) {
-      fetchAdminData()
-    }
-  }, [user])
-
-  async function fetchAdminData() {
+  const fetchAdminData = useCallback(async () => {
     try {
       // Fetch admin settings
       const { data: settingsData } = await supabase
@@ -138,7 +132,13 @@ export default function AdminControlPanel() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    if (user) {
+      fetchAdminData()
+    }
+  }, [user, fetchAdminData])
 
   async function updateSetting(key: string, value: any) {
     setIsSaving(true)

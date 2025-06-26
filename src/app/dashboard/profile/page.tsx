@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -52,34 +52,32 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
 
-  useEffect(() => {
-    if (user) {
-      fetchProfile()
-    }
-  }, [user])
-
-  async function fetchProfile() {
+  const fetchProfile = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
         .single()
 
       if (error) throw error
-
-      setProfile(data)
+      setProfile(profile)
     } catch (error) {
       console.error('Error fetching profile:', error)
       toast({
-        title: "Error",
-        description: "Failed to load profile. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to load profile',
+        variant: 'destructive'
       })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile()
+    }
+  }, [user, fetchProfile])
 
   const handleProfileUpdate = async (updates: Partial<UserProfile>) => {
     if (!user || !profile) return
