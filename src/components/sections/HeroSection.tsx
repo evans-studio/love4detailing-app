@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-16">
+    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden pb-16">
       {/* Content container */}
       <div className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <motion.div 

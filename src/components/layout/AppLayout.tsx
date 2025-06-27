@@ -154,7 +154,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen w-full bg-[#141414]/95">
+    <div className="relative min-h-[100svh] w-full bg-[#141414]/95">
       {/* Global Background */}
       <BackgroundOrbs intensity="high" className="fixed inset-0 z-0" />
       

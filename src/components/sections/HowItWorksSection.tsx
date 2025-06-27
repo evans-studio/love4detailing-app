@@ -39,8 +39,8 @@ const steps = [
 
 export const HowItWorksSection = () => {
   return (
-    <section className="h-[100vh] w-full flex items-center justify-center overflow-hidden">
-      <div className="w-full h-full flex items-center justify-center">
+    <section className="min-h-[100svh] w-full flex items-center justify-center overflow-hidden py-16">
+      <div className="w-full flex items-center justify-center">
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
