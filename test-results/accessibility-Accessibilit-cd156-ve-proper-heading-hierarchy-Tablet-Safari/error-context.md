@@ -1,0 +1,79 @@
+# Page snapshot
+
+```yaml
+- img
+- img
+- img
+- img
+- link "Skip to main content":
+  - /url: "#main-content"
+- link "Skip to navigation":
+  - /url: "#navigation"
+- main "Main content":
+  - button "Go Back"
+  - link "Back to Home":
+    - /url: /
+  - text: Our Services
+  - heading "Professional Car Detailing" [level=1]
+  - paragraph: Choose the perfect service for your vehicle. All services include professional mobile detailing at your location.
+  - heading "Small Vehicle" [level=3]
+  - paragraph: Perfect for compact cars
+  - paragraph: £55
+  - text: 45min - 1hr
+  - heading "Vehicle Examples" [level=4]
+  - text: Fiesta Polo Mini Corsa
+  - heading "What's Included" [level=4]
+  - text: Exterior wash & dry Interior vacuum & clean Dashboard cleaning Wheel clean & shine Window cleaning (inside & out) Basic wax application
+  - heading "Perfect For" [level=4]
+  - paragraph: Compact cars, City cars, Hatchbacks
+  - link "Book Small Vehicle":
+    - /url: /booking
+  - text: Most Popular
+  - heading "Medium Vehicle" [level=3]
+  - paragraph: Ideal for family cars
+  - paragraph: £60
+  - text: 45min - 1hr
+  - heading "Vehicle Examples" [level=4]
+  - text: Focus Golf Civic Astra
+  - heading "What's Included" [level=4]
+  - text: Exterior wash & dry Interior vacuum & clean Dashboard cleaning Wheel clean & shine Window cleaning (inside & out) Basic wax application
+  - heading "Perfect For" [level=4]
+  - paragraph: Family cars, Saloons, Standard hatchbacks
+  - link "Book Medium Vehicle":
+    - /url: /booking
+  - heading "Large Vehicle" [level=3]
+  - paragraph: Great for SUVs & estates
+  - paragraph: £65
+  - text: 45min - 1hr
+  - heading "Vehicle Examples" [level=4]
+  - text: BMW 5 Series SUVs Estates MPVs
+  - heading "What's Included" [level=4]
+  - text: Exterior wash & dry Interior vacuum & clean Dashboard cleaning Wheel clean & shine Window cleaning (inside & out) Basic wax application
+  - heading "Perfect For" [level=4]
+  - paragraph: SUVs, Estate cars, Executive saloons
+  - link "Book Large Vehicle":
+    - /url: /booking
+  - heading "Extra Large Vehicle" [level=3]
+  - paragraph: Premium for big vehicles
+  - paragraph: £70
+  - text: 45min - 1hr
+  - heading "Vehicle Examples" [level=4]
+  - text: Vans Range Rover 7-Seaters Large SUVs
+  - heading "What's Included" [level=4]
+  - text: Exterior wash & dry Interior vacuum & clean Dashboard cleaning Wheel clean & shine Window cleaning (inside & out) Basic wax application
+  - heading "Perfect For" [level=4]
+  - paragraph: Commercial vans, Large SUVs, 7-seater vehicles
+  - link "Book Extra Large Vehicle":
+    - /url: /booking
+  - heading "Ready to Book Your Service?" [level=3]
+  - paragraph: Professional mobile car detailing that comes to you. No queues, no waiting, just results.
+  - link "Book Now":
+    - /url: /booking
+  - link "Back to Home":
+    - /url: /
+- button "Open Feedback Form":
+  - img
+- region "Notifications (F8)":
+  - list
+- alert
+```

@@ -1,0 +1,48 @@
+# Page snapshot
+
+```yaml
+- img
+- img
+- img
+- img
+- link "Skip to main content":
+  - /url: "#main-content"
+- link "Skip to navigation":
+  - /url: "#navigation"
+- link "Love4Detailing Logo":
+  - /url: /
+  - img "Love4Detailing Logo"
+- navigation:
+  - link "Home":
+    - /url: /
+  - link "Services":
+    - /url: /services
+  - link "Book Now":
+    - /url: /book-now
+  - link "FAQ":
+    - /url: /faq
+- link "07908 625 581":
+  - /url: tel:07123456789
+- text: SW London
+- link "zell@love4detailing.com":
+  - /url: mailto:info@love4detailing.com
+- button "Create Account"
+- button "Sign In"
+- main "Main content":
+  - button "Go Back"
+  - button "Go Home"
+  - heading "Book Your Car Valeting Service" [level=1]
+  - paragraph: Choose your preferred service options and we'll take care of the rest.
+  - text: Your Details Service Selection Date & Time Add-ons & Photos Review & Book Full Name
+  - textbox "Full Name"
+  - text: Email Address
+  - textbox "Email Address"
+  - text: Postcode
+  - textbox "Enter your postcode"
+  - button "Next"
+- button "Open Feedback Form":
+  - img
+- region "Notifications (F8)":
+  - list
+- alert
+```

@@ -1,0 +1,184 @@
+# Page snapshot
+
+```yaml
+- img
+- img
+- img
+- img
+- link "Skip to main content":
+  - /url: "#main-content"
+- link "Love4Detailing Logo":
+  - /url: /
+  - img "Love4Detailing Logo"
+- navigation:
+  - link "Home":
+    - /url: /
+  - link "Services":
+    - /url: /services
+  - link "Book Now":
+    - /url: /book-now
+  - link "FAQ":
+    - /url: /faq
+- link "07908 625 581":
+  - /url: tel:07123456789
+- text: SW London
+- link "zell@love4detailing.com":
+  - /url: mailto:info@love4detailing.com
+- button "Create Account"
+- button "Sign In"
+- main "Main content":
+  - navigation "Main navigation":
+    - list:
+      - listitem:
+        - link "Home":
+          - /url: /
+      - listitem:
+        - link "Services":
+          - /url: /services
+      - listitem:
+        - link "Book Now":
+          - /url: /booking
+      - listitem:
+        - link "FAQ":
+          - /url: /faq
+  - heading "Restoring the Shine, One Street at a Time." [level=1]
+  - paragraph: Book a detail today and drive clean tomorrow.
+  - link "Book Your Detail":
+    - /url: /booking
+    - button "Book Your Detail"
+  - text: Scroll to explore Our Services
+  - heading "Essential Clean" [level=2]
+  - list:
+    - listitem: Exterior wash & dry
+    - listitem: Interior vacuum
+    - listitem: Window cleaning
+    - listitem: Tyre shine
+  - heading "Small" [level=3]
+  - paragraph: £55
+  - paragraph: Perfect for compact cars and small SUVs
+  - button "Book Now"
+  - heading "Medium" [level=3]
+  - paragraph: £60
+  - paragraph: Focus, Golf, Civic, Astra
+  - button "Book Now"
+  - heading "Large" [level=3]
+  - paragraph: £65
+  - paragraph: BMW 5 Series, SUVs, Estates
+  - button "Book Now"
+  - heading "Extra Large" [level=3]
+  - paragraph: £70
+  - paragraph: Vans, Range Rovers, 7-Seaters
+  - button "Book Now"
+  - heading "How It Works" [level=2]
+  - paragraph: Getting your car detailed has never been easier. Here's our simple 4-step process
+  - text: "1"
+  - heading "Book Online" [level=3]
+  - paragraph: Choose your vehicle size and preferred service date
+  - text: "2"
+  - heading "Vehicle Details" [level=3]
+  - paragraph: Tell us about your car and any specific requirements
+  - text: "3"
+  - heading "We Clean" [level=3]
+  - paragraph: Our experts detail your car at your location
+  - text: "4"
+  - heading "Easy Payment" [level=3]
+  - paragraph: Pay securely after the service is completed
+  - heading "Ready to Get Started?" [level=3]
+  - paragraph: Book your service now and experience the convenience of professional mobile car detailing
+  - link "Book Your Service":
+    - /url: /booking
+    - button "Book Your Service"
+  - heading "Check Your Service Area" [level=2]
+  - paragraph: We currently service South West London and surrounding areas within a 10-mile radius. Enter your postcode to check if we cover your location.
+  - textbox "Enter your postcode"
+  - button "Check"
+  - region "Map"
+  - heading "Our Service Areas" [level=3]
+  - text: Clapham Brixton Battersea Wandsworth Putney Balham Tooting Streatham
+  - heading "Why Choose Love4Detailing" [level=2]
+  - paragraph: Experience the difference with our professional mobile car detailing service
+  - heading "Mobile Service" [level=3]
+  - paragraph: We come directly to your location - home, office, or anywhere convenient for you.
+  - heading "Flexible Scheduling" [level=3]
+  - paragraph: Book appointments that fit your schedule, including evenings and weekends.
+  - heading "Fully Insured" [level=3]
+  - paragraph: Complete peace of mind with comprehensive insurance coverage for all services.
+  - heading "Premium Products" [level=3]
+  - paragraph: We use only the highest quality professional-grade cleaning products and equipment.
+  - heading "Expert Team" [level=3]
+  - paragraph: Trained and experienced professionals who care about your vehicle as much as you do.
+  - heading "Eco-Friendly" [level=3]
+  - paragraph: Environmentally conscious cleaning solutions that are safe for you and the planet.
+  - heading "Professional Service You Can Trust" [level=3]
+  - paragraph: With years of experience and hundreds of satisfied customers across South West London, we're committed to delivering exceptional results every time.
+  - button "Get Started Today"
+  - button "Learn More"
+  - heading "Frequently Asked Questions" [level=2]
+  - paragraph: Everything you need to know about our mobile car detailing service
+  - button "How does the mobile service work?":
+    - heading "How does the mobile service work?" [level=3]
+  - button "What areas do you cover?":
+    - heading "What areas do you cover?" [level=3]
+  - button "How long does a typical service take?":
+    - heading "How long does a typical service take?" [level=3]
+  - button "What if I'm not satisfied with the service?":
+    - heading "What if I'm not satisfied with the service?" [level=3]
+  - button "Do I need to provide water or electricity?":
+    - heading "Do I need to provide water or electricity?" [level=3]
+  - button "How do I pay for the service?":
+    - heading "How do I pay for the service?" [level=3]
+  - button "Can you clean the interior if it's very dirty?":
+    - heading "Can you clean the interior if it's very dirty?" [level=3]
+  - button "What happens if it rains?":
+    - heading "What happens if it rains?" [level=3]
+  - heading "Still Have Questions?" [level=3]
+  - paragraph: Can't find the answer you're looking for? Get in touch with our friendly team.
+  - button "Contact Support"
+  - button "Live Chat"
+  - heading "Ready to Transform Your Vehicle?" [level=2]
+  - paragraph: Book your service now and experience the convenience of professional mobile car detailing
+  - link "Book Your Service":
+    - /url: /booking
+    - button "Book Your Service"
+  - paragraph: No commitment required • Professional service guaranteed
+  - img "Love4Detailing"
+  - heading "Love4Detailing" [level=2]
+  - paragraph: Location
+  - paragraph: South West London
+  - paragraph: Phone
+  - link "07908 625 581":
+    - /url: tel:07908625581
+  - paragraph: Email
+  - link "zell@love4detailing.com":
+    - /url: mailto:zell@love4detailing.com
+  - paragraph: Hours
+  - text: "Mon-Sat: 10:00 - 17:00 Sunday: Closed"
+  - heading "Service Areas" [level=3]
+  - text: Clapham Brixton Battersea Wandsworth Putney Balham Tooting Streatham
+  - heading "Quick Links" [level=4]
+  - list:
+    - listitem:
+      - link "Book Service":
+        - /url: /booking
+    - listitem:
+      - link "View Services":
+        - /url: /services
+    - listitem:
+      - link "FAQ":
+        - /url: /faq
+    - listitem:
+      - link "Contact":
+        - /url: /contact
+  - paragraph: © 2025 Love4Detailing. All rights reserved.
+  - link:
+    - /url: https://instagram.com/love4detailing
+  - link:
+    - /url: https://facebook.com/love4detailing
+  - link:
+    - /url: https://twitter.com/love4detailing
+- button "Open Feedback Form":
+  - img
+- region "Notifications (F8)":
+  - list
+- alert
+```

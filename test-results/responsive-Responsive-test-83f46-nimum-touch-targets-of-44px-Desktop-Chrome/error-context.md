@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- img
+- img
+- img
+- img
+- link "Skip to main content":
+  - /url: "#main-content"
+- link "Skip to navigation":
+  - /url: "#navigation"
+- link "Love4Detailing Logo":
+  - /url: /
+  - img "Love4Detailing Logo"
+- navigation:
+  - link "Home":
+    - /url: /
+  - link "Services":
+    - /url: /services
+  - link "Book Now":
+    - /url: /book-now
+  - link "FAQ":
+    - /url: /faq
+- link "07908 625 581":
+  - /url: tel:07123456789
+- text: SW London
+- link "zell@love4detailing.com":
+  - /url: mailto:info@love4detailing.com
+- button "Create Account"
+- button "Sign In"
+- main "Main content":
+  - button "Go Back"
+  - button "Go Home"
+  - heading "Frequently Asked Questions" [level=1]
+  - paragraph: Find answers to common questions about our services
+  - heading "What areas do you cover?" [level=3]
+  - heading "How long does a typical service take?" [level=3]
+  - heading "Do I need to provide water or electricity?" [level=3]
+  - heading "What payment methods do you accept?" [level=3]
+  - heading "What if it rains on my appointment day?" [level=3]
+  - heading "Do you offer gift vouchers?" [level=3]
+- button "Open Feedback Form":
+  - img
+- region "Notifications (F8)":
+  - list
+- alert
+```
