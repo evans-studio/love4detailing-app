@@ -1,5 +1,3 @@
-'use client'
-
 import type { Metadata, Viewport } from 'next'
 import '@mantine/core/styles.css'
 import './globals.css'
@@ -22,10 +20,16 @@ export const metadata: Metadata = {
   description: 'Professional mobile car valeting and detailing services that come to you.',
   other: {
     'format-detection': 'telephone=no',
+    'msapplication-TileColor': '#8A2B85',
+    'apple-mobile-web-app-title': 'Love4Detailing',
+    'application-name': 'Love4Detailing',
+    'msapplication-config': '/browserconfig.xml',
+    'theme-color': '#8A2B85',
   },
 }
 
 export const viewport: Viewport = {
+  themeColor: '#8A2B85',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -34,11 +38,9 @@ export const viewport: Viewport = {
   viewportFit: 'cover'
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+// Client Component wrapper for layout functionality
+'use client'
+function LayoutClient({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       console.log('Debug Info:', {
@@ -63,7 +65,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(
       "dark",
-      inter.variable
+      inter.variable,
+      "font-sans antialiased",
+      "[&_*]:!transition-[background-color]",
+      "motion-reduce:transform-none motion-reduce:transition-none"
     )} suppressHydrationWarning>
       <head>
         <meta name="format-detection" content="telephone=no" />
@@ -83,4 +88,13 @@ export default function RootLayout({
       </body>
     </html>
   )
+}
+
+// Server Component layout
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <LayoutClient>{children}</LayoutClient>
 }
