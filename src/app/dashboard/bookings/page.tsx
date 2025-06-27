@@ -1,3 +1,16 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Bookings - Love4Detailing',
+  description: 'View and manage your car valeting bookings.',
+}
+
+export default function BookingsPage() {
+  return <BookingsClient />
+}
+
+// Client Component for interactive bookings features
 "use client"
 
 import { useEffect, useState, useCallback } from 'react'
@@ -57,7 +70,7 @@ const LoadingSkeleton = () => (
   </div>
 )
 
-export default function CustomerBookingsPage() {
+function BookingsClient() {
   const { user, isLoading: authLoading } = useProtectedRoute()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [isLoading, setIsLoading] = useState(true)

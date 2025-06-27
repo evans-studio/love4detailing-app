@@ -1,8 +1,21 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Profile - Love4Detailing',
+  description: 'Manage your profile and account settings.',
+}
+
+export default function ProfilePage() {
+  return <ProfileClient />
+}
+
+// Client Component for interactive profile features
 "use client"
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/label'
@@ -13,7 +26,6 @@ import { useToast } from '@/hooks/use-toast'
 import ProfileImageUpload from '@/components/profile/ProfileImageUpload'
 import VehiclePhotosUpload from '@/components/profile/VehiclePhotosUpload'
 import { User, Car, Save, Loader2, Camera } from 'lucide-react'
-import { CardDescription } from '@/components/ui/Card'
 
 interface UserProfile {
   id: string
@@ -46,7 +58,7 @@ const LoadingSkeleton = () => (
   </div>
 )
 
-export default function ProfilePage() {
+function ProfileClient() {
   const { user, isLoading: authLoading } = useProtectedRoute()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)

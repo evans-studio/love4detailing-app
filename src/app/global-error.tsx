@@ -1,3 +1,4 @@
+// Global error boundary must be Client Component to use hooks (useEffect) and handle runtime errors
 'use client'
 
 import { useEffect } from 'react'

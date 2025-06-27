@@ -1,11 +1,25 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Loading Demo - Love4Detailing',
+  description: 'Demo of our premium loading screen.',
+}
+
+export default function LoadingDemoPage() {
+  return <LoadingDemoClient />
+}
+
+// Client Component for interactive loading demo features
 'use client'
 
 import { useState } from 'react'
 import PremiumLoadingScreen, { usePremiumLoading } from '@/components/ui/PremiumLoadingScreen'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { motion } from 'framer-motion'
 
-export default function LoadingDemoPage() {
+function LoadingDemoClient() {
   const [showDemo, setShowDemo] = useState(false)
   const { isLoading, setIsLoading } = usePremiumLoading(3000)
 

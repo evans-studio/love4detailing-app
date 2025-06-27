@@ -1,3 +1,16 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Rewards - Love4Detailing',
+  description: 'View your loyalty points and redeem rewards.',
+}
+
+export default function RewardsPage() {
+  return <RewardsClient />
+}
+
+// Client Component for interactive rewards features
 "use client"
 
 import { useEffect, useState, useCallback } from 'react'
@@ -9,6 +22,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
 import LoyaltyBadges from '@/components/loyalty/LoyaltyBadges'
+import { useProtectedRoute } from '@/lib/auth'
+import { formatCurrency } from '@/lib/utils/format'
+import { Gift, Star, Trophy, Sparkles } from 'lucide-react'
 
 interface RewardsData {
   points: number
@@ -37,7 +53,7 @@ const rewardOptions: RewardOption[] = [
   { points: 1000, value: 80, description: '£80 off your next booking' }
 ]
 
-export default function RewardsPage() {
+function RewardsClient() {
   const [rewardsData, setRewardsData] = useState<RewardsData>({
     points: 0,
     pointsToNextReward: 100,

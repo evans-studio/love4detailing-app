@@ -1,3 +1,16 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Customers - Love4Detailing',
+  description: 'Manage your customer relationships and view customer profiles.',
+}
+
+export default function CustomersPage() {
+  return <CustomersClient />
+}
+
+// Client Component for interactive customer management features
 "use client"
 
 import { useEffect, useState } from 'react'
@@ -11,6 +24,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { supabase } from '@/lib/supabase/client'
 import Image from 'next/image'
+import { useProtectedRoute } from '@/lib/auth'
+import { cn } from '@/lib/utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
+import { Search, User, Car, Calendar, CreditCard } from 'lucide-react'
 
 interface Customer {
   id: string
@@ -37,7 +54,7 @@ interface Customer {
   }[]
 }
 
-export default function CustomersPage() {
+function CustomersClient() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)

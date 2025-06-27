@@ -1,3 +1,16 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'FAQ - Love4Detailing',
+  description: 'Frequently asked questions about our car valeting services.',
+}
+
+export default function FAQPage() {
+  return <FAQClient />
+}
+
+// Client Component for interactive FAQ features
 'use client'
 
 import { useState } from 'react'
@@ -33,7 +46,7 @@ const faqs = [
   }
 ]
 
-export default function FAQPage() {
+function FAQClient() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (

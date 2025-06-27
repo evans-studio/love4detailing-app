@@ -1,3 +1,16 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Dashboard - Love4Detailing',
+  description: 'View your bookings, rewards, and account information.',
+}
+
+export default function DashboardPage() {
+  return <DashboardClient />
+}
+
+// Client Component for interactive dashboard features
 "use client"
 
 import { useEffect, useState, useCallback } from 'react'
@@ -58,7 +71,7 @@ const LoadingSkeleton = () => (
   </div>
 )
 
-export default function CustomerDashboard() {
+function DashboardClient() {
   const { user, isLoading: authLoading } = useProtectedRoute()
   const router = useRouter()
   const [dashboardData, setDashboardData] = useState<DashboardData>({

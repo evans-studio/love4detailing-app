@@ -1,3 +1,16 @@
+// Server Component wrapper for proper metadata and static optimization
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Love4Detailing - Professional Mobile Car Valeting Services',
+  description: 'Premium mobile car valeting and detailing services that come to you. Book your appointment today.',
+}
+
+export default function HomePage() {
+  return <HomeClient />
+}
+
+// Client Component for interactive animations and effects
 "use client"
 
 import { useEffect, useRef } from 'react'
@@ -13,7 +26,7 @@ import { initGSAPBackground } from '@/lib/animations/backgroundAnimations'
 import { initSectionTransitions } from '@/lib/animations/sectionTransitions'
 import { buttonHover } from '@/lib/animations/responsive-animations'
 
-export default function Home() {
+function HomeClient() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
