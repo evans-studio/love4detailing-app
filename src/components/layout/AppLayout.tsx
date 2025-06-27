@@ -19,7 +19,6 @@ const dashboardItems = [
   { href: '/dashboard/rewards', label: 'Rewards', icon: <Star /> },
   { href: '/dashboard/admin', label: 'Admin', icon: <Shield /> },
   { href: '/dashboard/admin/customers', label: 'Customers', icon: <Users /> },
-  { href: '/dashboard/documents', label: 'Documents', icon: <FileText /> },
   { href: '#', label: 'Sign Out', icon: <LogOut /> }
 ]
 
