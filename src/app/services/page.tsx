@@ -112,7 +112,7 @@ export default function ServicesPage() {
 
   return (
     <div className="min-h-screen bg-[#141414]">
-      <Container as="main" className="py-6 sm:py-8 lg:py-12">
+      <Container className="py-6 sm:py-8 lg:py-12">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -166,7 +166,7 @@ export default function ServicesPage() {
             "grid gap-6 sm:gap-8",
             "grid-cols-1",
             isMedium ? "grid-cols-2" : "",
-            "max-w-6xl mx-auto"
+            "max-w-5xl mx-auto"
           )}
         >
           {services.map((service) => (

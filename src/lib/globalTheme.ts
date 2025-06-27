@@ -5,7 +5,7 @@ export const globalTheme = {
   // Brand Colors (Dev Guidelines Compliant)
   colors: {
     // Primary brand colors
-    primary: '#A64AFB',           // Latest approved purple
+    primary: '#8A2B85',           // Brand purple
     secondary: '#141414',         // True Black (Base)
     accent: '#F8F4EB',           // Canvas/Off-white (Text Contrast)  
     muted: '#DAD7CE',            // Stone Grey (Support Accent)
@@ -26,16 +26,16 @@ export const globalTheme = {
     
     // Purple variations
     purple: {
-      50: 'rgba(166, 74, 251, 0.05)',
-      100: 'rgba(166, 74, 251, 0.1)',
-      200: 'rgba(166, 74, 251, 0.2)',
-      300: 'rgba(166, 74, 251, 0.3)',
-      400: 'rgba(166, 74, 251, 0.4)',
-      500: '#A64AFB',
-      600: '#9635F0',
-      700: '#8520E5',
-      800: '#740BDA',
-      900: '#5F00C9'
+      50: 'rgba(138, 43, 133, 0.05)',
+      100: 'rgba(138, 43, 133, 0.1)',
+      200: 'rgba(138, 43, 133, 0.2)',
+      300: 'rgba(138, 43, 133, 0.3)',
+      400: 'rgba(138, 43, 133, 0.4)',
+      500: '#8A2B85',
+      600: '#7A2676',
+      700: '#6A2167',
+      800: '#5A1C58',
+      900: '#4A1749'
     }
   },
 
@@ -88,24 +88,24 @@ export const globalTheme = {
     '5xl': '8rem'
   },
 
-  // Border Radius
+  // Border Radius - Standardized to lg (1rem)
   borderRadius: {
     none: '0',
-    sm: '0.25rem',
-    base: '0.5rem',
-    md: '0.75rem',
+    sm: '0.75rem',
+    base: '1rem',
+    md: '1rem',
     lg: '1rem',
-    xl: '1.25rem',
-    '2xl': '1.5rem',
+    xl: '1rem',
+    '2xl': '1.25rem',
     full: '9999px'
   },
 
   // Shadows
   shadows: {
     card: '0 4px 16px rgba(20, 20, 20, 0.4)',
-    button: '0 2px 8px rgba(166, 74, 251, 0.3)',
-    buttonHover: '0 4px 16px rgba(166, 74, 251, 0.5)',
-    purpleGlow: '0 0 20px rgba(166, 74, 251, 0.4)',
+    button: '0 2px 8px rgba(138, 43, 133, 0.3)',
+    buttonHover: '0 4px 16px rgba(138, 43, 133, 0.5)',
+    purpleGlow: '0 0 20px rgba(138, 43, 133, 0.4)',
     glass: '0 8px 32px rgba(20, 20, 20, 0.6)',
     modal: '0 25px 50px -12px rgba(0, 0, 0, 0.8)'
   },
@@ -132,31 +132,31 @@ export const globalTheme = {
     // Button variants
     button: {
       primary: {
-        background: 'linear-gradient(135deg, #A64AFB 0%, #9635F0 100%)',
+        background: 'linear-gradient(135deg, #8A2B85 0%, #7A2676 100%)',
         color: '#F8F4EB',
         border: 'none',
-        boxShadow: '0 2px 8px rgba(166, 74, 251, 0.3)',
+        boxShadow: '0 2px 8px rgba(138, 43, 133, 0.3)',
         hover: {
-          boxShadow: '0 4px 16px rgba(166, 74, 251, 0.5)',
+          boxShadow: '0 4px 16px rgba(138, 43, 133, 0.5)',
           transform: 'translateY(-1px)'
         }
       },
       secondary: {
         background: 'transparent',
-        color: '#A64AFB',
-        border: '2px solid #A64AFB',
+        color: '#8A2B85',
+        border: '2px solid #8A2B85',
         hover: {
-          background: '#A64AFB',
+          background: '#8A2B85',
           color: '#F8F4EB'
         }
       },
       ghost: {
         background: 'transparent',
         color: '#F8F4EB',
-        border: '2px solid rgba(166, 74, 251, 0.3)',
+        border: '2px solid rgba(138, 43, 133, 0.3)',
         hover: {
-          background: 'rgba(166, 74, 251, 0.1)',
-          borderColor: '#A64AFB'
+          background: 'rgba(138, 43, 133, 0.1)',
+          borderColor: '#8A2B85'
         }
       }
     },
@@ -166,14 +166,14 @@ export const globalTheme = {
       default: {
         background: 'rgba(30, 30, 30, 0.8)',
         backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(166, 74, 251, 0.2)',
+        border: '1px solid rgba(138, 43, 133, 0.2)',
         borderRadius: '1rem',
         boxShadow: '0 4px 16px rgba(20, 20, 20, 0.4)'
       },
       glass: {
         background: 'rgba(20, 20, 20, 0.85)',
         backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(166, 74, 251, 0.2)',
+        border: '1px solid rgba(138, 43, 133, 0.2)',
         borderRadius: '1rem',
         boxShadow: '0 8px 32px rgba(20, 20, 20, 0.6)'
       }
@@ -184,12 +184,12 @@ export const globalTheme = {
       default: {
         background: '#141414',
         color: '#F8F4EB',
-        border: '2px solid #DAD7CE',
-        borderRadius: '0.5rem',
+        border: '2px solid rgba(138, 43, 133, 0.3)',
+        borderRadius: '1rem',
         padding: '0.75rem 1rem',
         focus: {
-          borderColor: '#A64AFB',
-          boxShadow: '0 0 0 3px rgba(166, 74, 251, 0.1)'
+          borderColor: '#8A2B85',
+          boxShadow: '0 0 0 3px rgba(138, 43, 133, 0.1)'
         }
       }
     },
@@ -198,28 +198,26 @@ export const globalTheme = {
     navigation: {
       sidebar: {
         background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)',
-        border: 'rgba(166, 74, 251, 0.2)',
+        border: '1px solid rgba(138, 43, 133, 0.2)',
         item: {
           default: {
             color: '#C7C7C7',
-            padding: '0.75rem 1rem',
-            borderRadius: '0.5rem',
             hover: {
-              background: 'rgba(166, 74, 251, 0.1)',
-              color: '#A64AFB'
+              background: 'rgba(138, 43, 133, 0.1)',
+              color: '#F8F4EB'
             }
           },
           active: {
-            background: 'rgba(166, 74, 251, 0.1)',
-            color: '#A64AFB',
-            borderLeft: '3px solid #A64AFB'
+            background: 'rgba(138, 43, 133, 0.2)',
+            color: '#8A2B85',
+            border: '1px solid rgba(138, 43, 133, 0.3)'
           }
         }
       },
       topBar: {
         background: 'rgba(20, 20, 20, 0.95)',
         backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(166, 74, 251, 0.2)'
+        border: '1px solid rgba(138, 43, 133, 0.2)'
       }
     },
 
@@ -231,7 +229,7 @@ export const globalTheme = {
       },
       content: {
         background: 'linear-gradient(135deg, #141414 0%, #1E1E1E 100%)',
-        border: '1px solid rgba(166, 74, 251, 0.2)',
+        border: '1px solid rgba(138, 43, 133, 0.2)',
         borderRadius: '1.25rem',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)'
       }

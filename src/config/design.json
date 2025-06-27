@@ -3,7 +3,7 @@
       "mode": "dark",
       "colors": {
           "background": "#141414",
-          "primary": "#8A2B85",
+          "primary": "#9747FF",
           "primary-glow": "#B558AA",
           "secondary": "#F8F4EB",
           "accent": "#DAD7CE",
@@ -11,8 +11,8 @@
           "text": "#F0F0F0",
           "text-muted": "#C7C7C7",
           "text-contrast": "#F8F4EB",
-          "border": "#8A2B85",
-          "border-muted": "rgba(138, 43, 133, 0.2)",
+          "border": "#9747FF",
+          "border-muted": "rgba(151, 71, 255, 0.2)",
           "error": "#BA0C2F",
           "success": "#28C76F"
       },
@@ -22,9 +22,9 @@
           "speed": 0.8,
           "opacity": 0.9,
           "colors": {
-              "primary": "rgba(138, 43, 133, 0.12)",
+              "primary": "rgba(151, 71, 255, 0.12)",
               "secondary": "rgba(181, 88, 170, 0.08)",
-              "ambient": "rgba(138, 43, 133, 0.04)"
+              "ambient": "rgba(151, 71, 255, 0.04)"
           },
           "blur": {
               "minimal": "20px",
@@ -57,9 +57,9 @@
       },
       "shadows": {
           "card": "0 4px 16px rgba(20, 20, 20, 0.4)",
-          "button": "0 2px 8px rgba(138, 43, 133, 0.3)",
-          "button-hover": "0 4px 16px rgba(138, 43, 133, 0.5)",
-          "purple-glow": "0 0 20px rgba(138, 43, 133, 0.4)",
+          "button": "0 2px 8px rgba(151, 71, 255, 0.3)",
+          "button-hover": "0 4px 16px rgba(151, 71, 255, 0.5)",
+          "purple-glow": "0 0 20px rgba(151, 71, 255, 0.4)",
           "glass": "0 8px 32px rgba(20, 20, 20, 0.6)"
       },
       "animations": {

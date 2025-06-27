@@ -1,25 +1,63 @@
 "use client"
 
-import HeroSection from '@/components/sections/HeroSection'
-import ServicesSection from '@/components/sections/ServicesSection'
-import HowItWorksSection from '@/components/sections/HowItWorksSection'
-import FeaturesSection from '@/components/sections/FeaturesSection'
-import TestimonialsSection from '@/components/sections/TestimonialsSection'
-import FAQSection from '@/components/sections/FAQSection'
-import CTASection from '@/components/sections/CTASection'
-import FooterSection from '@/components/sections/FooterSection'
+import { useEffect, useRef } from 'react'
+import { HeroSection } from '@/components/sections/HeroSection'
+import { EssentialCleanPricingSection } from '@/components/sections/EssentialCleanPricingSection'
+import { HowItWorksSection } from '@/components/sections/HowItWorksSection'
+import { ServiceAreaMap } from '@/components/sections/ServiceAreaMap'
+import { FeaturesSection } from '@/components/sections/FeaturesSection'
+import { FAQSection } from '@/components/sections/FAQSection'
+import { FooterSection } from '@/components/sections/FooterSection'
+import Link from 'next/link'
+import { initGSAPBackground } from '@/lib/animations/backgroundAnimations'
+import { initSectionTransitions } from '@/lib/animations/sectionTransitions'
+import { buttonHover } from '@/lib/animations/responsive-animations'
 
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Initialize background animations
+    if (containerRef.current) {
+      const cleanup = initGSAPBackground(containerRef.current)
+      
+      // Initialize section transitions
+      initSectionTransitions()
+      
+      // Initialize button hover effects
+      const buttons = document.querySelectorAll('button, a')
+      buttons.forEach(button => buttonHover(button))
+
+      return () => {
+        cleanup()
+      }
+    }
+  }, [])
+
   return (
-    <>
+    <div ref={containerRef} className="relative overflow-hidden">
+      {/* Hidden navigation for accessibility - screen reader accessible */}
+      <nav 
+        id="navigation"
+        className="sr-only" 
+        role="navigation" 
+        aria-label="Main navigation"
+      >
+        <ul>
+          <li><Link href="/">Home</Link></li>
+          <li><Link href="/services">Services</Link></li>
+          <li><Link href="/booking">Book Now</Link></li>
+          <li><Link href="/faq">FAQ</Link></li>
+        </ul>
+      </nav>
+      
       <HeroSection />
-      <ServicesSection />
+      <EssentialCleanPricingSection />
       <HowItWorksSection />
+      <ServiceAreaMap />
       <FeaturesSection />
-      <TestimonialsSection />
       <FAQSection />
-      <CTASection />
       <FooterSection />
-    </>
+    </div>
   )
 }

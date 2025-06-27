@@ -37,10 +37,10 @@ const features = [
   }
 ]
 
-const FeaturesSection = () => {
+export const FeaturesSection = () => {
   return (
-    <section className="py-40 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -70,7 +70,7 @@ const FeaturesSection = () => {
             >
               <Card className="h-full bg-black/20 backdrop-blur-sm border-purple-500/20 hover:border-purple-400/40 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 group">
                 <div className="p-6 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-300">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-purple-700 rounded-[0.75rem] flex items-center justify-center group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-300">
                     <feature.icon className="w-8 h-8 text-white" />
                   </div>
                   
@@ -94,7 +94,7 @@ const FeaturesSection = () => {
           viewport={{ once: true }}
           className="text-center mt-16"
         >
-          <div className="bg-black/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8 max-w-4xl mx-auto">
+          <div className="bg-black/20 backdrop-blur-sm border border-purple-500/20 rounded-[1rem] p-8 max-w-4xl mx-auto">
             <h3 className="text-2xl font-semibold text-white mb-4">
               Professional Service You Can Trust
             </h3>
@@ -103,10 +103,10 @@ const FeaturesSection = () => {
               we're committed to delivering exceptional results every time.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300">
+              <button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 rounded-[0.5rem] font-semibold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300">
                 Get Started Today
               </button>
-              <button className="bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 px-8 py-3 rounded-lg font-semibold backdrop-blur-sm transition-all duration-300">
+              <button className="bg-transparent border-2 border-purple-500/50 text-purple-300 hover:bg-purple-500/10 hover:border-purple-400 px-8 py-3 rounded-[0.5rem] font-semibold backdrop-blur-sm transition-all duration-300">
                 Learn More
               </button>
             </div>
@@ -115,6 +115,4 @@ const FeaturesSection = () => {
       </div>
     </section>
   )
-}
-
-export default FeaturesSection 
+} 

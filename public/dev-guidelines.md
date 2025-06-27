@@ -102,10 +102,28 @@ Best Practices
 6. STYLING SYSTEM
 
 Brand Colours
-	•	Purple (Primary Accent): #8A2B85
-	•	True Black (Base): #141414
-	•	Canvas/Off-white (Text Contrast): #F8F4EB
-	•	Support Accent (Subtle): #DAD7CE (Stone Grey, optional use)
+	•	Primary Purple: #9747FF
+	•	Black Base: #141414
+	•	Off-white: #F8F4EB
+	•	Support Accent (Stone Grey): #DAD7CE
+	•	Surface Light: #262626
+	•	Text Muted: #C7C7C7
+	•	State colors:
+	•	Error: #BA0C2F
+	•	Success: #28C76F
+	•	Warning: #FFA726
+	•	Info: #29B6F6
+	•	Purple variations:
+	•	50: rgba(151, 71, 255, 0.05)
+	•	100: rgba(151, 71, 255, 0.1)
+	•	200: rgba(151, 71, 255, 0.2)
+	•	300: rgba(151, 71, 255, 0.3)
+	•	400: rgba(151, 71, 255, 0.4)
+	•	500: #9747FF
+	•	600: #8532FF
+	•	700: #721DFF
+	•	800: #5F08FF
+	•	900: #4C00F2
 
 Design Rules
 	•	Use black base with purple accent highlights
@@ -121,7 +139,7 @@ Design Rules
 	•	Test all interactions on:
 	•	iPhone 14
 	•	iPad Mini
-	•	Macbook Pro 13”
+	•	Macbook Pro 13"
 	•	Samsung S21
 
 ⸻
@@ -150,8 +168,6 @@ Functional QA
 	•	Hand off brand toolkit and code reference to client
 	•	Create short README with edit instructions
 
-⸻rtainly — here is the section written in the same structured .md format as your existing dev-guidelines.md file. You can paste this directly into your file:
-
 ⸻
 
 Git Commit & Push Standards
@@ -170,7 +186,7 @@ Always push stable code before ending a development session or switching tasks.
 
 When Not to Push
 	•	Code that is broken, incomplete, or not functional.
-	•	Work-in-progress that disrupts existing functionality unless it’s in a separate dev branch.
+	•	Work-in-progress that disrupts existing functionality unless it's in a separate dev branch.
 	•	Messy or unstructured experiments without notes or cleanup.
 
  Commit Message Format
@@ -212,7 +228,7 @@ Before committing visual changes:
 	•	Visually inspect the sidebar and dashboard interactions — especially buttons and links — for design fidelity and functional consistency.
 	•	Confirm GSAP animations remain smooth and do not clash with content hierarchy or legibility.
 
-If it doesn’t match the visual tone and UX of the landing page, it doesn’t go in.
+If it doesn't match the visual tone and UX of the landing page, it doesn't go in.
 
 ⸻
 
@@ -221,10 +237,32 @@ Workspace and Terminal Discipline
 To avoid performance issues, confusion, and broken development flows:
 	•	Always keep only one terminal session active at a time unless explicitly debugging a concurrent process. 
 	•	Close unused terminals to reduce memory load and prevent accidental conflicts (such as duplicate builds or multiple ports).
-	•	Keep your editor or file tabs minimal — close irrelevant files once you’re done working on them.
+	•	Keep your editor or file tabs minimal — close irrelevant files once you're done working on them.
 	•	Name open terminals clearly (e.g., dev-server, supabase, storybook) when multiple are temporarily needed.
 
 Streamlined workspace = faster builds, fewer mistakes, and cleaner code.
 
 MAINTAIN CODE QUALITY AT ALL TIMES. DO NOT RUSH, DO NOT DUPLICATE.
 Every line of code must contribute toward a thoughtful, clean, and scalable app.
+
+## 🔧 Tech Stack Overview
+
+### Frontend
+- **Framework:** Next.js (App Router + RSC)
+- **Styling:** TailwindCSS
+- **UI Components:** Radix UI (primitives) + Shadcn
+- **State Management:** Zustand or React Context (scoped only)
+- **Form Handling:** React Hook Form + Zod validation
+
+### Backend
+- **Database:** Supabase (PostgreSQL + RLS)
+- **Storage:** Supabase Storage (signed URLs for images)
+- **Auth:** Supabase Auth (email/pass + session management)
+- **APIs:** Next.js API routes or Supabase Edge Functions
+
+### Design System
+- Mobile-first responsive design
+- Glassmorphism UI elements
+- Consistent border radius (1rem)
+- GSAP animations for smooth transitions
+- TailwindCSS + Radix UI + Mantine for components

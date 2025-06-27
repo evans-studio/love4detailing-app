@@ -429,8 +429,8 @@ export default function AdminDashboard() {
           <Button
             variant="outline"
             className={cn(
-              "border-[#8A2B85]/20 text-[#C7C7C7]",
-              "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+              "border-[#9747FF]/20 text-[#C7C7C7]",
+              "hover:bg-[#9747FF]/10 hover:text-[#F8F4EB]",
               "touch-target min-h-[44px]"
             )}
             onClick={() => {/* Export data */}}
@@ -441,7 +441,7 @@ export default function AdminDashboard() {
           </Button>
           <Button
             className={cn(
-              "bg-[#8A2B85] hover:bg-[#8A2B85]/90",
+              "bg-[#9747FF] hover:bg-[#9747FF]/90",
               "text-[#F8F4EB]",
               "touch-target min-h-[44px]"
             )}

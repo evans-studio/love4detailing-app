@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const cardVariants = cva(
-  "rounded-lg border transition-all duration-300",
+  "rounded-[1rem] border transition-all duration-300",
   {
     variants: {
       variant: {
@@ -25,7 +25,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(cardVariants({ variant }), "sm:rounded-xl lg:rounded-2xl", className)}
+      className={cn(cardVariants({ variant }), className)}
       {...props}
     />
   )

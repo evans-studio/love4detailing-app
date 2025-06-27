@@ -28,109 +28,93 @@ const serviceAreas = [
   'Putney', 'Balham', 'Tooting', 'Streatham'
 ]
 
-export default function FooterSection() {
+export const FooterSection = () => {
   return (
-    <footer className="relative bg-base text-foreground py-16 px-4">
-      {/* Content */}
+    <footer className="relative py-16 px-4">
       <div className="relative z-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Brand Section */}
-            <div className="lg:col-span-1">
-              <Link href="/" className="flex items-center space-x-2 mb-4">
-                <div className="relative w-10 h-10">
-                  <Image
-                    src="/logo.png"
-                    alt="Love4Detailing Logo"
-                    fill
-                    className="object-contain"
-                    sizes="40px"
-                  />
-                </div>
-                <span className="text-xl font-bold text-foreground">Love4Detailing</span>
-              </Link>
-              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                London's premier mobile car detailing service. Professional quality, 
-                unbeatable convenience, and exceptional customer service.
-              </p>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-platinum-silver fill-platinum-silver" />
-                  ))}
-                </div>
-                <span className="text-sm text-muted-foreground">4.9/5 from 200+ reviews</span>
-              </div>
-              <div className="flex space-x-3">
-                <a 
-                  href="https://instagram.com/love4detailing" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                >
-                  <Instagram className="w-4 h-4 text-primary" />
-                </a>
-                <a 
-                  href="https://facebook.com/love4detailing" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                >
-                  <Facebook className="w-4 h-4 text-primary" />
-                </a>
-                <a 
-                  href="https://twitter.com/love4detailing" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                >
-                  <Twitter className="w-4 h-4 text-primary" />
-                </a>
-              </div>
-            </div>
+        {/* Transform CTA Section */}
+        <div className="max-w-5xl mx-auto mb-8">
+          <motion.div
+            className="text-center bg-gradient-to-br from-[#141414]/25 to-[#1E1E1E]/25 backdrop-blur-md rounded-[1.25rem] p-12 border border-[#8A2B85]/20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-[#F8F4EB]">
+              Ready to Transform Your Vehicle?
+            </h2>
+            <p className="text-lg sm:text-xl text-[#F8F4EB]/80 max-w-3xl mx-auto mb-8">
+              Book your service now and experience the convenience of professional mobile car detailing
+            </p>
+            <Link href="/booking">
+              <button className="bg-[#8A2B85] hover:bg-[#8A2B85]/90 text-[#F8F4EB] px-8 py-4 rounded-[0.5rem] font-semibold shadow-lg shadow-[#8A2B85]/25 hover:shadow-[#8A2B85]/40 transition-all duration-300">
+                Book Your Service
+              </button>
+            </Link>
+            <p className="mt-4 text-sm text-[#F8F4EB]/60">
+              No commitment required • Professional service guaranteed
+            </p>
+          </motion.div>
+        </div>
 
-            {/* Contact Information */}
+        {/* Main Footer Content */}
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Contact Info */}
             <div>
-              <h3 className="text-lg font-semibold text-foreground mb-4">Get In Touch</h3>
-              <div className="space-y-4">
+              <div className="flex items-center mb-8">
+                <Image
+                  src="/logo.png"
+                  alt="Love4Detailing"
+                  width={48}
+                  height={48}
+                  className="mr-3"
+                />
+                <h2 className="text-2xl font-bold text-[#F8F4EB]">
+                  Love4Detailing
+                </h2>
+              </div>
+
+              <div className="space-y-6">
                 <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-5 h-5 text-[#8A2B85] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-foreground">Service Area</p>
-                    <p className="text-sm text-muted-foreground">
-                      South West London & Surrounding Areas
-                    </p>
+                    <p className="text-sm font-medium text-[#F8F4EB]">Location</p>
+                    <p className="text-sm text-[#F8F4EB]/60">South West London</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <Phone className="w-5 h-5 text-primary flex-shrink-0" />
+
+                <div className="flex items-start space-x-3">
+                  <Phone className="w-5 h-5 text-[#8A2B85] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-foreground">Phone</p>
+                    <p className="text-sm font-medium text-[#F8F4EB]">Phone</p>
                     <a 
-                      href="tel:07123456789" 
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      href="tel:07908625581" 
+                      className="text-sm text-[#F8F4EB]/60 hover:text-[#8A2B85] transition-colors"
                     >
-                      07123 456 789
+                      07908 625 581
                     </a>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <Mail className="w-5 h-5 text-primary flex-shrink-0" />
+
+                <div className="flex items-start space-x-3">
+                  <Mail className="w-5 h-5 text-[#8A2B85] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-foreground">Email</p>
+                    <p className="text-sm font-medium text-[#F8F4EB]">Email</p>
                     <a 
-                      href="mailto:hello@love4detailing.com" 
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      href="mailto:zell@love4detailing.com" 
+                      className="text-sm text-[#F8F4EB]/60 hover:text-[#8A2B85] transition-colors"
                     >
-                      hello@love4detailing.com
+                      zell@love4detailing.com
                     </a>
                   </div>
                 </div>
+
                 <div className="flex items-start space-x-3">
-                  <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <Clock className="w-5 h-5 text-[#8A2B85] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-foreground">Hours</p>
-                    <div className="text-sm text-muted-foreground">
+                    <p className="text-sm font-medium text-[#F8F4EB]">Hours</p>
+                    <div className="text-sm text-[#F8F4EB]/60">
                       <div>Mon-Sat: 10:00 - 17:00</div>
                       <div>Sunday: Closed</div>
                     </div>
@@ -141,22 +125,22 @@ export default function FooterSection() {
 
             {/* Service Areas & Quick Links */}
             <div>
-              <h3 className="text-lg font-semibold text-foreground mb-4">Service Areas</h3>
+              <h3 className="text-lg font-semibold text-[#F8F4EB] mb-4">Service Areas</h3>
               <div className="flex flex-wrap gap-2 mb-6">
                 {serviceAreas.map((area) => (
-                  <Badge key={area} variant="outline" className="text-xs">
+                  <Badge key={area} variant="outline" className="text-xs border-[#8A2B85]/40 text-[#F8F4EB]/80">
                     {area}
                   </Badge>
                 ))}
               </div>
               
-              <h4 className="text-sm font-semibold text-foreground mb-3">Quick Links</h4>
+              <h4 className="text-sm font-semibold text-[#F8F4EB] mb-3">Quick Links</h4>
               <ul className="space-y-2">
                 {quickLinks.map((link) => (
                   <li key={link.name}>
                     <Link 
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      className="text-sm text-[#F8F4EB]/60 hover:text-[#8A2B85] transition-colors"
                     >
                       {link.name}
                     </Link>
@@ -165,61 +149,39 @@ export default function FooterSection() {
               </ul>
             </div>
           </div>
-
-          {/* CTA Section */}
-          <div className="mt-12 pt-8 border-t border-deep-purple/30">
-            <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Ready to Book Your Service?
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                Join hundreds of satisfied customers and experience the Love4Detailing difference today.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a 
-                  href="/booking"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6"
-                >
-                  Book Service Now
-                </a>
-                <a 
-                  href="tel:07123456789"
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-6"
-                >
-                  Call Us Now
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-deep-purple/30 relative z-10">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="text-sm text-muted-foreground">
-                © 2024 Love4Detailing. All rights reserved.
-              </div>
-              <div className="flex items-center space-x-6">
-                <Link 
-                  href="/privacy" 
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-                <Link 
-                  href="/terms" 
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Terms of Service
-                </Link>
-                <Link 
-                  href="/cookies" 
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Cookie Policy
-                </Link>
-              </div>
+        <div className="max-w-5xl mx-auto mt-12 pt-8 border-t border-[#8A2B85]/20">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-[#F8F4EB]/60">
+              © {new Date().getFullYear()} Love4Detailing. All rights reserved.
+            </p>
+            <div className="flex items-center space-x-4">
+              <a 
+                href="https://instagram.com/love4detailing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#F8F4EB]/60 hover:text-[#8A2B85] transition-colors"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a 
+                href="https://facebook.com/love4detailing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#F8F4EB]/60 hover:text-[#8A2B85] transition-colors"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a 
+                href="https://twitter.com/love4detailing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#F8F4EB]/60 hover:text-[#8A2B85] transition-colors"
+              >
+                <Twitter className="w-5 h-5" />
+              </a>
             </div>
           </div>
         </div>

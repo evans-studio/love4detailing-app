@@ -10,7 +10,6 @@ export const metadata = {
 export default function BookingPage() {
   return (
     <Container 
-      as="main" 
       maxWidth="lg"
       className="py-6 sm:py-8 lg:py-12"
     >

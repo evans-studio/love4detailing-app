@@ -4,7 +4,7 @@
  * High-quality fluid gradient background with brand-compliant colors and elegant motion.
  * Features:
  * - Crisp, high-resolution gradients with minimal blur
- * - Brand colors: #141414 (base), #8A2B85 (primary), #B558AA (secondary glow)
+ * - Brand colors: #141414 (base), #9747FF (primary), #B558AA (secondary glow)
  * - Smooth, elegant motion inspired by Unicorn Studio
  * - Optimized performance for all devices
  * - Directional lighting and depth
@@ -92,13 +92,13 @@ export default function BackgroundCanvas({
     bottom: 0,
     zIndex: -10,
     background: `
-      radial-gradient(ellipse 800px 600px at 25% 20%, rgba(138, 43, 133, ${isMobile ? '0.08' : '0.12'}) 0%, transparent 60%),
+      radial-gradient(ellipse 800px 600px at 25% 20%, rgba(151, 71, 255, ${isMobile ? '0.08' : '0.12'}) 0%, transparent 60%),
       radial-gradient(ellipse 1000px 800px at 75% 80%, rgba(181, 88, 170, ${isMobile ? '0.05' : '0.08'}) 0%, transparent 65%),
-      radial-gradient(ellipse 600px 900px at 90% 30%, rgba(138, 43, 133, ${isMobile ? '0.04' : '0.06'}) 0%, transparent 55%),
+      radial-gradient(ellipse 600px 900px at 90% 30%, rgba(151, 71, 255, ${isMobile ? '0.04' : '0.06'}) 0%, transparent 55%),
       radial-gradient(ellipse 900px 700px at 10% 70%, rgba(181, 88, 170, ${isMobile ? '0.03' : '0.05'}) 0%, transparent 60%),
-      radial-gradient(ellipse 1200px 500px at 50% 50%, rgba(138, 43, 133, ${isMobile ? '0.02' : '0.04'}) 0%, transparent 70%),
+      radial-gradient(ellipse 1200px 500px at 50% 50%, rgba(151, 71, 255, ${isMobile ? '0.02' : '0.04'}) 0%, transparent 70%),
       linear-gradient(135deg, #141414 0%, #1A1A1A 25%, #141414 50%, #1C1C1C 75%, #141414 100%),
-      linear-gradient(45deg, rgba(138, 43, 133, 0.02) 0%, transparent 30%, rgba(181, 88, 170, 0.01) 70%, transparent 100%)
+      linear-gradient(45deg, rgba(151, 71, 255, 0.02) 0%, transparent 30%, rgba(181, 88, 170, 0.01) 70%, transparent 100%)
     `,
     backgroundSize: isMobile 
       ? '100% 100%, 110% 110%, 90% 120%, 100% 100%, 150% 80%, 100% 100%, 100% 100%'
@@ -125,8 +125,8 @@ export default function BackgroundCanvas({
     zIndex: -9,
     background: `
       radial-gradient(circle 400px at 20% 30%, rgba(181, 88, 170, ${isMobile ? '0.02' : '0.03'}) 0%, transparent 50%),
-      radial-gradient(circle 600px at 80% 70%, rgba(138, 43, 133, ${isMobile ? '0.015' : '0.02'}) 0%, transparent 50%),
-      linear-gradient(180deg, rgba(138, 43, 133, 0.01) 0%, transparent 40%, rgba(181, 88, 170, 0.005) 100%)
+      radial-gradient(circle 600px at 80% 70%, rgba(151, 71, 255, ${isMobile ? '0.015' : '0.02'}) 0%, transparent 50%),
+      linear-gradient(180deg, rgba(151, 71, 255, 0.01) 0%, transparent 40%, rgba(181, 88, 170, 0.005) 100%)
     `,
     backgroundSize: isMobile ? '60% 60%, 70% 70%, 100% 100%' : '80% 80%, 90% 90%, 100% 100%',
     opacity: finalOpacity * 0.6,

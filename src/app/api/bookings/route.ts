@@ -10,15 +10,8 @@ export async function GET() {
 
     const { data: bookings, error } = await supabase
       .from('bookings')
-      .select(`
-        *,
-        services:service_id (
-          name,
-          type,
-          price
-        )
-      `)
-      .order('booking_date', { ascending: true })
+      .select('*')
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.error('Error fetching bookings:', error)
@@ -47,17 +40,18 @@ export async function POST(request: Request) {
       email: body.email,
       postcode: body.postcode,
       vehicle_size: body.vehicle_size,
-      booking_date: body.service_date,
-      booking_time: body.service_time,
+      service_type: body.service_type || body.vehicle_size,
+      vehicle: body.vehicle || 'Unknown',
+      date: body.service_date,
+      time_slot: body.service_time,
       add_ons: body.add_ons || [],
       vehicle_images: body.vehicle_images || [],
-      notes: body.notes || '',
-      total_price: body.total_price,
+      special_requests: body.notes || '',
+      total_amount: body.total_price,
       travel_fee: body.travel_fee || 0,
       status: body.status || 'pending',
       payment_status: body.payment_status || 'pending',
-      booking_reference: body.booking_reference,
-      service_id: body.vehicle_size // Use vehicle size as service identifier for now
+      booking_reference: body.booking_reference
     }
 
     // Add new vehicle fields if they exist in the request

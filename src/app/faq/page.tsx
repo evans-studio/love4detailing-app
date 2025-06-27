@@ -38,7 +38,7 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden">
-      <main className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -101,7 +101,7 @@ export default function FAQPage() {
             ))}
           </div>
         </motion.div>
-      </main>
+      </div>
     </div>
   )
 } 

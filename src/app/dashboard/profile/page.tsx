@@ -12,7 +12,8 @@ import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import ProfileImageUpload from '@/components/profile/ProfileImageUpload'
 import VehiclePhotosUpload from '@/components/profile/VehiclePhotosUpload'
-import { User, Car, Save, Loader2 } from 'lucide-react'
+import { User, Car, Save, Loader2, Camera } from 'lucide-react'
+import { CardDescription } from '@/components/ui/Card'
 
 interface UserProfile {
   id: string
@@ -57,6 +58,7 @@ export default function ProfilePage() {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
+        .eq('id', user?.id)
         .single()
 
       if (error) throw error
@@ -71,7 +73,7 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }, [toast])
+  }, [toast, user?.id])
 
   useEffect(() => {
     if (user) {
@@ -133,15 +135,20 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-7xl mx-auto">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="mb-8"
       >
-        <h1 className="text-3xl font-bold">My Profile</h1>
-        <p className="text-muted-foreground">Manage your profile information and vehicle details</p>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+          My Profile
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Manage your profile information and vehicle details
+        </p>
       </motion.div>
 
       <div className="grid gap-8 lg:grid-cols-2">
@@ -151,17 +158,19 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card>
+          <Card variant="glass" className="backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <User className="h-5 w-5 text-purple-400" />
                 Profile Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Profile Image */}
               <div>
-                <Label className="text-sm font-medium mb-4 block">Profile Picture</Label>
+                <Label className="text-sm font-medium mb-4 block text-purple-100">
+                  Profile Picture
+                </Label>
                 <ProfileImageUpload
                   currentImageUrl={profile.profile_image_url}
                   onImageUpdate={(url) => handleProfileUpdate({ profile_image_url: url })}
@@ -169,57 +178,66 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <Separator />
+              <Separator className="bg-purple-800/30" />
 
               {/* Basic Info */}
               <form onSubmit={handleVehicleInfoSubmit} className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="full_name">Full Name</Label>
+                    <Label htmlFor="full_name" className="text-purple-100">
+                      Full Name
+                    </Label>
                     <Input
                       id="full_name"
                       name="full_name"
                       defaultValue={profile.full_name}
                       disabled
-                      className="bg-muted"
+                      className="bg-purple-900/50 border-purple-700 text-purple-100"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-purple-300 mt-1">
                       Contact support to change your name
                     </p>
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-purple-100">
+                      Email
+                    </Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
                       defaultValue={profile.email}
                       disabled
-                      className="bg-muted"
+                      className="bg-purple-900/50 border-purple-700 text-purple-100"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label htmlFor="phone" className="text-purple-100">
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      defaultValue={profile.phone}
+                      placeholder="+44 7700 900000"
+                      className="bg-purple-950/30 border-purple-700 text-purple-100 placeholder:text-purple-400"
                     />
                   </div>
                 </div>
-
-                <div>
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    defaultValue={profile.phone || ''}
-                    placeholder="+44 7700 900000"
-                  />
-                </div>
-
-                <Button type="submit" disabled={isSaving}>
+                <Button 
+                  type="submit" 
+                  className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white"
+                  disabled={isSaving}
+                >
                   {isSaving ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving...
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving Changes...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4 mr-2" />
+                      <Save className="mr-2 h-4 w-4" />
                       Save Changes
                     </>
                   )}
@@ -235,69 +253,79 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card>
+          <Card variant="glass" className="backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Car className="h-5 w-5 text-purple-400" />
                 Vehicle Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent>
               <form onSubmit={handleVehicleInfoSubmit} className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="vehicle_make">Make</Label>
+                    <Label htmlFor="vehicle_make" className="text-purple-100">
+                      Make
+                    </Label>
                     <Input
                       id="vehicle_make"
                       name="vehicle_make"
-                      defaultValue={profile.vehicle_make || ''}
-                      placeholder="e.g., BMW, Mercedes, Audi"
+                      placeholder="e.g., BMW, Mercedes"
+                      defaultValue={profile.vehicle_make}
+                      className="bg-purple-950/30 border-purple-700 text-purple-100 placeholder:text-purple-400"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="vehicle_model">Model</Label>
+                    <Label htmlFor="vehicle_model" className="text-purple-100">
+                      Model
+                    </Label>
                     <Input
                       id="vehicle_model"
                       name="vehicle_model"
-                      defaultValue={profile.vehicle_model || ''}
-                      placeholder="e.g., 3 Series, C-Class, A4"
+                      placeholder="e.g., 3 Series, C-Class"
+                      defaultValue={profile.vehicle_model}
+                      className="bg-purple-950/30 border-purple-700 text-purple-100 placeholder:text-purple-400"
                     />
                   </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="vehicle_year">Year</Label>
+                    <Label htmlFor="vehicle_year" className="text-purple-100">
+                      Year
+                    </Label>
                     <Input
                       id="vehicle_year"
                       name="vehicle_year"
                       type="number"
-                      min="1990"
-                      max={new Date().getFullYear() + 1}
-                      defaultValue={profile.vehicle_year || ''}
-                      placeholder={new Date().getFullYear().toString()}
+                      placeholder="e.g., 2020"
+                      defaultValue={profile.vehicle_year}
+                      className="bg-purple-950/30 border-purple-700 text-purple-100 placeholder:text-purple-400"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="vehicle_color">Color</Label>
+                    <Label htmlFor="vehicle_color" className="text-purple-100">
+                      Color
+                    </Label>
                     <Input
                       id="vehicle_color"
                       name="vehicle_color"
-                      defaultValue={profile.vehicle_color || ''}
-                      placeholder="e.g., Black, White, Silver"
+                      placeholder="e.g., Black, White"
+                      defaultValue={profile.vehicle_color}
+                      className="bg-purple-950/30 border-purple-700 text-purple-100 placeholder:text-purple-400"
                     />
                   </div>
                 </div>
-
-                <Button type="submit" disabled={isSaving}>
+                <Button 
+                  type="submit" 
+                  className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white"
+                  disabled={isSaving}
+                >
                   {isSaving ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving...
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving Vehicle Info...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4 mr-2" />
+                      <Car className="mr-2 h-4 w-4" />
                       Save Vehicle Info
                     </>
                   )}
@@ -306,30 +334,33 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
 
-      {/* Vehicle Photos */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle>Vehicle Photos</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Upload photos of your vehicle to help us provide better service
-            </p>
-          </CardHeader>
-          <CardContent>
-            <VehiclePhotosUpload
-              currentPhotos={profile.vehicle_photos}
-              onPhotosUpdate={(photos) => handleProfileUpdate({ vehicle_photos: photos })}
-              maxPhotos={5}
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
+        {/* Vehicle Photos */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="lg:col-span-2"
+        >
+          <Card variant="glass" className="backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Camera className="h-5 w-5 text-purple-400" />
+                Vehicle Photos
+              </CardTitle>
+              <CardDescription>
+                Upload photos of your vehicle to help us provide better service
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <VehiclePhotosUpload
+                currentPhotos={profile.vehicle_photos || []}
+                onPhotosUpdate={(urls) => handleProfileUpdate({ vehicle_photos: urls })}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   )
 } 

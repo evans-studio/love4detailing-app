@@ -36,7 +36,7 @@ module.exports = {
       colors: {
         // Final Color Palette Specification (Dev Guidelines Compliant)
         'true-black': '#141414',        // Primary Background (app shell) - Dev Guidelines
-        'deep-purple': '#A64AFB',       // Primary Accent (buttons, icons, highlights) - Dev Guidelines
+        'deep-purple': '#8A2B85',       // Primary Accent (buttons, icons, highlights) - Dev Guidelines
         'canvas-white': '#F8F4EB',      // Canvas/Off-white (Text Contrast) - Dev Guidelines
         'stone-grey': '#DAD7CE',        // Support Accent (Subtle) - Dev Guidelines
         'rich-crimson': '#BA0C2F',      // Secondary Accent (hover states, subtle highlights)
@@ -47,12 +47,12 @@ module.exports = {
         
         // Legacy aliases for compatibility
         'deep-black': '#141414',
-        'accent-purple': '#A64AFB',
+        'accent-purple': '#8A2B85',
         'mid-purple': '#3B1040',
         'overlay-purple-black': '#1E0A1F',
         'soft-silver': '#8A8D8F',
         'midnight-black': '#141414',
-        'primary-purple': '#A64AFB',
+        'primary-purple': '#8A2B85',
         'crimson-alert': '#BA0C2F',
         
         // UI Colors

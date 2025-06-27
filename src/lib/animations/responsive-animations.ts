@@ -90,8 +90,13 @@ export const staggerChildren = (
     ease: options.ease,
   }
 
+  // Get all child elements that match the selector
+  const childElements = parent instanceof Element 
+    ? parent.querySelectorAll(children)
+    : document.querySelectorAll(`${parent} ${children}`)
+
   if (options.scrollTrigger) {
-    return gsap.from(`${parent} ${children}`, {
+    return gsap.from(childElements, {
       ...animation,
       scrollTrigger: {
         trigger: parent,
@@ -102,7 +107,7 @@ export const staggerChildren = (
     })
   }
 
-  return gsap.from(`${parent} ${children}`, animation)
+  return gsap.from(childElements, animation)
 }
 
 // Scale animation

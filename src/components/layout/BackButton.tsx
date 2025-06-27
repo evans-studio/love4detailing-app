@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { ArrowLeft, Home } from 'lucide-react'
-import { useSidebar } from './SidebarContext'
+import { useSidebarContext } from './SidebarContext'
 import { cn } from '@/lib/utils'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { breakpoints } from '@/lib/constants/breakpoints'
@@ -35,7 +35,7 @@ const buttonVariants = {
 export default function BackButton() {
   const router = useRouter()
   const pathname = usePathname()
-  const { isCollapsed } = useSidebar()
+  const { isCollapsed } = useSidebarContext()
   const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
 
   // Don't show back button on home page

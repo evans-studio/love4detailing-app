@@ -4,14 +4,27 @@ import { usePathname } from 'next/navigation'
 import LandingSidebar from './LandingSidebar'
 import Sidebar from './Sidebar'
 import BackButton from './BackButton'
-import { SidebarProvider, useSidebar } from './SidebarContext'
-import BackgroundCanvas from '@/components/ui/BackgroundCanvas'
+import { SidebarProvider, useSidebarContext } from './SidebarContext'
+import { FluidBackground } from '@/components/ui/FluidBackground'
 import { UserFeedbackForm } from '../feedback/UserFeedbackForm'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useState } from 'react'
+import { BackgroundOrbs } from '@/components/ui/BackgroundOrbs'
+import { Shield, Users, Calendar, Star, User, Home, FileText, LogOut } from 'lucide-react'
+
+const dashboardItems = [
+  { href: '/dashboard', label: 'Dashboard', icon: <Home /> },
+  { href: '/dashboard/bookings', label: 'Bookings', icon: <Calendar /> },
+  { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
+  { href: '/dashboard/rewards', label: 'Rewards', icon: <Star /> },
+  { href: '/dashboard/admin', label: 'Admin', icon: <Shield /> },
+  { href: '/dashboard/admin/customers', label: 'Customers', icon: <Users /> },
+  { href: '/dashboard/documents', label: 'Documents', icon: <FileText /> },
+  { href: '#', label: 'Sign Out', icon: <LogOut /> }
+]
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { isCollapsed } = useSidebar()
+  const { isCollapsed } = useSidebarContext()
   const pathname = usePathname()
   
   // Use dashboard sidebar for dashboard pages, landing sidebar for others
@@ -21,35 +34,50 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   
   return (
     <div className="relative min-h-screen w-full">
+      {/* Skip Navigation Links */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      {isDashboard || pathname !== '/' ? (
+        <a href="#navigation" className="skip-link">
+          Skip to navigation
+        </a>
+      ) : null}
+      
       {/* Mobile-first layout container */}
-      <div className="flex min-h-screen w-full">
-        {/* Single Sidebar Container - Only one will be shown */}
-        <div className={`hidden ${isDashboard ? 'md:block' : 'lg:block'} flex-shrink-0`}>
+      <div className="relative min-h-screen w-full">
+        {/* Single Sidebar Container - Fixed positioned for proper layout */}
+        <div className={`${isDashboard ? 'hidden md:block' : 'hidden lg:block'} fixed left-0 top-0 h-full z-30`}>
           {isDashboard ? (
-            <Sidebar />
-          ) : pathname !== '/' ? (
+            <Sidebar items={dashboardItems} />
+          ) : (
             <LandingSidebar />
-          ) : null}
+          )}
         </div>
 
-        {/* Main content area - full width on mobile, adjusted for sidebar on larger screens */}
+        {/* Main content area - properly positioned with responsive margin */}
         <main 
+          id="main-content"
           className={`
-            flex-1 min-h-screen w-full 
+            min-h-screen w-full overflow-x-hidden
             ${isDashboard 
-              ? 'md:max-w-[calc(100%-16rem)]' // 16rem = 256px sidebar width
-              : pathname !== '/' ? 'lg:max-w-[calc(100%-16rem)]' : ''
+              ? 'md:w-[calc(100%-16rem)] md:ml-64' // Adjust width to account for sidebar
+              : 'lg:w-[calc(100%-16rem)] lg:ml-64'
             }
           `}
+          role="main"
+          aria-label="Main content"
         >
-          {/* Mobile header spacing */}
-          <div className={`h-16 ${isDashboard ? 'md:hidden' : pathname !== '/' ? 'lg:hidden' : ''}`} />
+          {/* Mobile header spacing - only for non-homepage */}
+          {pathname !== '/' && (
+            <div className={`h-16 ${isDashboard ? 'md:hidden' : 'lg:hidden'}`} />
+          )}
           
-          {/* Back button */}
-          <BackButton />
+          {/* Back button - only for non-homepage */}
+          {pathname !== '/' && <BackButton />}
           
-          {/* Page content with proper padding */}
-          <div className="w-full px-4 pb-4 sm:px-6 md:px-8">
+          {/* Page content - conditional padding based on page type */}
+          <div className={pathname === '/' ? 'w-full' : 'w-full px-4 pb-4 sm:px-6 md:px-8'}>
             {children}
           </div>
         </main>
@@ -91,9 +119,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen w-full bg-[#141414]">
-      {/* Global Background with Fluid Gradients */}
-      <BackgroundCanvas intensity="medium" speed={0.8} opacity={0.8} />
+    <div className="relative min-h-screen w-full bg-[#141414]/95">
+      {/* Global Background with Fluid SVG Orbs */}
+      <BackgroundOrbs intensity="high" className="z-0" />
       
       {/* Main App Content */}
       <div className="relative z-10 w-full">

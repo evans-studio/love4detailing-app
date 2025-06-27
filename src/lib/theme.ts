@@ -89,11 +89,11 @@ export const themeVariants = {
     base: "inline-flex items-center justify-center font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
     
     variant: {
-      primary: "bg-deep-purple text-canvas-white hover:bg-deep-purple/90 shadow-lg hover:shadow-purple-glow",
-      secondary: "bg-true-black text-canvas-white border border-deep-purple hover:bg-deep-purple hover:text-canvas-white",
-      ghost: "text-canvas-white hover:bg-deep-purple/10 hover:text-deep-purple",
-      glass: "bg-true-black/50 backdrop-blur-sm text-canvas-white border border-deep-purple/30 hover:bg-deep-purple/20",
-      premium: "bg-gradient-to-r from-deep-purple to-rich-crimson text-canvas-white hover:shadow-purple-glow hover:scale-105",
+      primary: "bg-[#8A2B85] text-canvas-white hover:bg-[#8A2B85]/90 shadow-lg hover:shadow-purple-glow",
+      secondary: "bg-true-black text-canvas-white border border-[#8A2B85] hover:bg-[#8A2B85] hover:text-canvas-white",
+      ghost: "text-canvas-white hover:bg-[#8A2B85]/10 hover:text-[#8A2B85]",
+      glass: "bg-true-black/50 backdrop-blur-sm text-canvas-white border border-[#8A2B85]/30 hover:bg-[#8A2B85]/20",
+      premium: "bg-gradient-to-r from-[#8A2B85] to-rich-crimson text-canvas-white hover:shadow-purple-glow hover:scale-105",
     },
     
     size: {
@@ -108,10 +108,10 @@ export const themeVariants = {
     base: "rounded-lg border transition-all duration-300",
     
     variant: {
-      default: "bg-sidebar-bg border-deep-purple/20 text-primary-text shadow-sm hover:shadow-md",
-      glass: "bg-true-black/50 backdrop-blur-sm border-deep-purple/30 text-primary-text hover:shadow-purple-glow",
-      gradient: "bg-gradient-to-br from-sidebar-bg to-true-black border-deep-purple/40 text-primary-text",
-      elevated: "bg-sidebar-bg border-deep-purple/30 text-primary-text shadow-lg hover:shadow-purple-glow",
+      default: "bg-sidebar-bg border-[#8A2B85]/20 text-primary-text shadow-sm hover:shadow-md",
+      glass: "bg-true-black/50 backdrop-blur-sm border-[#8A2B85]/30 text-primary-text hover:shadow-purple-glow",
+      gradient: "bg-gradient-to-br from-sidebar-bg to-true-black border-[#8A2B85]/40 text-primary-text",
+      elevated: "bg-sidebar-bg border-[#8A2B85]/30 text-primary-text shadow-lg hover:shadow-purple-glow",
     }
   },
   
@@ -119,9 +119,9 @@ export const themeVariants = {
     base: "flex w-full rounded-md border px-3 py-2 text-sm transition-all duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
     
     variant: {
-      default: "bg-true-black border-stone-grey text-canvas-white placeholder:text-secondary-text focus:border-deep-purple focus:ring-deep-purple/20",
-      glass: "bg-true-black/50 backdrop-blur-sm border-deep-purple/30 text-canvas-white placeholder:text-secondary-text focus:border-deep-purple",
-      minimal: "bg-transparent border-transparent border-b-2 border-stone-grey rounded-none text-canvas-white placeholder:text-secondary-text focus:border-deep-purple",
+      default: "bg-true-black border-stone-grey text-canvas-white placeholder:text-secondary-text focus:border-[#8A2B85] focus:ring-[#8A2B85]/20",
+      glass: "bg-true-black/50 backdrop-blur-sm border-[#8A2B85]/30 text-canvas-white placeholder:text-secondary-text focus:border-[#8A2B85]",
+      minimal: "bg-transparent border-transparent border-b-2 border-stone-grey rounded-none text-canvas-white placeholder:text-secondary-text focus:border-[#8A2B85]",
     }
   },
   
@@ -130,7 +130,7 @@ export const themeVariants = {
       heading: "font-bold text-primary-text font-heading",
       body: "text-secondary-text font-body leading-relaxed",
       muted: "text-secondary-text/70 font-body",
-      accent: "text-deep-purple font-medium",
+      accent: "text-[#8A2B85] font-medium",
       contrast: "text-canvas-white font-body",
     },
     
@@ -149,10 +149,10 @@ export const themeVariants = {
 
 // Glassmorphism utility (dev-guidelines approved)
 export const glassmorphism = {
-  light: "bg-true-black/30 backdrop-blur-sm border border-deep-purple/20",
-  medium: "bg-true-black/50 backdrop-blur-md border border-deep-purple/30", 
-  heavy: "bg-true-black/70 backdrop-blur-lg border border-deep-purple/40",
-  modal: "bg-true-black/80 backdrop-blur-xl border border-deep-purple/50",
+  light: "bg-true-black/30 backdrop-blur-sm border border-[#8A2B85]/20",
+  medium: "bg-true-black/50 backdrop-blur-md border border-[#8A2B85]/30", 
+  heavy: "bg-true-black/70 backdrop-blur-lg border border-[#8A2B85]/40",
+  modal: "bg-true-black/80 backdrop-blur-xl border border-[#8A2B85]/50",
 }
 
 // Animation presets for GSAP (dev-guidelines compliant)

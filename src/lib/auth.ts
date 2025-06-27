@@ -8,6 +8,10 @@ export type AuthUser = {
   email: string
   full_name: string
   created_at: string
+  user_metadata?: {
+    avatar_url?: string
+    full_name?: string
+  }
 }
 
 export type AuthState = {
@@ -180,9 +184,14 @@ export async function signIn(email: string, password: string) {
 
     if (error) throw error
 
+    // Ensure we have a session
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      throw new Error('Failed to establish session')
+    }
+
     return { data, error: null }
   } catch (error) {
-    console.error('Error signing in:', error)
     return { 
       data: null, 
       error: error instanceof Error ? error : new Error('An unexpected error occurred') 
@@ -208,63 +217,85 @@ export function useAuth() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
+    let mounted = true
+
+    async function initializeAuth() {
+      try {
+        // Check for existing session
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!mounted) return
+
+        if (!session?.user) {
+          setAuthState({ user: null, isLoading: false })
+          return
+        }
+
         // Fetch user profile
-        supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single()
-          .then(({ data: profile, error }) => {
-            if (error) {
-              console.error('Error fetching profile:', error)
-            }
-            setAuthState({
-              user: profile,
-              isLoading: false,
-            })
-          })
-      } else {
+
+        if (!mounted) return
+
+        if (error) {
+          setAuthState({ user: null, isLoading: false })
+          return
+        }
+
         setAuthState({
-          user: null,
+          user: profile,
           isLoading: false,
         })
+      } catch (error) {
+        if (!mounted) return
+        setAuthState({ user: null, isLoading: false })
       }
-    })
+    }
 
+    // Initialize auth state
+    initializeAuth()
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (session?.user) {
-          // Fetch user profile from profiles table
+        if (!mounted) return
+
+        if (!session?.user) {
+          setAuthState({ user: null, isLoading: false })
+          return
+        }
+
+        try {
+          // Fetch user profile
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single()
 
+          if (!mounted) return
+
           if (error) {
-            console.error('Error fetching profile:', error)
+            setAuthState({ user: null, isLoading: false })
+            return
           }
 
           setAuthState({
             user: profile,
             isLoading: false,
           })
-        } else {
-          setAuthState({
-            user: null,
-            isLoading: false,
-          })
+        } catch (error) {
+          if (!mounted) return
+          setAuthState({ user: null, isLoading: false })
         }
-
-        // Refresh server-side data
-        router.refresh()
       }
     )
 
     return () => {
+      mounted = false
       subscription.unsubscribe()
     }
   }, [router])

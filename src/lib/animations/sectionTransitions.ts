@@ -11,6 +11,48 @@ try {
   console.warn('ScrollTrigger not available, animations will work without scroll triggers')
 }
 
+// Create wave divider between sections
+export const createWaveDivider = (section: HTMLElement, position: 'top' | 'bottom' = 'bottom') => {
+  const wave = document.createElement('div')
+  wave.className = 'gsap-wave-divider'
+  wave.innerHTML = `
+    <svg width="100%" height="60" viewBox="0 0 1200 60" preserveAspectRatio="none">
+      <path d="M0,30 Q300,0 600,30 T1200,30 L1200,60 L0,60 Z" 
+            fill="rgba(151, 71, 255, 0.1)" 
+            opacity="0.5">
+      </path>
+    </svg>
+  `
+  
+  wave.style.cssText = `
+    position: absolute;
+    ${position}: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    pointer-events: none;
+    z-index: 5;
+    transform: ${position === 'top' ? 'rotate(180deg)' : 'rotate(0deg)'};
+  `
+  
+  section.style.position = 'relative'
+  section.appendChild(wave)
+  
+  // Animate wave
+  const path = wave.querySelector('path')
+  if (path) {
+    gsap.to(path, {
+      attr: { d: "M0,30 Q450,10 600,30 T1200,30 L1200,60 L0,60 Z" },
+      duration: 8,
+      ease: easePresets.smooth,
+      repeat: -1,
+      yoyo: true
+    })
+  }
+  
+  return wave
+}
+
 export const initSectionTransitions = () => {
   // Section entrance animations with stagger
   const animateSectionEntrance = (selector: string, delay: number = 0) => {
@@ -58,48 +100,6 @@ export const initSectionTransitions = () => {
         )
       }
     })
-  }
-  
-  // Create wave divider between sections
-  const createWaveDivider = (section: HTMLElement, position: 'top' | 'bottom' = 'bottom') => {
-    const wave = document.createElement('div')
-    wave.className = 'gsap-wave-divider'
-    wave.innerHTML = `
-      <svg width="100%" height="60" viewBox="0 0 1200 60" preserveAspectRatio="none">
-        <path d="M0,30 Q300,0 600,30 T1200,30 L1200,60 L0,60 Z" 
-              fill="rgba(138, 43, 133, 0.1)" 
-              opacity="0.5">
-        </path>
-      </svg>
-    `
-    
-    wave.style.cssText = `
-      position: absolute;
-      ${position}: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      pointer-events: none;
-      z-index: 5;
-      transform: ${position === 'top' ? 'rotate(180deg)' : 'rotate(0deg)'};
-    `
-    
-    section.style.position = 'relative'
-    section.appendChild(wave)
-    
-    // Animate wave
-    const path = wave.querySelector('path')
-    if (path) {
-      gsap.to(path, {
-        attr: { d: "M0,30 Q450,10 600,30 T1200,30 L1200,60 L0,60 Z" },
-        duration: 8,
-        ease: easePresets.smooth,
-        repeat: -1,
-        yoyo: true
-      })
-    }
-    
-    return wave
   }
   
   // Staggered card animations
@@ -178,14 +178,6 @@ export const initSectionTransitions = () => {
     
     // Animate cards in grids
     animateCards('[class*="grid"]')
-    
-    // Add wave dividers to alternating sections
-    const sections = document.querySelectorAll('section')
-    sections.forEach((section, index) => {
-      if (index > 0 && index % 2 === 0) {
-        createWaveDivider(section as HTMLElement, 'top')
-      }
-    })
     
     // Animate headings with text reveal
     animateTextReveal('h1, h2')
