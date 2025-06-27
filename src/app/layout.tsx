@@ -1,3 +1,5 @@
+'use client'
+
 import type { Metadata, Viewport } from 'next'
 import '@mantine/core/styles.css'
 import './globals.css'
