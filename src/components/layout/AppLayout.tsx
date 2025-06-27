@@ -10,82 +10,118 @@ import { UserFeedbackForm } from '../feedback/UserFeedbackForm'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useState } from 'react'
 import { BackgroundOrbs } from '@/components/ui/BackgroundOrbs'
-import { Shield, Users, Calendar, Star, User, Home, FileText, LogOut } from 'lucide-react'
+import { Shield, Users, Calendar, Star, User, Home, FileText, LogOut, Menu } from 'lucide-react'
+import { responsiveClasses } from '@/lib/constants/breakpoints'
 
 const dashboardItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: <Home /> },
-  { href: '/dashboard/bookings', label: 'Bookings', icon: <Calendar /> },
-  { href: '/dashboard/profile', label: 'Profile', icon: <User /> },
-  { href: '/dashboard/rewards', label: 'Rewards', icon: <Star /> },
-  { href: '/dashboard/admin', label: 'Admin', icon: <Shield /> },
-  { href: '/dashboard/admin/customers', label: 'Customers', icon: <Users /> },
-  { href: '#', label: 'Sign Out', icon: <LogOut /> }
+  { href: '/dashboard', label: 'Dashboard', icon: <Home className="w-5 h-5" /> },
+  { href: '/dashboard/bookings', label: 'Bookings', icon: <Calendar className="w-5 h-5" /> },
+  { href: '/dashboard/profile', label: 'Profile', icon: <User className="w-5 h-5" /> },
+  { href: '/dashboard/rewards', label: 'Rewards', icon: <Star className="w-5 h-5" /> },
+  { href: '/dashboard/admin', label: 'Admin', icon: <Shield className="w-5 h-5" /> },
+  { href: '/dashboard/admin/customers', label: 'Customers', icon: <Users className="w-5 h-5" /> },
+  { href: '#', label: 'Sign Out', icon: <LogOut className="w-5 h-5" /> }
 ]
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { isCollapsed } = useSidebarContext()
+  const { isCollapsed, toggleCollapsed } = useSidebarContext()
   const pathname = usePathname()
-  
-  // Use dashboard sidebar for dashboard pages, landing sidebar for others
   const isDashboard = pathname.startsWith('/dashboard')
-  
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
   
   return (
     <div className="relative min-h-screen w-full">
-      {/* Skip Navigation Links */}
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-      {isDashboard || pathname !== '/' ? (
-        <a href="#navigation" className="skip-link">
-          Skip to navigation
+      {/* Skip Navigation Links - Improved accessibility */}
+      <div className="sr-only focus-within:not-sr-only">
+        <a href="#main-content" className="fixed top-2 left-2 z-50 bg-[#8A2B85] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8A2B85]">
+          Skip to main content
         </a>
-      ) : null}
+        {isDashboard || pathname !== '/' ? (
+          <a href="#navigation" className="fixed top-2 left-40 z-50 bg-[#8A2B85] text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8A2B85]">
+            Skip to navigation
+          </a>
+        ) : null}
+      </div>
       
-      {/* Mobile-first layout container */}
+      {/* Mobile Header - Always visible on mobile, hidden on desktop */}
+      <header className={`${responsiveClasses.nav} ${isDashboard ? 'md:hidden' : 'lg:hidden'} flex items-center justify-between px-4`}>
+        <button
+          onClick={toggleCollapsed}
+          className={responsiveClasses.touchTarget}
+          aria-label="Toggle navigation menu"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+        <div className="flex items-center space-x-4">
+          {/* Add any header content here */}
+        </div>
+      </header>
+
+      {/* Layout Container */}
       <div className="relative min-h-screen w-full">
-        {/* Single Sidebar Container - Fixed positioned for proper layout */}
-        <div className={`${isDashboard ? 'hidden md:block' : 'hidden lg:block'} fixed left-0 top-0 h-full z-30`}>
+        {/* Sidebar - Full screen on mobile when open, fixed on desktop */}
+        <nav 
+          id="navigation"
+          className={`
+            ${isCollapsed ? 'translate-x-[-100%]' : 'translate-x-0'}
+            ${isDashboard ? responsiveClasses.sidebar : responsiveClasses.sidebar}
+            transition-transform duration-200 ease-in-out
+            ${isDashboard ? 'md:translate-x-0' : 'lg:translate-x-0'}
+          `}
+          aria-label="Main navigation"
+        >
           {isDashboard ? (
             <Sidebar items={dashboardItems} />
           ) : (
             <LandingSidebar />
           )}
-        </div>
+        </nav>
 
-        {/* Main content area - properly positioned with responsive margin */}
+        {/* Main Content Area */}
         <main 
           id="main-content"
           className={`
-            min-h-screen w-full overflow-x-hidden
+            min-h-screen w-full overflow-x-hidden pt-16
             ${isDashboard 
-              ? 'md:w-[calc(100%-16rem)] md:ml-64' // Adjust width to account for sidebar
-              : 'lg:w-[calc(100%-16rem)] lg:ml-64'
+              ? 'md:pt-0 md:pl-[280px] lg:pl-[320px] xl:pl-[360px]' 
+              : 'lg:pt-0 lg:pl-[280px] xl:pl-[320px]'
             }
+            transition-all duration-200 ease-in-out
           `}
           role="main"
           aria-label="Main content"
         >
-          {/* Mobile header spacing - only for non-homepage */}
-          {pathname !== '/' && (
-            <div className={`h-16 ${isDashboard ? 'md:hidden' : 'lg:hidden'}`} />
-          )}
-          
           {/* Back button - only for non-homepage */}
           {pathname !== '/' && <BackButton />}
           
-          {/* Page content - conditional padding based on page type */}
-          <div className={pathname === '/' ? 'w-full' : 'w-full px-4 pb-4 sm:px-6 md:px-8'}>
+          {/* Page content with responsive padding */}
+          <div className={pathname === '/' ? 'w-full' : `${responsiveClasses.container}`}>
             {children}
           </div>
         </main>
+
+        {/* Backdrop for mobile sidebar */}
+        {!isCollapsed && (
+          <div 
+            className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-30 transition-opacity duration-200 
+              ${isDashboard ? 'md:hidden' : 'lg:hidden'}`}
+            onClick={toggleCollapsed}
+            aria-hidden="true"
+          />
+        )}
       </div>
 
-      {/* Feedback Button */}
+      {/* Feedback Button - Responsive positioning */}
       <button
         onClick={() => setIsFeedbackOpen(true)}
-        className="fixed bottom-4 right-4 z-50 bg-purple-600 text-white rounded-full p-4 shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+        className={`
+          fixed bottom-4 right-4 z-50 
+          ${responsiveClasses.touchTarget}
+          bg-[#8A2B85] text-white rounded-full shadow-lg 
+          hover:bg-[#8A2B85]/90 
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8A2B85]
+          transform hover:scale-105 active:scale-95 transition-all duration-200
+        `}
         aria-label="Open Feedback Form"
       >
         <svg
@@ -104,9 +140,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         </svg>
       </button>
 
-      {/* Feedback Modal */}
+      {/* Feedback Modal - Using responsive modal classes */}
       <Dialog open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className={responsiveClasses.modal}>
           <div className="relative">
             <UserFeedbackForm />
           </div>
@@ -119,8 +155,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen w-full bg-[#141414]/95">
-      {/* Global Background with Fluid SVG Orbs */}
-      <BackgroundOrbs intensity="high" className="z-0" />
+      {/* Global Background */}
+      <BackgroundOrbs intensity="high" className="fixed inset-0 z-0" />
       
       {/* Main App Content */}
       <div className="relative z-10 w-full">

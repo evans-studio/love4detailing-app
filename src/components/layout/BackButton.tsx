@@ -6,17 +6,19 @@ import { ArrowLeft, Home } from 'lucide-react'
 import { useSidebarContext } from './SidebarContext'
 import { cn } from '@/lib/utils'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { breakpoints } from '@/lib/constants/breakpoints'
+import { breakpoints, responsiveClasses } from '@/lib/constants/breakpoints'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const buttonVariants = {
   initial: { 
     opacity: 0,
-    scale: 0.9
+    scale: 0.9,
+    y: -10
   },
   animate: { 
     opacity: 1,
     scale: 1,
+    y: 0,
     transition: {
       duration: 0.2,
       ease: "easeOut"
@@ -25,6 +27,7 @@ const buttonVariants = {
   exit: { 
     opacity: 0,
     scale: 0.9,
+    y: -10,
     transition: {
       duration: 0.15,
       ease: "easeIn"
@@ -57,26 +60,15 @@ export default function BackButton() {
     router.push('/')
   }
 
-  const commonButtonClasses = cn(
-    "rounded-full",
-    "bg-[#141414]/90 backdrop-blur-sm",
-    "border-[#8A2B85]/20 text-[#F8F4EB]",
-    "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
-    "shadow-lg touch-target",
-    "min-h-[44px] min-w-[44px]",
-    "transition-all duration-200"
-  )
-
   return (
     <motion.div 
       className={cn(
-        "fixed z-30 flex gap-2",
-        "transition-all duration-300",
+        "fixed z-30 flex items-center gap-2 p-4",
         isDashboard 
-          ? "top-4 right-4" // Dashboard: always on right to avoid mobile menu button
+          ? "top-0 right-0 md:right-4 md:top-4" // Dashboard: always on right to avoid mobile menu button
           : isDesktop
-            ? "top-4 left-4" // Desktop landing: standard position
-            : "top-4 left-16" // Mobile landing: account for mobile menu button
+            ? "top-0 left-0 lg:left-4 lg:top-4" // Desktop landing: standard position
+            : "top-0 left-16 lg:left-4 lg:top-4" // Mobile landing: account for mobile menu button
       )}
       initial="initial"
       animate="animate"
@@ -88,10 +80,15 @@ export default function BackButton() {
           variant="outline"
           size="icon"
           onClick={handleBack}
-          className={commonButtonClasses}
+          className={cn(
+            responsiveClasses.touchTarget,
+            'bg-[#141414]/80 backdrop-blur-sm border-[#8A2B85]/20',
+            'text-white/80 hover:text-white hover:bg-[#8A2B85]/10',
+            'shadow-lg rounded-full transition-all duration-200'
+          )}
           title="Go Back"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
           <span className="sr-only">Go Back</span>
         </Button>
       </motion.div>
@@ -109,10 +106,15 @@ export default function BackButton() {
               variant="outline"
               size="icon"
               onClick={handleHome}
-              className={commonButtonClasses}
+              className={cn(
+                responsiveClasses.touchTarget,
+                'bg-[#141414]/80 backdrop-blur-sm border-[#8A2B85]/20',
+                'text-white/80 hover:text-white hover:bg-[#8A2B85]/10',
+                'shadow-lg rounded-full transition-all duration-200'
+              )}
               title="Go Home"
             >
-              <Home className="w-4 h-4" />
+              <Home className="w-5 h-5" />
               <span className="sr-only">Go Home</span>
             </Button>
           </motion.div>
