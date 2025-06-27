@@ -156,14 +156,58 @@ export const ServiceAreaMap = () => {
     isInRadius: boolean;
     location?: { lat: number; lng: number };
   } | null>(null)
+  const [apiKeyError, setApiKeyError] = useState(false)
+
+  useEffect(() => {
+    // Check if API key is available
+    if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+      setApiKeyError(true)
+      console.error('Google Maps API key is missing. Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env.local file.')
+    }
+  }, [])
 
   const handlePostcodeCheck = () => {
     // The actual check is handled in the MapComponent
     // This is just to trigger the useEffect
   }
 
+  if (apiKeyError) {
+    return (
+      <section className="min-h-[50vh] w-full flex items-center justify-center overflow-hidden py-16">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="bg-gradient-to-br from-[#141414]/25 to-[#1E1E1E]/25 backdrop-blur-md rounded-[1.25rem] p-12 border border-[#9747FF]/20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="text-center">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-[#F8F4EB]">
+                Service Areas
+              </h2>
+              <p className="text-lg text-[#F8F4EB]/80 max-w-2xl mx-auto mb-8">
+                We currently service South West London and surrounding areas within a 10-mile radius.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {serviceAreas.map((area) => (
+                  <Badge
+                    key={area}
+                    variant="outline"
+                    className="bg-[#141414]/40 text-[#F8F4EB] border-[#9747FF]/20"
+                  >
+                    {area}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    )
+  }
+
   return (
-    <section className="h-[100vh] w-full flex items-center justify-center overflow-hidden">
+    <section className="min-h-[100svh] w-full flex items-center justify-center overflow-hidden">
       <div className="w-full h-full flex items-center justify-center">
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div

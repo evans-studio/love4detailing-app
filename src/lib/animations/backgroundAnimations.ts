@@ -2,20 +2,24 @@ import { gsap } from 'gsap'
 import { easePresets } from './utils'
 
 export const initGSAPBackground = (container: HTMLElement) => {
+  if (!container) return
+
   // Clear any existing animations
   gsap.killTweensOf(container.querySelectorAll('.gsap-particle, .gsap-glow, .gsap-ambient'))
   
   // Create premium ambient orbs with reduced blur and brand colors
   const createAmbientOrbs = () => {
-    const orbCount = 4 // Reduced for cleaner look
+    // Reduce number of orbs on mobile
+    const isMobile = window.innerWidth < 768
+    const orbCount = isMobile ? 2 : 4
     const orbs: HTMLElement[] = []
     
     // Fixed positions optimized for premium feel
     const orbConfigs = [
-      { size: 320, left: 15, top: 20 },
-      { size: 280, left: 75, top: 30 },
-      { size: 350, left: 45, top: 65 },
-      { size: 300, left: 85, top: 75 }
+      { size: isMobile ? 160 : 320, left: 15, top: 20 },
+      { size: isMobile ? 140 : 280, left: 75, top: 30 },
+      { size: isMobile ? 175 : 350, left: 45, top: 65 },
+      { size: isMobile ? 150 : 300, left: 85, top: 75 }
     ]
     
     for (let i = 0; i < orbCount; i++) {
@@ -30,7 +34,7 @@ export const initGSAPBackground = (container: HTMLElement) => {
         border-radius: 50%;
         pointer-events: none;
         z-index: 1;
-        filter: blur(20px);
+        filter: blur(${isMobile ? '10px' : '20px'});
         will-change: transform, opacity;
         transform: translate3d(0, 0, 0);
         left: ${config.left}%;
@@ -46,7 +50,9 @@ export const initGSAPBackground = (container: HTMLElement) => {
   
   // Create elegant floating particles with crisp rendering
   const createFloatingParticles = () => {
-    const particleCount = 8 // Reduced for premium, clean look
+    // Reduce particles on mobile
+    const isMobile = window.innerWidth < 768
+    const particleCount = isMobile ? 4 : 8
     const particles: HTMLElement[] = []
     
     // Optimized positions for elegant distribution
@@ -89,13 +95,15 @@ export const initGSAPBackground = (container: HTMLElement) => {
   
   // Create premium glow effects with minimal blur
   const createGlowEffects = () => {
-    const glowCount = 2 // Reduced for cleaner premium look
+    // Reduce glows on mobile
+    const isMobile = window.innerWidth < 768
+    const glowCount = isMobile ? 1 : 2
     const glows: HTMLElement[] = []
     
     // Strategic positioning for depth
     const glowConfigs = [
-      { size: 500, left: 25, top: 35 },
-      { size: 450, left: 70, top: 60 }
+      { size: isMobile ? 250 : 500, left: 25, top: 35 },
+      { size: isMobile ? 225 : 450, left: 70, top: 60 }
     ]
     
     for (let i = 0; i < glowCount; i++) {
@@ -110,7 +118,7 @@ export const initGSAPBackground = (container: HTMLElement) => {
         border-radius: 50%;
         pointer-events: none;
         z-index: 1;
-        filter: blur(30px);
+        filter: blur(${isMobile ? '15px' : '30px'});
         will-change: transform, opacity;
         transform: translate3d(0, 0, 0);
         left: ${config.left}%;
@@ -129,45 +137,45 @@ export const initGSAPBackground = (container: HTMLElement) => {
   const particles = createFloatingParticles()
   const glows = createGlowEffects()
   
+  // Slower animations on mobile for better performance
+  const isMobile = window.innerWidth < 768
+  const durationMultiplier = isMobile ? 1.5 : 1
+  
   // Premium animation configurations - slower, more elegant
   const orbAnimations = [
-    { x: 120, y: -80, duration: 40, opacity: 0.6, opacityDuration: 15 },
-    { x: -100, y: 140, duration: 50, opacity: 0.5, opacityDuration: 18 },
-    { x: 150, y: 100, duration: 45, opacity: 0.7, opacityDuration: 12 },
-    { x: -130, y: -90, duration: 55, opacity: 0.4, opacityDuration: 20 }
+    { x: 60, y: -40, duration: 40 * durationMultiplier, opacity: 0.6, opacityDuration: 15 * durationMultiplier },
+    { x: -50, y: 70, duration: 50 * durationMultiplier, opacity: 0.5, opacityDuration: 18 * durationMultiplier },
+    { x: 75, y: 50, duration: 45 * durationMultiplier, opacity: 0.7, opacityDuration: 12 * durationMultiplier },
+    { x: -65, y: -45, duration: 55 * durationMultiplier, opacity: 0.4, opacityDuration: 20 * durationMultiplier }
   ]
   
   const particleAnimations = [
-    { x: 150, y: -120, duration: 60, opacity: 0.6, opacityDuration: 8 },
-    { x: -120, y: 180, duration: 70, opacity: 0.5, opacityDuration: 10 },
-    { x: 180, y: 140, duration: 65, opacity: 0.7, opacityDuration: 7 },
-    { x: -160, y: -140, duration: 75, opacity: 0.4, opacityDuration: 12 },
-    { x: 140, y: 160, duration: 68, opacity: 0.6, opacityDuration: 9 },
-    { x: -140, y: 120, duration: 72, opacity: 0.5, opacityDuration: 11 },
-    { x: 120, y: -100, duration: 63, opacity: 0.7, opacityDuration: 8 },
-    { x: -100, y: 100, duration: 77, opacity: 0.4, opacityDuration: 10 }
+    { x: 75, y: -60, duration: 60 * durationMultiplier, opacity: 0.6, opacityDuration: 8 * durationMultiplier },
+    { x: -60, y: 90, duration: 70 * durationMultiplier, opacity: 0.5, opacityDuration: 10 * durationMultiplier },
+    { x: 90, y: 70, duration: 65 * durationMultiplier, opacity: 0.7, opacityDuration: 7 * durationMultiplier },
+    { x: -80, y: -70, duration: 75 * durationMultiplier, opacity: 0.4, opacityDuration: 12 * durationMultiplier }
   ]
   
   const glowAnimations = [
-    { x: 80, y: -60, duration: 80, opacity: 0.5, opacityDuration: 25 },
-    { x: -90, y: 70, duration: 85, opacity: 0.6, opacityDuration: 30 }
+    { x: 40, y: -30, duration: 80 * durationMultiplier, opacity: 0.5, opacityDuration: 25 * durationMultiplier },
+    { x: -45, y: 35, duration: 85 * durationMultiplier, opacity: 0.6, opacityDuration: 30 * durationMultiplier }
   ]
   
-  // Animate ambient orbs - slow, elegant movement
+  // Animate ambient orbs with reduced movement on mobile
   orbs.forEach((orb, index) => {
+    if (!orb) return
     const config = orbAnimations[index]
     
     gsap.to(orb, {
       x: `+=${config.x}`,
       y: `+=${config.y}`,
       duration: config.duration,
-      ease: "power1.inOut", // Smoother easing
+      ease: "power1.inOut",
       repeat: -1,
       yoyo: true,
-      delay: index * 3 // Increased delay for more elegant staggering
+      delay: index * 3
     })
     
-    // Gentle opacity pulse
     gsap.to(orb, {
       opacity: config.opacity,
       duration: config.opacityDuration,
@@ -178,21 +186,21 @@ export const initGSAPBackground = (container: HTMLElement) => {
     })
   })
   
-  // Animate floating particles - gentle, premium drift
+  // Animate floating particles with reduced movement
   particles.forEach((particle, index) => {
-    const config = particleAnimations[index]
+    if (!particle) return
+    const config = particleAnimations[index % particleAnimations.length]
     
     gsap.to(particle, {
       x: `+=${config.x}`,
       y: `+=${config.y}`,
       duration: config.duration,
-      ease: "none", // Linear for continuous drift
+      ease: "none",
       repeat: -1,
       yoyo: true,
       delay: index * 4
     })
     
-    // Subtle twinkling effect
     gsap.to(particle, {
       opacity: config.opacity,
       duration: config.opacityDuration,
@@ -202,7 +210,6 @@ export const initGSAPBackground = (container: HTMLElement) => {
       delay: index * 1.5
     })
     
-    // Gentle scale variation
     gsap.to(particle, {
       scale: 1.3,
       duration: config.opacityDuration * 2,
@@ -213,8 +220,9 @@ export const initGSAPBackground = (container: HTMLElement) => {
     })
   })
   
-  // Animate glow effects - very slow, ambient movement
+  // Animate glow effects with reduced movement
   glows.forEach((glow, index) => {
+    if (!glow) return
     const config = glowAnimations[index]
     
     gsap.to(glow, {
@@ -227,7 +235,6 @@ export const initGSAPBackground = (container: HTMLElement) => {
       delay: index * 5
     })
     
-    // Very subtle opacity variation
     gsap.to(glow, {
       opacity: config.opacity,
       duration: config.opacityDuration,
@@ -238,12 +245,29 @@ export const initGSAPBackground = (container: HTMLElement) => {
     })
   })
   
+  // Handle window resize
+  const handleResize = () => {
+    // Kill all animations
+    gsap.killTweensOf([...orbs, ...particles, ...glows])
+    
+    // Remove existing elements
+    orbs.forEach(orb => orb?.remove())
+    particles.forEach(particle => particle?.remove())
+    glows.forEach(glow => glow?.remove())
+    
+    // Reinitialize with new sizes
+    initGSAPBackground(container)
+  }
+  
+  window.addEventListener('resize', handleResize)
+  
   // Cleanup function
   return () => {
+    window.removeEventListener('resize', handleResize)
     gsap.killTweensOf([...orbs, ...particles, ...glows])
-    orbs.forEach(orb => orb.remove())
-    particles.forEach(particle => particle.remove())
-    glows.forEach(glow => glow.remove())
+    orbs.forEach(orb => orb?.remove())
+    particles.forEach(particle => particle?.remove())
+    glows.forEach(glow => glow?.remove())
   }
 }
 
