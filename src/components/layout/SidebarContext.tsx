@@ -45,4 +45,7 @@ export function useSidebarContext() {
     throw new Error('useSidebarContext must be used within a SidebarProvider')
   }
   return context
-} 
+}
+
+// Alias for backward compatibility
+export const useSidebar = useSidebarContext 

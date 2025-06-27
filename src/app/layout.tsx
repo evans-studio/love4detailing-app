@@ -7,6 +7,7 @@ import { SupabaseProvider } from '@/components/providers/SupabaseProvider'
 import { MantineProvider } from '@/components/providers/MantineProvider'
 import AppLayout from '@/components/layout/AppLayout'
 import { Inter } from 'next/font/google'
+import { useEffect } from 'react'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -36,6 +37,27 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('Debug Info:', {
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          visualViewport: window.visualViewport ? {
+            width: window.visualViewport.width,
+            height: window.visualViewport.height,
+            offsetTop: window.visualViewport.offsetTop,
+            offsetLeft: window.visualViewport.offsetLeft,
+            scale: window.visualViewport.scale,
+          } : 'Not supported',
+        },
+        userAgent: window.navigator.userAgent,
+        platform: window.navigator.platform,
+        safeAreaInsets: getComputedStyle(document.documentElement).getPropertyValue('--sat'),
+      });
+    }
+  }, []);
+
   return (
     <html lang="en" className={cn(
       "dark",
