@@ -1,33 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { initGSAP } from '@/lib/utils/clientInit';
-import type { ClientProviderProps } from '@/types';
-import { mapsConfig } from '@/lib/utils/clientInit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { Toaster } from '@/components/ui/toaster'
+import { ErrorBoundary } from 'react-error-boundary'
+import { ErrorFallback } from '@/components/ui/error-fallback'
 
-// Import polyfills
-import '@/lib/polyfills/browser-polyfills';
+export function ClientProvider({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+        retry: 1,
+      },
+    },
+  }))
 
-// Dynamically import the Google Maps LoadScript component
-const LoadScript = dynamic(
-  () => import('@react-google-maps/api').then((mod) => mod.LoadScript),
-  { ssr: false }
-);
-
-export function ClientProvider({ children }: ClientProviderProps) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-    
-    // Initialize GSAP
-    initGSAP();
-  }, []);
-
-  if (!isClient) {
-    return null;
-  }
-
-  return children;
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <Toaster />
+      </QueryClientProvider>
+    </ErrorBoundary>
+  )
 } 
