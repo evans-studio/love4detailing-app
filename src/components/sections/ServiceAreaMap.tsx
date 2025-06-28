@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Search, CheckCircle, XCircle } from 'lucide-react'
+import { MapPin, Search, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { GoogleMap, Circle, Marker, LoadScript, Libraries } from '@react-google-maps/api'
 
@@ -35,6 +35,7 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
   onSearchResult: (result: { isInRadius: boolean; location?: { lat: number; lng: number } } | null) => void;
 }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const geocoderRef = useRef<google.maps.Geocoder | null>(null)
 
   const onLoad = useCallback((map: google.maps.Map) => {
@@ -54,6 +55,7 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
     if (!geocoderRef.current || !postcode) return
 
     const checkPostcode = async () => {
+      setIsLoading(true)
       try {
         const results = await geocoderRef.current?.geocode({
           address: postcode + ', London, UK'
@@ -87,6 +89,8 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
       } catch (error) {
         console.error('Error checking postcode:', error)
         onSearchResult(null)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -95,58 +99,67 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
   }, [postcode, map, onSearchResult])
 
   return (
-    <GoogleMap
-      mapContainerStyle={mapContainerStyle}
-      center={SERVICE_CENTER}
-      zoom={11}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
-      options={{
-        disableDefaultUI: true,
-        zoomControl: true,
-        styles: [
-          {
-            featureType: 'all',
-            elementType: 'all',
-            stylers: [
-              { saturation: -100 },
-              { lightness: -10 }
-            ]
-          },
-          {
-            featureType: 'water',
-            elementType: 'geometry',
-            stylers: [
-              { color: '#141414' }
-            ]
-          }
-        ]
-      }}
-    >
-      {/* Service Area Circle */}
-      <Circle
+    <div className="relative">
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
         center={SERVICE_CENTER}
-        radius={RADIUS_IN_MILES * METERS_PER_MILE}
+        zoom={11}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
         options={{
-          fillColor: '#9747FF',
-          fillOpacity: 0.1,
-          strokeColor: '#9747FF',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
+          disableDefaultUI: true,
+          zoomControl: true,
+          styles: [
+            {
+              featureType: 'all',
+              elementType: 'all',
+              stylers: [
+                { saturation: -100 },
+                { lightness: -10 }
+              ]
+            },
+            {
+              featureType: 'water',
+              elementType: 'geometry',
+              stylers: [
+                { color: '#141414' }
+              ]
+            }
+          ]
         }}
-      />
-
-      {/* Search Result Marker */}
-      {searchResult?.location && (
-        <Marker
-          position={searchResult.location}
-          icon={{
-            url: searchResult.isInRadius ? '/assets/marker-in-range.svg' : '/assets/marker-out-range.svg',
-            scaledSize: new google.maps.Size(40, 40)
+      >
+        {/* Service Area Circle */}
+        <Circle
+          center={SERVICE_CENTER}
+          radius={RADIUS_IN_MILES * METERS_PER_MILE}
+          options={{
+            fillColor: '#9747FF',
+            fillOpacity: 0.1,
+            strokeColor: '#9747FF',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
           }}
         />
+
+        {/* Search Result Marker */}
+        {searchResult?.location && (
+          <Marker
+            position={searchResult.location}
+            icon={{
+              url: searchResult.isInRadius ? '/assets/marker-in-range.svg' : '/assets/marker-out-range.svg',
+              scaledSize: new google.maps.Size(40, 40)
+            }}
+          />
+        )}
+      </GoogleMap>
+      
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-[1.25rem]">
+          <Loader2 className="w-8 h-8 text-[#9747FF] animate-spin" />
+        </div>
       )}
-    </GoogleMap>
+    </div>
   )
 }
 
@@ -156,6 +169,7 @@ export const ServiceAreaMap = () => {
     isInRadius: boolean;
     location?: { lat: number; lng: number };
   } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [apiKeyError, setApiKeyError] = useState(false)
 
   useEffect(() => {
@@ -164,6 +178,7 @@ export const ServiceAreaMap = () => {
       setApiKeyError(true)
       console.error('Google Maps API key is missing. Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env.local file.')
     }
+    setIsLoading(false)
   }, [])
 
   const handlePostcodeCheck = () => {
@@ -278,16 +293,22 @@ export const ServiceAreaMap = () => {
 
             {/* Google Map */}
             <div className="mb-8 rounded-[1.25rem] overflow-hidden border border-[#9747FF]/20">
-              <LoadScript
-                googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
-                libraries={libraries}
-              >
-                <MapComponent
-                  postcode={postcode}
-                  searchResult={searchResult}
-                  onSearchResult={setSearchResult}
-                />
-              </LoadScript>
+              {isLoading ? (
+                <div className="w-full h-[400px] rounded-[1.25rem] bg-[#141414]/40 flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 text-[#9747FF] animate-spin" />
+                </div>
+              ) : (
+                <LoadScript
+                  googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
+                  libraries={libraries}
+                >
+                  <MapComponent
+                    postcode={postcode}
+                    searchResult={searchResult}
+                    onSearchResult={setSearchResult}
+                  />
+                </LoadScript>
+              )}
             </div>
 
             {/* Service Areas */}

@@ -46,6 +46,8 @@ import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
 import { VehicleSearchResult, LicensePlateResult } from '@/lib/utils/vehicleDatabase'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import { AddressInput } from './AddressInput'
+import { Label } from '@/components/ui/label'
 
 const vehicleSizes = {
   small: { label: 'Small Vehicle', description: 'Fiesta, Polo, Mini, Corsa', price: 55 },
@@ -69,6 +71,13 @@ const formSchema = z.object({
   timeSlot: z.string().min(1, 'Please select a time slot'),
   addOns: z.array(z.string()),
   vehicleImages: z.array(z.string()).max(3, 'Maximum 3 images allowed').optional(),
+  address: z.string().min(1, 'Please enter your address'),
+  phone: z.string().regex(/^[0-9]{10}$/, 'Invalid phone number'),
+  requiresManualApproval: z.boolean().optional(),
+  distance: z.object({
+    miles: z.number().min(0, 'Invalid distance'),
+    text: z.string().min(1, 'Invalid distance text'),
+  }).optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -97,6 +106,30 @@ export default function BookingForm() {
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null)
   const [vehicleData, setVehicleData] = useState<VehicleSearchResult | LicensePlateResult | null>(null)
   const [autoDetectedSize, setAutoDetectedSize] = useState<string | null>(null)
+  const [formData, setFormData] = useState<FormData>({
+    fullName: '',
+    email: '',
+    postcode: '',
+    vehicleLookup: '',
+    vehicleSize: 'small' as const,
+    date: '',
+    timeSlot: '',
+    addOns: [],
+    vehicleImages: [],
+    address: '',
+    phone: '',
+    requiresManualApproval: false,
+    distance: undefined,
+  })
+  const [isAddressValid, setIsAddressValid] = useState(false)
+  const [distanceResult, setDistanceResult] = useState<{
+    isWithinRange: boolean
+    requiresManualApproval: boolean
+    distance?: {
+      miles: number
+      text: string
+    }
+  } | null>(null)
 
   // Redirect authenticated users to dashboard booking form
   useEffect(() => {
@@ -116,11 +149,15 @@ export default function BookingForm() {
       email: '',
       postcode: '',
       vehicleLookup: '',
-      vehicleSize: undefined,
+      vehicleSize: 'small' as const,
       date: '',
       timeSlot: '',
       addOns: [],
       vehicleImages: [],
+      address: '',
+      phone: '',
+      requiresManualApproval: false,
+      distance: undefined,
     },
   })
 
@@ -271,7 +308,11 @@ export default function BookingForm() {
         status: 'pending',
         payment_status: 'pending',
         booking_reference: bookingRef,
-        user_id: user?.id || null
+        user_id: user?.id || null,
+        address: data.address,
+        phone: data.phone,
+        requires_manual_approval: data.requiresManualApproval,
+        distance: data.distance,
       }
 
       const response = await fetch('/api/bookings', {
@@ -300,7 +341,7 @@ export default function BookingForm() {
         total: totalPrice,
         status: 'pending',
         created_at: new Date().toISOString(),
-        notes: `Vehicle Size: ${data.vehicleSize}\\nAdd-ons: ${data.addOns.join(', ')}\\nPreferred Date: ${data.date}\\nPreferred Time: ${data.timeSlot}`
+        notes: `Vehicle Size: ${data.vehicleSize}\\nAdd-ons: ${data.addOns.join(', ')}\\nPreferred Date: ${data.date}\\nPreferred Time: ${data.timeSlot}\\nAddress: ${data.address}\\nPhone: ${data.phone}`
       }
       
       // Clear any existing booking data first
@@ -391,7 +432,7 @@ export default function BookingForm() {
       const values = form.getValues()
       switch (stepIndex) {
         case 0: // Details
-          return !!(values.fullName && (user?.email || values.email) && values.postcode)
+          return !!(values.fullName && (user?.email || values.email) && values.postcode && values.address && values.phone)
         case 1: // Service
           return !!(values.vehicleLookup && values.vehicleSize)
         case 2: // DateTime
@@ -634,6 +675,49 @@ export default function BookingForm() {
                               Travel fee: £{travelFee}
                             </Badge>
                           )}
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#F8F4EB]">Address</FormLabel>
+                          <FormControl>
+                            <AddressInput
+                              value={field.value}
+                              onChange={(value) => field.onChange(value)}
+                              onValidationChange={setIsAddressValid}
+                              onDistanceCheck={setDistanceResult}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-400" />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#F8F4EB]">Phone</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              placeholder="Enter your phone number"
+                              {...field}
+                              className={cn(
+                                "bg-[#1E1E1E]/50 border-[#8A2B85]/20",
+                                "text-[#F8F4EB] placeholder:text-[#C7C7C7]",
+                                "h-11 touch-target"
+                              )}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-400" />
                         </FormItem>
                       )}
                     />

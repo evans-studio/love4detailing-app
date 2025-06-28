@@ -24,44 +24,27 @@ type DistanceResponse = {
 
 export async function calculateTravelFee(postcode: string): Promise<number> {
   try {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    if (!apiKey) {
-      console.error('Google Maps API key not found')
-      return 0
+    const response = await fetch('/api/calculate-distance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ postcode }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to calculate distance')
     }
 
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/distancematrix/json?origins=SW9&destinations=${encodeURIComponent(
-        postcode
-      )}&key=${apiKey}`
-    )
-
-    const data: DistanceResponse = await response.json()
-
-    if (
-      data.status === 'OK' &&
-      data.rows[0]?.elements[0]?.status === 'OK'
-    ) {
-      const distanceInMiles = data.rows[0].elements[0].distance.value / 1609.34 // Convert meters to miles
-
-      if (distanceInMiles <= 10) {
-        return 0
-      } else if (distanceInMiles <= 15) {
-        return 10
-      } else if (distanceInMiles <= 20) {
-        return 15
-      } else {
-        return 20
-      }
-    }
-
-    return 0
+    const data = await response.json()
+    return data.fee
   } catch (error) {
     console.error('Error calculating travel fee:', error)
     return 0
   }
 }
 
+// Helper functions for direct distance calculations if needed
 function calculateDistance(
   lat1: number,
   lon1: number,
