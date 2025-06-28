@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { useProtectedRoute } from '@/lib/auth'
+import { useAdminRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import AdminControlPanel from '@/components/admin/AdminControlPanel'
@@ -110,17 +110,17 @@ interface AdminStats {
 
 const LoadingSkeleton = () => (
   <div className="space-y-6 sm:space-y-8">
-    <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+    <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20">
       <CardHeader>
-        <div className="h-6 bg-[#8A2B85]/10 rounded animate-pulse" />
+        <div className="h-6 bg-[#9747FF]/10 rounded animate-pulse" />
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="bg-[#1E1E1E]/80 border-[#8A2B85]/20">
+            <Card key={i} className="bg-[#1E1E1E]/80 border-[#9747FF]/20">
               <CardContent className="pt-6">
-                <div className="h-8 bg-[#8A2B85]/10 rounded animate-pulse mb-2" />
-                <div className="h-4 bg-[#8A2B85]/10 rounded animate-pulse" />
+                <div className="h-8 bg-[#9747FF]/10 rounded animate-pulse mb-2" />
+                <div className="h-4 bg-[#9747FF]/10 rounded animate-pulse" />
               </CardContent>
             </Card>
           ))}
@@ -131,7 +131,7 @@ const LoadingSkeleton = () => (
 )
 
 export default function AdminDashboard() {
-  const { user, isLoading: authLoading } = useProtectedRoute()
+  const { user, isLoading: authLoading, isAdmin } = useAdminRoute()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
   const [stats, setStats] = useState<AdminStats>({
@@ -461,7 +461,7 @@ export default function AdminDashboard() {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="grid gap-4 grid-cols-2 lg:grid-cols-4"
       >
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+        <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4 text-blue-500" />
@@ -473,7 +473,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+        <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4 text-green-500" />
@@ -485,10 +485,10 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+        <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-[#8A2B85]" />
+              <Users className="h-4 w-4 text-[#9747FF]" />
               <div>
                 <div className="text-2xl font-bold text-[#F8F4EB]">{stats.totalCustomers}</div>
                 <p className="text-xs text-[#C7C7C7]">Customers</p>
@@ -497,7 +497,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm touch-target min-h-[88px]">
+        <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20 backdrop-blur-sm touch-target min-h-[88px]">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
               <Activity className="h-4 w-4 text-yellow-500" />
@@ -517,11 +517,11 @@ export default function AdminDashboard() {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <Tabs defaultValue="bookings" className="w-full">
-          <TabsList className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 mb-6">
+          <TabsList className="bg-[#1E1E1E]/80 border-[#9747FF]/20 mb-6">
             <TabsTrigger 
               value="bookings"
               className={cn(
-                "data-[state=active]:bg-[#8A2B85]/10",
+                "data-[state=active]:bg-[#9747FF]/10",
                 "data-[state=active]:text-[#F8F4EB]",
                 "touch-target min-h-[44px]"
               )}
@@ -533,7 +533,7 @@ export default function AdminDashboard() {
             <TabsTrigger 
               value="customers"
               className={cn(
-                "data-[state=active]:bg-[#8A2B85]/10",
+                "data-[state=active]:bg-[#9747FF]/10",
                 "data-[state=active]:text-[#F8F4EB]",
                 "touch-target min-h-[44px]"
               )}
@@ -545,7 +545,7 @@ export default function AdminDashboard() {
             <TabsTrigger 
               value="analytics"
               className={cn(
-                "data-[state=active]:bg-[#8A2B85]/10",
+                "data-[state=active]:bg-[#9747FF]/10",
                 "data-[state=active]:text-[#F8F4EB]",
                 "touch-target min-h-[44px]"
               )}
@@ -557,7 +557,7 @@ export default function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="bookings">
-            <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
+            <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20 backdrop-blur-sm">
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardTitle className="text-lg text-[#F8F4EB]">Recent Bookings</CardTitle>
                 <div className="flex items-center gap-2">
@@ -567,7 +567,7 @@ export default function AdminDashboard() {
                   >
                     <SelectTrigger 
                       className={cn(
-                        "bg-[#1E1E1E]/50 border-[#8A2B85]/20",
+                        "bg-[#1E1E1E]/50 border-[#9747FF]/20",
                         "text-[#F8F4EB]",
                         "h-11 touch-target"
                       )}
@@ -575,7 +575,7 @@ export default function AdminDashboard() {
                       <Filter className="mr-2 h-4 w-4" />
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1E1E1E] border-[#8A2B85]/20">
+                    <SelectContent className="bg-[#1E1E1E] border-[#9747FF]/20">
                       <SelectItem value="all">All Bookings</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="confirmed">Confirmed</SelectItem>
@@ -594,7 +594,7 @@ export default function AdminDashboard() {
                         key={booking.id}
                         className={cn(
                           "block relative p-4 rounded-lg",
-                          "border-2 border-[#8A2B85]/20",
+                          "border-2 border-[#9747FF]/20",
                           "bg-[#1E1E1E]/50",
                           "transition-all duration-200",
                           "touch-target min-h-[88px]"
@@ -632,22 +632,22 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <span className="text-lg font-bold text-[#8A2B85]">£{booking.total_price}</span>
+                            <span className="text-lg font-bold text-[#9747FF]">£{booking.total_price}</span>
                             <Sheet>
                               <SheetTrigger asChild>
                                 <Button
                                   variant="outline"
                                   size="icon"
                                   className={cn(
-                                    "border-[#8A2B85]/20",
-                                    "hover:bg-[#8A2B85]/10",
+                                    "border-[#9747FF]/20",
+                                    "hover:bg-[#9747FF]/10",
                                     "touch-target min-h-[44px] min-w-[44px]"
                                   )}
                                 >
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </SheetTrigger>
-                              <SheetContent className="bg-[#1E1E1E] border-[#8A2B85]/20">
+                              <SheetContent className="bg-[#1E1E1E] border-[#9747FF]/20">
                                 <SheetHeader>
                                   <SheetTitle className="text-[#F8F4EB]">Booking Details</SheetTitle>
                                 </SheetHeader>
@@ -666,7 +666,7 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="customers">
-            <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
+            <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-lg text-[#F8F4EB]">Customer List</CardTitle>
               </CardHeader>
@@ -677,7 +677,7 @@ export default function AdminDashboard() {
                       key={customer.id}
                       className={cn(
                         "block relative p-4 rounded-lg",
-                        "border-2 border-[#8A2B85]/20",
+                        "border-2 border-[#9747FF]/20",
                         "bg-[#1E1E1E]/50",
                         "transition-all duration-200",
                         "touch-target min-h-[88px]",
@@ -689,7 +689,7 @@ export default function AdminDashboard() {
                         <div className="flex items-center gap-4">
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={customer.profile_image_url} />
-                            <AvatarFallback className="bg-[#8A2B85]/10 text-[#8A2B85]">
+                            <AvatarFallback className="bg-[#9747FF]/10 text-[#9747FF]">
                               {customer.full_name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
@@ -711,7 +711,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-right">
-                            <div className="text-lg font-bold text-[#8A2B85]">£{customer.total_spent}</div>
+                            <div className="text-lg font-bold text-[#9747FF]">£{customer.total_spent}</div>
                             <p className="text-xs text-[#C7C7C7]">{customer.total_bookings} bookings</p>
                           </div>
                           <ChevronRight className="h-4 w-4 text-[#C7C7C7]" />
@@ -725,13 +725,13 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <Card className="bg-[#1E1E1E]/80 border-[#8A2B85]/20 backdrop-blur-sm">
+            <Card className="bg-[#1E1E1E]/80 border-[#9747FF]/20 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-lg text-[#F8F4EB]">Business Analytics</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                  <Card className="bg-[#1E1E1E]/50 border-[#9747FF]/20">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-2">
                         <PoundSterling className="h-4 w-4 text-green-500" />
@@ -743,7 +743,7 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                  <Card className="bg-[#1E1E1E]/50 border-[#9747FF]/20">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-blue-500" />
@@ -755,10 +755,10 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                  <Card className="bg-[#1E1E1E]/50 border-[#9747FF]/20">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-2">
-                        <UserCheck className="h-4 w-4 text-[#8A2B85]" />
+                        <UserCheck className="h-4 w-4 text-[#9747FF]" />
                         <div>
                           <div className="text-2xl font-bold text-[#F8F4EB]">{stats.newCustomersThisMonth}</div>
                           <p className="text-xs text-[#C7C7C7]">New Customers</p>
@@ -767,7 +767,7 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-[#1E1E1E]/50 border-[#8A2B85]/20">
+                  <Card className="bg-[#1E1E1E]/50 border-[#9747FF]/20">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-yellow-500" />
@@ -791,7 +791,7 @@ export default function AdminDashboard() {
 
       {/* Customer Profile Modal */}
       <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
-        <DialogContent className="bg-[#1E1E1E] border-[#8A2B85]/20 max-w-2xl">
+        <DialogContent className="bg-[#1E1E1E] border-[#9747FF]/20 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-[#F8F4EB]">Customer Profile</DialogTitle>
           </DialogHeader>
