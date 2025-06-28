@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { initGSAP } from '@/lib/utils/clientInit';
 import type { ClientProviderProps } from '@/types';
@@ -15,11 +15,17 @@ const LoadScript = dynamic(
 );
 
 export function ClientProvider({ children }: ClientProviderProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   useEffect(() => {
     let cleanup: (() => void) | undefined;
 
     // Initialize GSAP only in browser environment
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isClient) {
       // Ensure global objects are available
       if (!window.self) {
         window.self = window;
@@ -27,33 +33,42 @@ export function ClientProvider({ children }: ClientProviderProps) {
 
       // Initialize GSAP
       const init = async () => {
-        cleanup = await initGSAP();
+        try {
+          cleanup = await initGSAP();
+        } catch (error) {
+          console.error('Failed to initialize GSAP:', error);
+        }
       };
 
-      init().catch(console.error);
+      init();
     }
 
     return () => {
       cleanup?.();
     };
-  }, []);
+  }, [isClient]);
 
-  // Only render LoadScript in browser environment
-  if (typeof window === 'undefined') {
-    return <>{children}</>;
+  // Prevent hydration mismatch by not rendering until client-side
+  if (!isClient) {
+    return null;
   }
 
   return (
-    <LoadScript
-      googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
-      libraries={['places']}
-      language="en"
-      region="GB"
-      version="weekly"
-      id="google-maps-script"
-      preventGoogleFontsLoading
-    >
+    <>
+      {/* Only render LoadScript on client side */}
+      {isClient && process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY && (
+        <LoadScript
+          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+          loadingElement={null}
+          id="google-maps-script"
+          libraries={['places']}
+          language="en"
+          region="GB"
+          version="weekly"
+          preventGoogleFontsLoading
+        />
+      )}
       {children}
-    </LoadScript>
+    </>
   );
 } 

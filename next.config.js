@@ -3,11 +3,13 @@ const webpack = require('webpack');
 
 const nextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
   images: {
     domains: ['epkbxehlwtzukeokykw.supabase.co'],
   },
   experimental: {
     optimizePackageImports: ['@mantine/core', '@radix-ui/react-*', 'gsap'],
+    serverActions: true,
   },
   webpack: (config, { isServer, dev }) => {
     // Handle browser globals and polyfills
@@ -21,7 +23,41 @@ const nextConfig = {
       };
     }
 
+    // Optimize chunk loading
+    config.optimization = {
+      ...config.optimization,
+      moduleIds: 'deterministic',
+      chunkIds: 'deterministic',
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          commons: {
+            name: 'commons',
+            chunks: 'all',
+            minChunks: 2,
+            reuseExistingChunk: true,
+          },
+        },
+      },
+    };
+
     return config;
+  },
+  // Add proper headers for RSC
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'RSC-Action',
+            value: 'react-server-component',
+          },
+        ],
+      },
+    ];
   },
 };
 

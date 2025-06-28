@@ -1,22 +1,44 @@
 import dynamic from 'next/dynamic';
 import type { LoadScriptProps } from '@react-google-maps/api';
 
+// GSAP and ScrollTrigger types
+type GSAPInstance = any;
+type ScrollTriggerInstance = any;
+
 // GSAP and ScrollTrigger will be loaded dynamically
-let gsap: any = null;
-let ScrollTrigger: any = null;
+let gsap: GSAPInstance = null;
+let ScrollTrigger: ScrollTriggerInstance = null;
 
 // Initialize GSAP and ScrollTrigger
 async function loadGSAP() {
-  if (typeof window !== 'undefined') {
-    try {
-      const gsapModule = await import('gsap');
-      const scrollTriggerModule = await import('gsap/ScrollTrigger');
-      gsap = gsapModule.default;
-      ScrollTrigger = scrollTriggerModule.ScrollTrigger;
-      gsap.registerPlugin(ScrollTrigger);
-    } catch (error) {
-      console.error('Error loading GSAP:', error);
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    const gsapModule = await import('gsap');
+    const scrollTriggerModule = await import('gsap/ScrollTrigger');
+    
+    gsap = gsapModule.default;
+    ScrollTrigger = scrollTriggerModule.ScrollTrigger;
+    
+    if (!gsap || !ScrollTrigger) {
+      throw new Error('Failed to load GSAP or ScrollTrigger');
     }
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Default GSAP configuration
+    gsap.config({
+      nullTargetWarn: false,
+      autoSleep: 60,
+      force3D: true,
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error loading GSAP:', error);
+    return false;
   }
 }
 
@@ -27,29 +49,23 @@ export const initGSAP = async () => {
   }
 
   try {
-    await loadGSAP();
-    
-    if (gsap && ScrollTrigger) {
-      // Default GSAP configuration
-      gsap.config({
-        nullTargetWarn: false,
-        autoSleep: 60,
-        force3D: true,
-      });
-
-      // Clean up function
-      return () => {
-        try {
-          ScrollTrigger.getAll().forEach((trigger: any) => trigger.kill());
-          gsap.killTweensOf('*');
-        } catch (error) {
-          console.error('Error cleaning up GSAP:', error);
-        }
-      };
+    const success = await loadGSAP();
+    if (!success) {
+      return;
     }
+
+    // Return cleanup function
+    return () => {
+      if (ScrollTrigger) {
+        ScrollTrigger.getAll().forEach((trigger: ScrollTriggerInstance) => trigger.kill());
+        ScrollTrigger.clearMatchMedia();
+      }
+      if (gsap) {
+        gsap.killTweensOf('*');
+      }
+    };
   } catch (error) {
     console.error('Error initializing GSAP:', error);
-    return;
   }
 };
 
