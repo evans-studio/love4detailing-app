@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from '@/lib/utils'
 import { SupabaseProvider } from '@/components/providers/SupabaseProvider'
 import { MantineProvider } from '@/components/providers/MantineProvider'
@@ -29,15 +31,11 @@ export const metadata = {
     description: 'Premium car valeting services in London',
     creator: '@love4detailing',
   },
-}
-
-export const viewport: Viewport = {
-  themeColor: '#9747FF',
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: 'cover',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
 }
 
 export default function RootLayout({
@@ -46,20 +44,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={cn(
-      "dark",
-      "font-sans antialiased",
-      "[&_*]:!transition-[background-color]",
-      "motion-reduce:transform-none motion-reduce:transition-none"
-    )} suppressHydrationWarning>
-      <body className="min-h-screen font-sans antialiased bg-[#141414]">
+    <html lang="en" className="dark">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className={cn('min-h-screen bg-background font-sans antialiased')}>
         <SupabaseProvider>
           <MantineProvider>
             <ClientProvider>
-              <PremiumLoadingProvider initialDelay={100} duration={3000}>
-                <AppLayout>
-                  {children}
-                </AppLayout>
+              <PremiumLoadingProvider>
+                <AppLayout>{children}</AppLayout>
               </PremiumLoadingProvider>
               <Toaster />
             </ClientProvider>

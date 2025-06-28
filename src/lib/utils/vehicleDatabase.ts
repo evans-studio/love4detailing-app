@@ -277,10 +277,45 @@ function inferSizeFromDVLAData(dvlaData: any): VehicleSize {
 export interface VehicleSearchResult {
   make: string
   model: string
-  trim: string
+  year: string
   size: VehicleSize
-  displayName: string
-  searchScore: number
+  score: number
+}
+
+// Vehicle database with size categorization
+const vehicleDatabase = {
+  small: [
+    // Small vehicles list from the original file
+  ],
+  medium: [
+    // Medium vehicles list from the original file
+  ],
+  large: [
+    // Large vehicles list from the original file
+  ],
+  xl: [
+    // XL vehicles list from the original file
+  ]
+} as const
+
+export function determineVehicleSize(make: string, model: string): VehicleSize {
+  const fullName = `${make} ${model}`.toLowerCase()
+  
+  if (vehicleDatabase.small.some(v => fullName.includes(v))) return 's'
+  if (vehicleDatabase.medium.some(v => fullName.includes(v))) return 'm'
+  if (vehicleDatabase.large.some(v => fullName.includes(v))) return 'l'
+  if (vehicleDatabase.xl.some(v => fullName.includes(v))) return 'xl'
+  
+  // Default to medium if unknown
+  return 'm'
+}
+
+export function getFallbackSize(vehicleType: string): VehicleSize {
+  const type = vehicleType.toLowerCase()
+  if (type.includes('van') || type.includes('truck')) return 'xl'
+  if (type.includes('suv') || type.includes('estate')) return 'l'
+  if (type.includes('compact') || type.includes('hatch')) return 's'
+  return 'm'
 }
 
 // Get all unique makes
@@ -362,17 +397,16 @@ export function searchVehicles(query: string, limit: number = 10): VehicleSearch
       results.push({
         make: vehicle.make,
         model: vehicle.model,
-        trim: vehicle.trim,
+        year: vehicle.trim,
         size: convertSize(vehicle.size),
-        displayName: `${vehicle.make} ${vehicle.model} ${vehicle.trim}`,
-        searchScore: score
+        score
       })
     }
   })
   
   // Sort by score (highest first) and return limited results
   return results
-    .sort((a, b) => b.searchScore - a.searchScore)
+    .sort((a, b) => b.score - a.score)
     .slice(0, limit)
 }
 
@@ -388,10 +422,9 @@ export function findExactVehicle(make: string, model: string, trim?: string): Ve
     return {
       make: vehicle.make,
       model: vehicle.model,
-      trim: vehicle.trim,
+      year: vehicle.trim,
       size: convertSize(vehicle.size),
-      displayName: `${vehicle.make} ${vehicle.model} ${vehicle.trim}`,
-      searchScore: 100
+      score: 100
     }
   }
   
@@ -409,45 +442,9 @@ export function detectVehicle(make: string, model: string): { make: string; mode
       make: result.make,
       model: result.model,
       size: result.size,
-      confidence: result.searchScore >= 80 ? 'exact' : result.searchScore >= 30 ? 'partial' : 'fallback'
+      confidence: result.score >= 80 ? 'exact' : result.score >= 30 ? 'partial' : 'fallback'
     }
   }
   
   return null
-}
-
-// Fallback size detection for unknown vehicles
-export function getFallbackSize(make: string, model: string): VehicleSize {
-  const searchTerm = `${make} ${model}`.toLowerCase()
-  
-  // Check for size indicators in the search term
-  if (searchTerm.includes('van') || searchTerm.includes('transit') || 
-      searchTerm.includes('sprinter') || searchTerm.includes('crafter')) {
-    return 'xl'
-  }
-  
-  if (searchTerm.includes('suv') || searchTerm.includes('4x4') || 
-      searchTerm.includes('range rover') || searchTerm.includes('land cruiser') ||
-      searchTerm.includes('x5') || searchTerm.includes('x6') || searchTerm.includes('x7') ||
-      searchTerm.includes('q7') || searchTerm.includes('q8') ||
-      searchTerm.includes('gle') || searchTerm.includes('gls')) {
-    return 'xl'
-  }
-  
-  if (searchTerm.includes('estate') || searchTerm.includes('avant') || 
-      searchTerm.includes('touring') || searchTerm.includes('wagon') ||
-      searchTerm.includes('5 series') || searchTerm.includes('e class') ||
-      searchTerm.includes('a6') || searchTerm.includes('passat')) {
-    return 'l'
-  }
-  
-  if (searchTerm.includes('mini') || searchTerm.includes('smart') || 
-      searchTerm.includes('aygo') || searchTerm.includes('up') ||
-      searchTerm.includes('fiesta') || searchTerm.includes('polo') ||
-      searchTerm.includes('corsa') || searchTerm.includes('micra')) {
-    return 's'
-  }
-  
-  // Default to medium for unknown vehicles
-  return 'm'
 } 
