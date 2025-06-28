@@ -1,13 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { SupabaseProvider } from '@/components/providers/SupabaseProvider'
-import { MantineProvider } from '@/components/providers/MantineProvider'
-import { ClientProvider } from '@/components/providers/ClientProvider'
-import { Toaster } from '@/components/ui/toaster'
-import AppLayout from '@/components/layout/AppLayout'
-import { Viewport } from 'next'
-import PremiumLoadingProvider from '@/components/providers/PremiumLoadingProvider'
+import ClientLayout from '@/components/layout/ClientLayout'
 
 export const metadata = {
   title: 'Love4Detailing',
@@ -51,16 +45,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={cn('min-h-screen bg-background font-sans antialiased')}>
-        <SupabaseProvider>
-          <MantineProvider>
-            <ClientProvider>
-              <PremiumLoadingProvider>
-                <AppLayout>{children}</AppLayout>
-              </PremiumLoadingProvider>
-              <Toaster />
-            </ClientProvider>
-          </MantineProvider>
-        </SupabaseProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   )
