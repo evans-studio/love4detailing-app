@@ -2,10 +2,6 @@
 create extension if not exists "uuid-ossp";
 create extension if not exists "postgis";
 
--- Create custom types
-create type booking_status as enum ('pending', 'confirmed', 'completed', 'cancelled');
-create type service_type as enum ('basic_valet', 'premium_detail', 'ultimate_package');
-
 -- Create users table (extends Supabase auth.users)
 create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
@@ -133,60 +129,94 @@ alter table public.bookings enable row level security;
 alter table public.rewards enable row level security;
 alter table public.reward_transactions enable row level security;
 
--- Create policies
-create policy "Users can view their own profile"
-  on public.profiles for select
-  using (auth.uid() = id);
+-- Create policies safely
+DO $$
+BEGIN
+  -- Profiles policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own profile') THEN
+    CREATE POLICY "Users can view their own profile"
+      ON public.profiles FOR SELECT
+      USING (auth.uid() = id);
+  END IF;
 
-create policy "Users can update their own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update their own profile') THEN
+    CREATE POLICY "Users can update their own profile"
+      ON public.profiles FOR UPDATE
+      USING (auth.uid() = id);
+  END IF;
 
-create policy "Users can view their own bookings"
-  on public.bookings for select
-  using (auth.uid() = user_id);
+  -- Bookings policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own bookings') THEN
+    CREATE POLICY "Users can view their own bookings"
+      ON public.bookings FOR SELECT
+      USING (auth.uid() = user_id);
+  END IF;
 
-create policy "Users can create their own bookings"
-  on public.bookings for insert
-  with check (auth.uid() = user_id);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can create their own bookings') THEN
+    CREATE POLICY "Users can create their own bookings"
+      ON public.bookings FOR INSERT
+      WITH CHECK (auth.uid() = user_id);
+  END IF;
 
-create policy "Users can update their own bookings"
-  on public.bookings for update
-  using (auth.uid() = user_id);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can update their own bookings') THEN
+    CREATE POLICY "Users can update their own bookings"
+      ON public.bookings FOR UPDATE
+      USING (auth.uid() = user_id);
+  END IF;
 
-create policy "Users can view their own rewards"
-  on public.rewards for select
-  using (auth.uid() = user_id);
+  -- Rewards policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own rewards') THEN
+    CREATE POLICY "Users can view their own rewards"
+      ON public.rewards FOR SELECT
+      USING (auth.uid() = user_id);
+  END IF;
 
-create policy "Users can view their own reward transactions"
-  on public.reward_transactions for select
-  using (auth.uid() in (
-    select user_id from public.rewards where id = reward_transactions.reward_id
-  ));
+  -- Reward transactions policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own reward transactions') THEN
+    CREATE POLICY "Users can view their own reward transactions"
+      ON public.reward_transactions FOR SELECT
+      USING (auth.uid() in (
+        SELECT user_id FROM public.rewards WHERE id = reward_transactions.reward_id
+      ));
+  END IF;
+END$$;
 
--- Insert initial services
-insert into public.services (name, type, description, price, duration_minutes, features) values
-  (
-    'Basic Valet',
-    'basic_valet',
-    'A thorough exterior and interior cleaning service',
-    49.99,
-    120,
-    '["Exterior hand wash and dry", "Wheel cleaning and tire dressing", "Interior vacuum and dust", "Dashboard and console cleaning", "Window cleaning inside and out", "Air freshener"]'::jsonb
-  ),
-  (
-    'Premium Detail',
-    'premium_detail',
-    'Comprehensive detailing for a showroom finish',
-    149.99,
-    240,
-    '["All Basic Valet services", "Clay bar treatment", "Paint decontamination", "Machine polish", "Leather cleaning and conditioning", "Interior deep clean", "Carpet shampooing", "Paint sealant application"]'::jsonb
-  ),
-  (
-    'Ultimate Package',
-    'ultimate_package',
-    'The most comprehensive detailing experience',
-    299.99,
-    360,
-    '["All Premium Detail services", "Ceramic coating application", "Multi-stage paint correction", "Engine bay detailing", "Glass coating", "Leather protection", "Interior sanitization", "Paint protection film consultation"]'::jsonb
-  ); 
+-- Insert initial services if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.services WHERE type = 'basic_valet') THEN
+    INSERT INTO public.services (name, type, description, price, duration_minutes, features) VALUES
+      (
+        'Basic Valet',
+        'basic_valet',
+        'A thorough exterior and interior cleaning service',
+        49.99,
+        120,
+        '["Exterior hand wash and dry", "Wheel cleaning and tire dressing", "Interior vacuum and dust", "Dashboard and console cleaning", "Window cleaning inside and out", "Air freshener"]'::jsonb
+      );
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM public.services WHERE type = 'premium_detail') THEN
+    INSERT INTO public.services (name, type, description, price, duration_minutes, features) VALUES
+      (
+        'Premium Detail',
+        'premium_detail',
+        'Comprehensive detailing for a showroom finish',
+        149.99,
+        240,
+        '["All Basic Valet services", "Clay bar treatment", "Paint decontamination", "Machine polish", "Leather cleaning and conditioning", "Interior deep clean", "Carpet shampooing", "Paint sealant application"]'::jsonb
+      );
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM public.services WHERE type = 'ultimate_package') THEN
+    INSERT INTO public.services (name, type, description, price, duration_minutes, features) VALUES
+      (
+        'Ultimate Package',
+        'ultimate_package',
+        'The most comprehensive detailing experience',
+        299.99,
+        360,
+        '["All Premium Detail services", "Ceramic coating application", "Multi-stage paint correction", "Engine bay detailing", "Glass coating", "Leather protection", "Interior sanitization", "Paint protection film consultation"]'::jsonb
+      );
+  END IF;
+END$$; 

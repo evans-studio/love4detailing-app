@@ -2,71 +2,74 @@
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create custom types
+-- Create custom types safely
 DO $$ BEGIN
     CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'completed', 'cancelled');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
--- Create profiles table if it doesn't exist
-CREATE TABLE IF NOT EXISTS public.profiles (
-    id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-    full_name text,
-    email text UNIQUE,
-    phone text,
-    address text,
-    postcode text,
-    vehicle_make text,
-    vehicle_model text,
-    vehicle_color text,
-    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+-- Create or update tables
+DO $$ BEGIN
+    -- Create profiles table if it doesn't exist
+    CREATE TABLE IF NOT EXISTS public.profiles (
+        id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+        full_name text,
+        email text UNIQUE,
+        phone text,
+        address text,
+        postcode text,
+        vehicle_make text,
+        vehicle_model text,
+        vehicle_color text,
+        created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+        updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    );
 
--- Create bookings table if it doesn't exist
-CREATE TABLE IF NOT EXISTS public.bookings (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
-    email text NOT NULL,
-    booking_date date NOT NULL,
-    booking_time time NOT NULL,
-    postcode text NOT NULL,
-    total_price decimal(10,2) NOT NULL,
-    status booking_status DEFAULT 'pending' NOT NULL,
-    notes text,
-    service_id text,
-    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-    customer_name TEXT,
-    vehicle_size TEXT,
-    add_ons JSONB DEFAULT '[]'::jsonb,
-    vehicle_images JSONB DEFAULT '[]'::jsonb,
-    payment_status TEXT DEFAULT 'pending',
-    payment_id TEXT,
-    booking_reference TEXT
-);
+    -- Create bookings table if it doesn't exist
+    CREATE TABLE IF NOT EXISTS public.bookings (
+        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
+        email text NOT NULL,
+        booking_date date NOT NULL,
+        booking_time time NOT NULL,
+        postcode text NOT NULL,
+        total_price decimal(10,2) NOT NULL,
+        status booking_status DEFAULT 'pending' NOT NULL,
+        notes text,
+        service_id text,
+        created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+        updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+        customer_name TEXT,
+        vehicle_size TEXT,
+        add_ons JSONB DEFAULT '[]'::jsonb,
+        vehicle_images JSONB DEFAULT '[]'::jsonb,
+        payment_status TEXT DEFAULT 'pending',
+        payment_id TEXT,
+        booking_reference TEXT
+    );
 
--- Create rewards table if it doesn't exist
-CREATE TABLE IF NOT EXISTS public.rewards (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
-    points integer NOT NULL DEFAULT 0,
-    total_saved decimal(10,2) NOT NULL DEFAULT 0.00,
-    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+    -- Create rewards table if it doesn't exist
+    CREATE TABLE IF NOT EXISTS public.rewards (
+        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+        points integer NOT NULL DEFAULT 0,
+        total_saved decimal(10,2) NOT NULL DEFAULT 0.00,
+        created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+        updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    );
 
--- Create rewards_history table if it doesn't exist
-CREATE TABLE IF NOT EXISTS public.rewards_history (
-    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-    booking_id uuid REFERENCES public.bookings(id) ON DELETE SET NULL,
-    points integer NOT NULL,
-    type text NOT NULL CHECK (type IN ('earned', 'redeemed')),
-    description text NOT NULL,
-    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+    -- Create rewards_history table if it doesn't exist
+    CREATE TABLE IF NOT EXISTS public.rewards_history (
+        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+        booking_id uuid REFERENCES public.bookings(id) ON DELETE SET NULL,
+        points integer NOT NULL,
+        type text NOT NULL CHECK (type IN ('earned', 'redeemed')),
+        description text NOT NULL,
+        created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    );
+END $$;
 
 -- Drop existing trigger and function
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
@@ -110,110 +113,146 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Enable RLS on all tables
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rewards ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rewards_history ENABLE ROW LEVEL SECURITY;
+-- Enable RLS on all tables safely
+DO $$ BEGIN
+    ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.rewards ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.rewards_history ENABLE ROW LEVEL SECURITY;
+END $$;
 
--- Create RLS policies for profiles
-DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Users can create their own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
-DROP POLICY IF EXISTS "Admin can view all profiles" ON public.profiles;
+-- Create RLS policies safely
+DO $$ BEGIN
+    -- Drop existing policies if they exist
+    DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
+    DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
+    DROP POLICY IF EXISTS "Users can create their own profile" ON public.profiles;
+    DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
+    DROP POLICY IF EXISTS "Admin can view all profiles" ON public.profiles;
+    DROP POLICY IF EXISTS "Admin can update all profiles" ON public.profiles;
 
--- Allow users to create their own profile
-CREATE POLICY "Users can create their own profile"
-    ON public.profiles FOR INSERT
-    WITH CHECK (auth.uid() = id);
+    -- Create new policies
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can create their own profile'
+    ) THEN
+        CREATE POLICY "Users can create their own profile"
+        ON public.profiles FOR INSERT
+        WITH CHECK (auth.uid() = id);
+    END IF;
 
--- Allow users to view their own profile
-CREATE POLICY "Users can view their own profile"
-    ON public.profiles FOR SELECT
-    USING (auth.uid() = id);
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own profile'
+    ) THEN
+        CREATE POLICY "Users can view their own profile"
+        ON public.profiles FOR SELECT
+        USING (auth.uid() = id);
+    END IF;
 
--- Allow users to update their own profile
-CREATE POLICY "Users can update their own profile"
-    ON public.profiles FOR UPDATE
-    USING (auth.uid() = id);
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can update their own profile'
+    ) THEN
+        CREATE POLICY "Users can update their own profile"
+        ON public.profiles FOR UPDATE
+        USING (auth.uid() = id);
+    END IF;
 
--- Allow admin to view all profiles (check if user is admin by email)
-CREATE POLICY "Admin can view all profiles"
-    ON public.profiles FOR SELECT
-    USING (
-        auth.uid() = id OR 
-        EXISTS (
-            SELECT 1 FROM auth.users 
-            WHERE auth.users.id = auth.uid() 
-            AND auth.users.email = 'd.dimpauls@gmail.com'
-        )
-    );
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Admin can view all profiles'
+    ) THEN
+        CREATE POLICY "Admin can view all profiles"
+        ON public.profiles FOR SELECT
+        USING (
+            auth.uid() = id OR 
+            EXISTS (
+                SELECT 1 FROM auth.users 
+                WHERE auth.users.id = auth.uid() 
+                AND auth.users.email = 'd.dimpauls@gmail.com'
+            )
+        );
+    END IF;
 
--- Allow admin to update all profiles
-CREATE POLICY "Admin can update all profiles"
-    ON public.profiles FOR UPDATE
-    USING (
-        auth.uid() = id OR 
-        EXISTS (
-            SELECT 1 FROM auth.users 
-            WHERE auth.users.id = auth.uid() 
-            AND auth.users.email = 'd.dimpauls@gmail.com'
-        )
-    );
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Admin can update all profiles'
+    ) THEN
+        CREATE POLICY "Admin can update all profiles"
+        ON public.profiles FOR UPDATE
+        USING (
+            auth.uid() = id OR 
+            EXISTS (
+                SELECT 1 FROM auth.users 
+                WHERE auth.users.id = auth.uid() 
+                AND auth.users.email = 'd.dimpauls@gmail.com'
+            )
+        );
+    END IF;
 
--- Create RLS policies for bookings
-DROP POLICY IF EXISTS "Users can view their own bookings" ON public.bookings;
-DROP POLICY IF EXISTS "Users can create bookings" ON public.bookings;
-DROP POLICY IF EXISTS "Users can update their own bookings" ON public.bookings;
+    -- Drop existing booking policies
+    DROP POLICY IF EXISTS "Users can view their own bookings" ON public.bookings;
+    DROP POLICY IF EXISTS "Users can create bookings" ON public.bookings;
+    DROP POLICY IF EXISTS "Users can update their own bookings" ON public.bookings;
 
-CREATE POLICY "Users can view their own bookings"
-    ON public.bookings FOR SELECT
-    USING (auth.uid() = user_id);
+    -- Create booking policies safely
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own bookings'
+    ) THEN
+        CREATE POLICY "Users can view their own bookings"
+        ON public.bookings FOR SELECT
+        USING (auth.uid() = user_id);
+    END IF;
 
-CREATE POLICY "Users can create bookings"
-    ON public.bookings FOR INSERT
-    WITH CHECK (
-        auth.uid() = user_id OR
-        -- Allow anonymous bookings that will be linked later
-        user_id IS NULL
-    );
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can create bookings'
+    ) THEN
+        CREATE POLICY "Users can create bookings"
+        ON public.bookings FOR INSERT
+        WITH CHECK (
+            auth.uid() = user_id OR
+            -- Allow anonymous bookings that will be linked later
+            user_id IS NULL
+        );
+    END IF;
 
-CREATE POLICY "Users can update their own bookings"
-    ON public.bookings FOR UPDATE
-    USING (auth.uid() = user_id);
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can update their own bookings'
+    ) THEN
+        CREATE POLICY "Users can update their own bookings"
+        ON public.bookings FOR UPDATE
+        USING (auth.uid() = user_id);
+    END IF;
 
--- Create RLS policies for rewards
-DROP POLICY IF EXISTS "Users can view their own rewards" ON public.rewards;
-DROP POLICY IF EXISTS "Users can update their own rewards" ON public.rewards;
-DROP POLICY IF EXISTS "System can manage rewards" ON public.rewards;
+    -- Drop existing reward policies
+    DROP POLICY IF EXISTS "Users can view their own rewards" ON public.rewards;
+    DROP POLICY IF EXISTS "Users can update their own rewards" ON public.rewards;
+    DROP POLICY IF EXISTS "System can manage rewards" ON public.rewards;
 
-CREATE POLICY "Users can view their own rewards"
-    ON public.rewards FOR SELECT
-    USING (auth.uid() = user_id);
+    -- Create reward policies safely
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own rewards'
+    ) THEN
+        CREATE POLICY "Users can view their own rewards"
+        ON public.rewards FOR SELECT
+        USING (auth.uid() = user_id);
+    END IF;
 
-CREATE POLICY "Users can update their own rewards"
-    ON public.rewards FOR UPDATE
-    USING (auth.uid() = user_id);
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'Users can update their own rewards'
+    ) THEN
+        CREATE POLICY "Users can update their own rewards"
+        ON public.rewards FOR UPDATE
+        USING (auth.uid() = user_id);
+    END IF;
 
-CREATE POLICY "System can manage rewards"
-    ON public.rewards FOR ALL
-    USING (true)
-    WITH CHECK (true);
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE policyname = 'System can manage rewards'
+    ) THEN
+        CREATE POLICY "System can manage rewards"
+        ON public.rewards FOR ALL
+        USING (auth.uid() = user_id)
+        WITH CHECK (auth.uid() = user_id);
+    END IF;
+END $$;
 
--- Create RLS policies for rewards_history
-DROP POLICY IF EXISTS "Users can view their own rewards history" ON public.rewards_history;
-DROP POLICY IF EXISTS "System can insert rewards history" ON public.rewards_history;
-
-CREATE POLICY "Users can view their own rewards history"
-    ON public.rewards_history FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "System can insert rewards history"
-    ON public.rewards_history FOR INSERT
-    WITH CHECK (true);
-
--- Create indexes for performance
+-- Create indexes safely
 CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_email ON public.bookings(email);

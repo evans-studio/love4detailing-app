@@ -1,13 +1,16 @@
 -- Check if the bookings table doesn't exist
-DO $$ 
+DO $$
+DECLARE
+  trigger_exists boolean;
 BEGIN
+  -- Check if table exists
   IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'bookings') THEN
     -- Create bookings table
     CREATE TABLE IF NOT EXISTS bookings (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
       user_id UUID REFERENCES auth.users(id),
-      service_type TEXT NOT NULL,
-      vehicle_size TEXT NOT NULL,
+      service_type service_type NOT NULL,
+      vehicle_size vehicle_size NOT NULL,
       vehicle TEXT NOT NULL,
       vehicle_year INTEGER,
       vehicle_color TEXT,
@@ -18,7 +21,7 @@ BEGIN
       add_ons TEXT[],
       special_requests TEXT,
       access_instructions TEXT,
-      status TEXT DEFAULT 'pending',
+      status booking_status DEFAULT 'pending',
       total_amount DECIMAL(10,2) NOT NULL,
       travel_fee DECIMAL(10,2) DEFAULT 0,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -45,15 +48,27 @@ BEGIN
     -- Create policy for updating own bookings
     CREATE POLICY "Enable update for users based on user_id" ON bookings
       FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
 
+  -- Check if trigger exists
+  SELECT EXISTS (
+    SELECT 1 
+    FROM pg_trigger 
+    WHERE tgname = 'update_bookings_updated_at'
+  ) INTO trigger_exists;
+
+  -- Create trigger function if it doesn't exist
+  IF NOT trigger_exists THEN
     -- Create function to update updated_at timestamp
     CREATE OR REPLACE FUNCTION update_updated_at_column()
-    RETURNS TRIGGER AS $$
+    RETURNS TRIGGER 
+    LANGUAGE plpgsql
+    AS $trigger$
     BEGIN
       NEW.updated_at = CURRENT_TIMESTAMP;
       RETURN NEW;
     END;
-    $$ language 'plpgsql';
+    $trigger$;
 
     -- Create trigger for updating updated_at
     CREATE TRIGGER update_bookings_updated_at
