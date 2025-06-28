@@ -44,6 +44,8 @@ export function HomeClient({ config }: HomeClientProps) {
     }
   }, [])
 
+  const essentialCleanService = config.pricing.services.find(s => s.id === 'essential-clean');
+
   return (
     <div ref={containerRef} className="relative min-h-screen w-full">
       {/* Hidden navigation for accessibility - screen reader accessible */}
@@ -65,10 +67,12 @@ export function HomeClient({ config }: HomeClientProps) {
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-true-black/50 to-true-black pointer-events-none" />
         <HeroSection content={config.content.hero} />
-        <EssentialCleanPricingSection 
-          service={config.pricing.services.find(s => s.id === 'essential_clean')!}
-          vehicleSizes={config.pricing.vehicleSizes}
-        />
+        {essentialCleanService && (
+          <EssentialCleanPricingSection 
+            service={essentialCleanService}
+            vehicleSizes={config.pricing.vehicleSizes}
+          />
+        )}
         <HowItWorksSection />
         <ServiceAreaMap />
         <FeaturesSection />
