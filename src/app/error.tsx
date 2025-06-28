@@ -33,7 +33,7 @@ export default function Error({
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-[#8A2B85] mx-auto" />
+            <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-[#9747FF] mx-auto" />
           </motion.div>
           <motion.h1
             initial={{ opacity: 0 }}
@@ -74,8 +74,8 @@ export default function Error({
             variant="outline"
             className={cn(
               "flex items-center gap-2",
-              "border-[#8A2B85]/20 text-[#C7C7C7]",
-              "hover:bg-[#8A2B85]/10 hover:text-[#F8F4EB]",
+              "border-[#9747FF]/20 text-[#C7C7C7]",
+              "hover:bg-[#9747FF]/10 hover:text-[#F8F4EB]",
               "touch-target min-h-[44px]"
             )}
           >
@@ -86,7 +86,7 @@ export default function Error({
             onClick={() => window.location.href = '/'}
             className={cn(
               "flex items-center gap-2",
-              "bg-[#8A2B85] hover:bg-[#8A2B85]/90",
+              "bg-[#9747FF] hover:bg-[#9747FF]/90",
               "text-[#F8F4EB]",
               "touch-target min-h-[44px]"
             )}

@@ -20,7 +20,7 @@ export default function NotFound() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl sm:text-6xl font-bold text-[#8A2B85]"
+            className="text-4xl sm:text-6xl font-bold text-[#9747FF]"
           >
             404
           </motion.h1>
@@ -52,7 +52,7 @@ export default function NotFound() {
             asChild
             className={cn(
               "flex items-center gap-2",
-              "bg-[#8A2B85] hover:bg-[#8A2B85]/90",
+              "bg-[#9747FF] hover:bg-[#9747FF]/90",
               "text-[#F8F4EB]",
               "touch-target min-h-[44px]"
             )}
