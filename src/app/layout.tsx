@@ -1,6 +1,3 @@
-'use client'
-
-import { cn } from '@/lib/utils'
 import ClientLayout from '@/components/layout/ClientLayout'
 
 export const metadata = {
@@ -39,12 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-      <body className={cn('min-h-screen bg-background font-sans antialiased')}>
+      <body className="min-h-screen bg-background font-sans antialiased">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
