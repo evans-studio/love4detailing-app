@@ -22,7 +22,7 @@ export function HomeClient() {
       const cleanup = initGSAPBackground(containerRef.current)
       
       // Initialize section transitions
-      initSectionTransitions()
+      const cleanupTransitions = initSectionTransitions()
       
       // Initialize button hover effects
       const buttons = document.querySelectorAll('button, a')
@@ -33,15 +33,14 @@ export function HomeClient() {
       })
 
       return () => {
-        if (cleanup) {
-          cleanup()
-        }
+        if (cleanup) cleanup()
+        if (cleanupTransitions) cleanupTransitions()
       }
     }
   }, [])
 
   return (
-    <div ref={containerRef} className="relative overflow-hidden">
+    <div ref={containerRef} className="relative z-20 min-h-screen w-full">
       {/* Hidden navigation for accessibility - screen reader accessible */}
       <nav 
         id="navigation"
@@ -57,13 +56,15 @@ export function HomeClient() {
         </ul>
       </nav>
       
-      <HeroSection />
-      <EssentialCleanPricingSection />
-      <HowItWorksSection />
-      <ServiceAreaMap />
-      <FeaturesSection />
-      <FAQSection />
-      <FooterSection />
+      <div className="relative z-30">
+        <HeroSection />
+        <EssentialCleanPricingSection />
+        <HowItWorksSection />
+        <ServiceAreaMap />
+        <FeaturesSection />
+        <FAQSection />
+        <FooterSection />
+      </div>
     </div>
   )
 } 

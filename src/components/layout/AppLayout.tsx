@@ -153,12 +153,14 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-[100svh] w-full bg-[#141414]/95">
+    <div className="relative min-h-[100svh] w-full">
       {/* Global Background */}
-      <BackgroundOrbs intensity="high" className="fixed inset-0 z-0" />
+      <div className="fixed inset-0 z-0 bg-true-black">
+        <BackgroundOrbs intensity="high" className="absolute inset-0" />
+      </div>
       
       {/* Main App Content */}
-      <div className="relative z-10 w-full">
+      <div className="relative z-10 w-full bg-transparent">
         <SidebarProvider>
           <LayoutContent>
             {children}
