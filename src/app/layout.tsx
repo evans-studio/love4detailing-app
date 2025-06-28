@@ -56,7 +56,7 @@ export default function RootLayout({
       "[&_*]:!transition-[background-color]",
       "motion-reduce:transform-none motion-reduce:transition-none"
     )} suppressHydrationWarning>
-      <body className="min-h-screen bg-true-black font-sans antialiased relative">
+      <body className="min-h-screen font-sans antialiased">
         <SupabaseProvider>
           <MantineProvider>
             <ClientProvider>

@@ -40,7 +40,7 @@ export function HomeClient() {
   }, [])
 
   return (
-    <div ref={containerRef} className="relative z-20 min-h-screen w-full">
+    <div ref={containerRef} className="relative min-h-screen w-full">
       {/* Hidden navigation for accessibility - screen reader accessible */}
       <nav 
         id="navigation"
@@ -56,7 +56,9 @@ export function HomeClient() {
         </ul>
       </nav>
       
-      <div className="relative z-30">
+      {/* Main content sections with proper background handling */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-true-black/50 to-true-black pointer-events-none" />
         <HeroSection />
         <EssentialCleanPricingSection />
         <HowItWorksSection />
