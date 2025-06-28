@@ -81,11 +81,6 @@ export function AddressInput({
           setValidationResult(result)
           onValidationChange(!data.requiresManualApproval)
         }
-
-        onDistanceCheck(validationResult || {
-          isWithinRange: false,
-          requiresManualApproval: true
-        })
       } catch (err) {
         setError('Failed to check address. Please try again.')
         setValidationResult({
@@ -100,7 +95,19 @@ export function AddressInput({
     }
 
     checkAddress()
-  }, [debouncedValue, onValidationChange, onDistanceCheck])
+  }, [debouncedValue, onValidationChange])
+
+  // Separate useEffect for handling distance check updates
+  useEffect(() => {
+    if (validationResult) {
+      onDistanceCheck(validationResult)
+    } else {
+      onDistanceCheck({
+        isWithinRange: false,
+        requiresManualApproval: true
+      })
+    }
+  }, [validationResult, onDistanceCheck])
 
   return (
     <div className={className}>

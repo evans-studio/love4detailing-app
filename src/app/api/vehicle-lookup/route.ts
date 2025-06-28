@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { vehicleLogger } from '@/lib/utils/logger'
-import type { ApiResponse, VehicleData } from '@/types'
+import type { VehicleData } from '@/types'
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic'
 
 // DVLA Vehicle Enquiry Service API
 const DVLA_API_URL = 'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles'
+
+interface DVLAResponse {
+  make: string
+  model?: string
+  yearOfManufacture: number
+  monthOfFirstRegistration: string
+  fuelType: string
+  engineCapacity: number
+  co2Emissions: number
+  colour: string
+  motStatus: string
+  taxStatus: string
+  registrationNumber?: string
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -92,10 +106,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const vehicleData = await response.json()
+    const vehicleData: DVLAResponse = await response.json()
     
     // Transform DVLA response to our format
-    const transformedData = {
+    const transformedData: VehicleData = {
       make: vehicleData.make,
       model: vehicleData.model || '',
       yearOfManufacture: vehicleData.yearOfManufacture,

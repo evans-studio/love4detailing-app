@@ -19,6 +19,20 @@ export type AuthState = {
   isLoading: boolean
 }
 
+interface PendingBooking {
+  email: string
+  date: string
+  time: string
+  postcode: string
+  total: number
+  status?: string
+  notes?: string
+  customer: string
+  service: string
+  addOns?: string[]
+  created_at?: string
+}
+
 export async function signUp(email: string, password: string, full_name: string) {
   try {
     // First check if user already exists
@@ -124,14 +138,14 @@ export async function signUp(email: string, password: string, full_name: string)
       // Don't throw here, as this is not critical
     }
 
-    // Create bookings from localStorage (pending bookings from before signup)
+    // Create bookings from localStorage (pending bookings before signup)
     if (typeof window !== 'undefined') {
-      const pendingBookings = JSON.parse(localStorage.getItem('pendingBookings') || '[]')
-      const userBookings = pendingBookings.filter((booking: any) => booking.email === email)
+      const pendingBookings = JSON.parse(localStorage.getItem('pendingBookings') || '[]') as PendingBooking[]
+      const userBookings = pendingBookings.filter((booking) => booking.email === email)
       
       if (userBookings.length > 0) {
         // Create booking records for each pending booking
-        const bookingInserts = userBookings.map((booking: any) => ({
+        const bookingInserts = userBookings.map((booking) => ({
           user_id: data.user!.id, // We know data.user is not null due to check above
           email: booking.email,
           booking_date: booking.date,
@@ -139,7 +153,7 @@ export async function signUp(email: string, password: string, full_name: string)
           postcode: booking.postcode,
           total_price: booking.total,
           status: booking.status || 'pending',
-          notes: booking.notes || `Customer: ${booking.customer}\\nService: ${booking.service}\\nAdd-ons: ${booking.addOns?.join(', ') || 'None'}`,
+          notes: booking.notes || `Customer: ${booking.customer}\nService: ${booking.service}\nAdd-ons: ${booking.addOns?.join(', ') || 'None'}`,
           service_id: booking.service, // Use service type as identifier
           created_at: booking.created_at || new Date().toISOString()
         }))
@@ -153,11 +167,11 @@ export async function signUp(email: string, password: string, full_name: string)
           // Don't throw here, as this is not critical for account creation
         } else {
           // Clear pending bookings for this email after successful creation
-          const remainingBookings = pendingBookings.filter((booking: any) => booking.email !== email)
+          const remainingBookings = pendingBookings.filter((booking) => booking.email !== email)
           localStorage.setItem('pendingBookings', JSON.stringify(remainingBookings))
           
           // Also clear lastBooking if it matches this email
-          const lastBooking = JSON.parse(localStorage.getItem('lastBooking') || '{}')
+          const lastBooking = JSON.parse(localStorage.getItem('lastBooking') || '{}') as Partial<PendingBooking>
           if (lastBooking.email === email) {
             localStorage.removeItem('lastBooking')
           }

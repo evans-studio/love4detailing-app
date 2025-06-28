@@ -1,5 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_OPTIONS } from './config'
+import type { CookieOptions } from '@supabase/ssr'
 
 export const supabase = createBrowserClient(
   SUPABASE_URL,
@@ -14,13 +15,13 @@ export const supabase = createBrowserClient(
           .find(row => row.startsWith(`${name}=`))
         return cookie ? decodeURIComponent(cookie.split('=')[1]) : null
       },
-      set(name: string, value: string, options: any) {
+      set(name: string, value: string, options: CookieOptions) {
         if (typeof window === 'undefined') return
         const secure = window.location.protocol === 'https:'
         const sameSite = secure ? '; SameSite=None' : '; SameSite=Lax'
         document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${options.maxAge ?? 3600}${secure ? '; Secure' : ''}${sameSite}`
       },
-      remove(name: string, options: any) {
+      remove(name: string, options: CookieOptions) {
         if (typeof window === 'undefined') return
         document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`
       },

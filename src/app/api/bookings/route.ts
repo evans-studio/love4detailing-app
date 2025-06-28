@@ -4,6 +4,37 @@ import { NextResponse } from 'next/server'
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic'
 
+interface BookingData {
+  user_id: string
+  customer_name: string
+  email: string
+  postcode: string
+  vehicle_size: string
+  service_type: string
+  vehicle: string
+  date: string
+  time_slot: string
+  add_ons: string[]
+  vehicle_images: string[]
+  special_requests: string
+  total_amount: number
+  travel_fee: number
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+  payment_status: 'pending' | 'completed' | 'failed'
+  booking_reference: string
+  vehicle_lookup?: {
+    make: string
+    model: string
+    year?: number
+    registration?: string
+  }
+  vehicle_info?: {
+    type: string
+    size: string
+    details?: Record<string, unknown>
+  }
+}
+
 export async function GET() {
   try {
     const supabase = createClient()
@@ -34,7 +65,7 @@ export async function POST(request: Request) {
     const body = await request.json()
 
     // Prepare booking data - handle cases where new columns might not exist yet
-    const bookingData: any = {
+    const bookingData: BookingData = {
       user_id: body.user_id,
       customer_name: body.customer_name,
       email: body.email,
