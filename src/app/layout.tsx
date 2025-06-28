@@ -6,6 +6,7 @@ import { ClientProvider } from '@/components/providers/ClientProvider'
 import { Toaster } from '@/components/ui/toaster'
 import AppLayout from '@/components/layout/AppLayout'
 import { Viewport } from 'next'
+import PremiumLoadingProvider from '@/components/providers/PremiumLoadingProvider'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -59,9 +60,11 @@ export default function RootLayout({
         <SupabaseProvider>
           <MantineProvider>
             <ClientProvider>
-              <AppLayout>
-                {children}
-              </AppLayout>
+              <PremiumLoadingProvider initialDelay={100} duration={3000}>
+                <AppLayout>
+                  {children}
+                </AppLayout>
+              </PremiumLoadingProvider>
               <Toaster />
             </ClientProvider>
           </MantineProvider>

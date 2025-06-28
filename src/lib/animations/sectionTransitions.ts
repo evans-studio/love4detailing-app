@@ -19,31 +19,21 @@ const getValidElements = (selector: string): Element[] => {
 }
 
 // Utility function to safely animate with ScrollTrigger
-const safeAnimate = (elements: Element[], animation: gsap.TweenVars, scrollTrigger?: boolean) => {
-  if (!elements.length) return null
-  
-  try {
-    const config = scrollTrigger ? {
-      ...animation,
-      scrollTrigger: {
-        trigger: elements[0],
-        start: "top 85%",
-        end: "bottom 15%",
-        toggleActions: "play none none reverse"
-      }
-    } : animation
+const safeAnimate = (elements: Element[], animation: gsap.TweenVars, scrollTrigger?: ScrollTrigger.Vars) => {
+  if (!elements.length) return
 
-    return gsap.fromTo(elements, 
-      { y: 60, opacity: 0, scale: 0.95 },
-      config
-    )
-  } catch (error) {
-    console.warn('Animation failed, falling back to basic animation', error)
-    return gsap.fromTo(elements, 
-      { y: 60, opacity: 0, scale: 0.95 },
-      animation
-    )
-  }
+  const tween = gsap.to(elements, {
+    ...animation,
+    scrollTrigger: scrollTrigger ? {
+      ...scrollTrigger,
+      // Kill ScrollTrigger when animation is done
+      onLeave: () => {
+        ScrollTrigger.getAll().forEach(st => st.kill())
+      }
+    } : undefined
+  })
+
+  return tween
 }
 
 // Create wave divider between sections
@@ -88,102 +78,67 @@ export const createWaveDivider = (section: HTMLElement, position: 'top' | 'botto
   return wave
 }
 
-export const initSectionTransitions = () => {
-  // Section entrance animations with stagger
-  const animateSectionEntrance = (selector: string, delay: number = 0) => {
-    const elements = getValidElements(selector)
-    if (!elements.length) return
-    
-    elements.forEach((element, index) => {
-      safeAnimate([element], {
-        y: 0,
+// Text reveal animations
+export const animateTextReveal = (selector: string) => {
+  const elements = getValidElements(selector)
+  if (!elements.length) return
+
+  elements.forEach(element => {
+    // Split text into lines
+    const text = element.textContent || ''
+    const lines = text.split('\\n').filter(line => line.trim())
+
+    if (lines.length > 1) {
+      element.innerHTML = lines.map(line => 
+        `<div style="overflow: hidden;"><div class="text-line">${line}</div></div>`
+      ).join('')
+
+      const textLines = Array.from(element.querySelectorAll('.text-line'))
+      if (!textLines.length) return
+
+      safeAnimate(textLines, {
+        y: '0%',
         opacity: 1,
-        scale: 1,
-        duration: 1.2,
-        ease: easePresets.premium,
-        delay: delay + (index * 0.1)
-      }, true)
-    })
-  }
-  
-  // Staggered card animations
-  const animateCards = (containerSelector: string) => {
-    const container = document.querySelector(containerSelector)
-    if (!container) return
-    
-    const cards = getValidElements(`${containerSelector} [class*="Card"], ${containerSelector} .card, ${containerSelector} [class*="card"]`)
-    if (!cards.length) return
-    
-    safeAnimate(cards, {
-      y: 0,
-      opacity: 1,
-      rotateX: 0,
-      duration: 0.8,
-      ease: easePresets.premium,
-      stagger: 0.15
-    }, true)
-  }
-  
-  // Text reveal animations
-  const animateTextReveal = (selector: string) => {
-    const elements = getValidElements(selector)
-    if (!elements.length) return
-    
-    elements.forEach((element) => {
-      // Split text into lines
-      const text = element.textContent || ''
-      const lines = text.split('\n').filter(line => line.trim())
-      
-      if (lines.length > 1) {
-        element.innerHTML = lines.map(line => 
-          `<div style="overflow: hidden;"><div class="text-line">${line}</div></div>`
-        ).join('')
-        
-        const textLines = getValidElements(`${selector} .text-line`)
-        if (!textLines.length) return
-        
-        safeAnimate(textLines, {
-          y: '0%',
-          opacity: 1,
-          duration: 0.8,
-          ease: easePresets.premium,
-          stagger: 0.1
-        }, true)
-      } else {
-        safeAnimate([element], {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          ease: easePresets.premium
-        }, true)
-      }
-    })
-  }
-  
-  // Initialize all section transitions
-  const initializeTransitions = () => {
-    if (typeof window === 'undefined') return
-    
-    // Animate main sections
-    animateSectionEntrance('section', 0)
-    
-    // Animate cards in grids
-    animateCards('[class*="grid"]')
-    
-    // Animate headings with text reveal
-    animateTextReveal('h1, h2')
-  }
-  
-  // Run initialization
-  initializeTransitions()
-  
-  // Return cleanup function
-  return () => {
-    if (typeof window !== 'undefined') {
-      gsap.killTweensOf('*')
-      ScrollTrigger?.getAll().forEach(trigger => trigger.kill())
+        stagger: 0.1,
+        duration: 0.8,
+        ease: easePresets.smooth
+      })
+    } else {
+      safeAnimate([element], {
+        y: '0%',
+        opacity: 1,
+        duration: 0.8,
+        ease: easePresets.smooth
+      })
     }
-  }
+  })
+}
+
+// Section reveal animations
+export const animateSectionReveal = (selector: string) => {
+  const elements = getValidElements(selector)
+  if (!elements.length) return
+
+  safeAnimate(elements, {
+    y: 0,
+    opacity: 1,
+    duration: 0.8,
+    ease: easePresets.smooth,
+    stagger: 0.2
+  }, {
+    trigger: elements[0],
+    start: 'top 80%',
+    end: 'bottom 20%',
+    toggleActions: 'play none none reverse'
+  })
+}
+
+// Cleanup function to kill all animations
+export const cleanupAnimations = () => {
+  if (typeof window === 'undefined') return
+  
+  gsap.killTweensOf('*')
+  ScrollTrigger.getAll().forEach(st => st.kill())
 }
 
 export const fadeInOnScroll = (element: HTMLElement, delay = 0) => {
