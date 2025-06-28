@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { content } from '@/lib/content'
 import { useToast } from '@/hooks/use-toast'
 import { signIn } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
@@ -80,7 +79,7 @@ export const SignInForm = ({
       }
     } catch (err) {
       console.error('Authentication error occurred')
-      setError(content.common.errors.general)
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -127,7 +126,7 @@ export const SignInForm = ({
             Signing in...
           </>
         ) : (
-          content.auth.signIn.button
+          "Sign In"
         )}
       </Button>
 
@@ -137,7 +136,7 @@ export const SignInForm = ({
           onClick={switchToSignUp}
           className="text-[#9747FF] hover:underline"
         >
-          {content.auth.signIn.switchMode}
+          Don't have an account? Sign up
         </button>
       </p>
     </form>

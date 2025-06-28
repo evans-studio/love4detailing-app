@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { SignInForm } from './SignInForm'
 import { SignUpForm } from './SignUpForm'
 import { SignUpSuccess } from './SignUpSuccess'
-import { content } from '@/lib/content'
 import { useRouter } from 'next/navigation'
 
 interface AuthModalProps {
@@ -51,10 +50,10 @@ export function AuthModal({
         <DialogHeader>
           <DialogTitle>
             {showSuccess
-              ? content.auth.signUp.success.title
+              ? "Success!"
               : activeTab === 'sign-in'
-              ? content.auth.signIn.title
-              : content.auth.signUp.title}
+              ? "Sign In"
+              : "Sign Up"}
           </DialogTitle>
         </DialogHeader>
 
