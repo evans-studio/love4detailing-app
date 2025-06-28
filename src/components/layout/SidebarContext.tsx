@@ -1,6 +1,8 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { breakpoints } from '@/lib/constants/breakpoints'
 
 interface SidebarContextType {
   isOpen: boolean
@@ -20,7 +22,12 @@ const SidebarContext = createContext<SidebarContextType>({
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [isCollapsed, setIsCollapsed] = useState(true) // Default to collapsed on mobile
+  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
+  const [isCollapsed, setIsCollapsed] = useState(!isDesktop)
+
+  useEffect(() => {
+    setIsCollapsed(!isDesktop)
+  }, [isDesktop])
 
   const toggleCollapsed = useCallback(() => {
     setIsCollapsed(prev => !prev)
