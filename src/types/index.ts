@@ -43,6 +43,8 @@ export interface Booking {
   updated_at: string
 }
 
+import type { VehicleSize } from '@/lib/constants'
+
 export interface VehicleData {
   make: string
   model: string
@@ -55,7 +57,7 @@ export interface VehicleData {
   motStatus?: string
   taxStatus?: string
   registrationNumber?: string
-  size?: 's' | 'm' | 'l' | 'xl'
+  size?: VehicleSize
 }
 
 export interface PaymentResult {

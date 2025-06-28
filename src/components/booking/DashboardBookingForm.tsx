@@ -25,9 +25,9 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/lib/auth'
 import { ServiceIcons } from '@/components/ui/icons'
-import type { VehicleData } from '@/types'
+import type { VehicleData, VehicleSize } from '@/types'
 import type { TimeSlot } from '@/types'
-import { vehicleSizes, type VehicleSize } from '@/lib/constants'
+import { vehicleSizes } from '@/lib/constants'
 
 const serviceTypes = [
   { 
@@ -170,7 +170,8 @@ export default function DashboardBookingForm() {
 
   useEffect(() => {
     if (selectedVehicleData?.size) {
-      form.setValue('vehicleSize', selectedVehicleData.size)
+      const size = selectedVehicleData.size as VehicleSize
+      form.setValue('vehicleSize', size)
     } else {
       form.setValue('vehicleSize', 'm')
     }
@@ -574,13 +575,16 @@ export default function DashboardBookingForm() {
                       
                       // Auto-update vehicle size if we have vehicle data
                       if (vehicleData) {
-                        form.setValue('vehicleSize', vehicleData.size)
+                        const size = (vehicleData.size || 'm') as VehicleSize
+                        form.setValue('vehicleSize', size)
                         
                         // Show success toast
                         const trimText = 'trim' in vehicleData ? ` ${vehicleData.trim}` : ''
+                        const sizeText = vehicleSizes[size].label || 'Medium Vehicle'
+                        
                         toast({
-                          title: "Vehicle Detected",
-                          description: `${vehicleData.make} ${vehicleData.model || ''}${trimText} categorized as ${vehicleSizes[vehicleData.size].label} (£${vehicleSizes[vehicleData.size].price})`,
+                          title: "Vehicle Detected!",
+                          description: `We've automatically selected "${sizeText}" based on your vehicle.`,
                         })
                       }
                     }}
@@ -905,12 +909,13 @@ export default function DashboardBookingForm() {
                         
                         // Auto-update vehicle size if detected
                         if (vehicleData && 'size' in vehicleData) {
-                          form.setValue('vehicleSize', vehicleData.size)
+                          const size = vehicleData.size as VehicleSize
+                          form.setValue('vehicleSize', size)
                           
                           // Show success notification
                           toast({
                             title: "Vehicle detected!",
-                            description: `${vehicleData.make} ${vehicleData.model || ''} - ${vehicleSizes[vehicleData.size].label} vehicle`,
+                            description: `${vehicleData.make} ${vehicleData.model || ''} - ${vehicleSizes[size].label} vehicle`,
                           })
                         }
                       }}
