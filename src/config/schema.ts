@@ -93,10 +93,11 @@ const heroSectionSchema = z.object({
   ctaButtonText: z.string().min(1, "CTA button text cannot be empty."),
 });
 
-const faqItemSchema = z.object({
+export const faqItemSchema = z.object({
   question: z.string().min(1, "FAQ question cannot be empty."),
   answer: z.string().min(1, "FAQ answer cannot be empty."),
 });
+export type FAQItem = z.infer<typeof faqItemSchema>;
 
 const sidebarContentSchema = z.object({
   mainNav: z.array(z.object({
