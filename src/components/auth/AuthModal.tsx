@@ -1,7 +1,13 @@
 "use client"
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import { SignInForm } from './SignInForm'
 import { SignUpForm } from './SignUpForm'
 import { SignUpSuccess } from './SignUpSuccess'
@@ -55,6 +61,11 @@ export function AuthModal({
               ? "Sign In"
               : "Sign Up"}
           </DialogTitle>
+          <DialogDescription>
+            {activeTab === 'sign-in'
+              ? 'Enter your credentials to access your account.'
+              : 'Create an account to manage your bookings.'}
+          </DialogDescription>
         </DialogHeader>
 
         {showSuccess ? (

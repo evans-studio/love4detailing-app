@@ -39,10 +39,10 @@ export const SignUpForm = ({
   switchToSignIn,
   onSignUpSuccess,
 }: SignUpFormProps) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
   const { toast } = useToast()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const {
     register,
@@ -57,26 +57,29 @@ export const SignUpForm = ({
 
   const onSubmit = async (data: SignUpFormData) => {
     setIsLoading(true)
-    setError('')
+    setError(null)
     try {
       const { error } = await signUp(data.email, data.password, data.name)
 
+      setIsLoading(false)
+
       if (error) {
         toast({
-          title: "Error",
+          title: 'Sign-up failed',
           description: error.message,
-          variant: "destructive",
+          variant: 'destructive',
         })
-        return
+        setError(error.message)
+      } else {
+        toast({
+          title: 'Success!',
+          description: 'Your account has been created.',
+        })
+        onSignUpSuccess()
+        router.push('/dashboard')
       }
-
-      onSignUpSuccess()
-      onSuccess?.()
-      router.push(redirectPath)
     } catch (err) {
       setError(content.common.errors.general)
-    } finally {
-      setIsLoading(false)
     }
   }
 

@@ -27,7 +27,10 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
 
   const form = useForm<FullBookingFormData>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      addOnIds: defaultValues?.addOnIds || [],
+    },
     mode: 'onTouched',
   });
 
