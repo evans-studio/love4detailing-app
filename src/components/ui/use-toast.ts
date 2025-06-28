@@ -3,11 +3,13 @@ import { useToast as useToastOriginal } from '@/hooks/use-toast'
 export interface ToastProps {
   title?: string
   description?: string
+  variant?: 'default' | 'destructive'
+  duration?: number
 }
 
 export const useToast = () => {
-  const { toast } = useToastOriginal()
+  const { toast: toastFn } = useToastOriginal()
   return {
-    toast: (props: ToastProps) => toast(props)
+    toast: (props: ToastProps) => toastFn(props)
   }
 } 
