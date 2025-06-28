@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { BackgroundOrbs } from '@/components/ui/BackgroundOrbs'
 import { Shield, Users, Calendar, Star, User, Home, LogOut, Menu } from 'lucide-react'
 import { responsiveClasses } from '@/lib/constants/breakpoints'
+import { SidebarContent } from '@/lib/content'
 
 const dashboardItems = [
   { href: '/dashboard', label: 'Dashboard', icon: <Home className="w-5 h-5" /> },
@@ -22,7 +23,7 @@ const dashboardItems = [
   { href: '#', label: 'Sign Out', icon: <LogOut className="w-5 h-5" /> }
 ]
 
-function LayoutContent({ children }: { children: React.ReactNode }) {
+function LayoutContent({ children, sidebarContent }: { children: React.ReactNode, sidebarContent: SidebarContent }) {
   const { isCollapsed, toggleCollapsed } = useSidebarContext()
   const pathname = usePathname()
   const isDashboard = pathname.startsWith('/dashboard')
@@ -72,7 +73,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           {isDashboard ? (
             <Sidebar items={dashboardItems} />
           ) : (
-            <LandingSidebar />
+            <LandingSidebar content={sidebarContent} />
           )}
         </nav>
 
@@ -151,7 +152,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout({ children, sidebarContent }: { children: React.ReactNode, sidebarContent: SidebarContent }) {
   return (
     <div className="relative min-h-[100svh] w-full">
       {/* Global Background */}
@@ -163,7 +164,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main App Content */}
       <div className="relative z-[1] w-full">
         <SidebarProvider>
-          <LayoutContent>
+          <LayoutContent sidebarContent={sidebarContent}>
             {children}
           </LayoutContent>
         </SidebarProvider>

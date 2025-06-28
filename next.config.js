@@ -27,26 +27,6 @@ const nextConfig = {
       { module: /@supabase\/realtime-js/ },
     ];
 
-    // Optimize chunk loading
-    config.optimization = {
-      ...config.optimization,
-      moduleIds: 'deterministic',
-      chunkIds: 'deterministic',
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          commons: {
-            name: 'commons',
-            chunks: 'all',
-            minChunks: 2,
-            reuseExistingChunk: true,
-          },
-        },
-      },
-    };
-
     return config;
   },
   // Add proper headers for RSC

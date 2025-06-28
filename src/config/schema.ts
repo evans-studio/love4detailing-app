@@ -1,142 +1,141 @@
 import { z } from 'zod';
 
 // =================================================================
-// Branding & Theme
+// Branding & Business Information
 // =================================================================
-export const brandingSchema = z.object({
-  appName: z.string(),
-  logoUrl: z.string().url(),
-  faviconUrl: z.string().url(),
+const brandingSchema = z.object({
+  appName: z.string().min(1, "App name cannot be empty."),
+  logoUrl: z.string().url("Invalid logo URL."),
+  faviconUrl: z.string().url("Invalid favicon URL."),
   colors: z.object({
-    primary: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i),
-    secondary: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i),
-    accent: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i),
-    background: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i),
-    foreground: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i),
+    primary: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i, "Invalid hex color."),
+    secondary: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i, "Invalid hex color."),
+    accent: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i, "Invalid hex color."),
+    background: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i, "Invalid hex color."),
+    foreground: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i, "Invalid hex color."),
   }),
 });
-export type Branding = z.infer<typeof brandingSchema>;
 
-// =================================================================
-// Business Information
-// =================================================================
-export const contactSchema = z.object({
-  email: z.string().email(),
-  phone: z.string(),
-  address: z.string(),
-  googleMapsUrl: z.string().url(),
+const businessInfoSchema = z.object({
+  name: z.string().min(1, "Business name cannot be empty."),
+  contact: z.object({
+    email: z.string().email("Invalid email address."),
+    phone: z.string().min(1, "Phone number cannot be empty."),
+    address: z.string().min(1, "Address cannot be empty."),
+    googleMapsUrl: z.string().url("Invalid Google Maps URL."),
+  }),
 });
-export type Contact = z.infer<typeof contactSchema>;
-
-export const businessInfoSchema = z.object({
-  name: z.string(),
-  contact: contactSchema,
-  vatNumber: z.string().optional(),
-});
-export type BusinessInfo = z.infer<typeof businessInfoSchema>;
 
 // =================================================================
-// Services & Pricing
+// Pricing & Services
 // =================================================================
-
-export const vehicleSizeSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+const vehicleSizeSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
   description: z.string(),
 });
-export type VehicleSize = z.infer<typeof vehicleSizeSchema>;
 
-export const priceSchema = z.record(z.string(), z.number().positive());
-
-export const serviceSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+const serviceSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
   description: z.string(),
   features: z.array(z.string()),
-  prices: priceSchema,
-  duration: z.number().positive().describe("Duration in minutes"),
+  prices: z.record(z.number().positive()),
+  duration: z.number().positive(),
 });
-export type Service = z.infer<typeof serviceSchema>;
 
-export const addonSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+const addonSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
   description: z.string(),
   price: z.number().positive(),
-  duration: z.number().positive().describe("Duration in minutes"),
+  duration: z.number().positive(),
 });
-export type Addon = z.infer<typeof addonSchema>;
 
-export const pricingConfigSchema = z.object({
+const pricingSchema = z.object({
   vehicleSizes: z.array(vehicleSizeSchema),
   services: z.array(serviceSchema),
   addons: z.array(addonSchema),
 });
-export type PricingConfig = z.infer<typeof pricingConfigSchema>;
-
 
 // =================================================================
-// Booking & Operations
+// Booking System
 // =================================================================
-export const operatingHoursSchema = z.object({
-  day: z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
+const operatingHoursSchema = z.object({
+  day: z.string(),
   isOpen: z.boolean(),
-  openTime: z.string().optional(), // "HH:MM"
-  closeTime: z.string().optional(), // "HH:MM"
+  openTime: z.string().optional(),
+  closeTime: z.string().optional(),
 });
-export type OperatingHours = z.infer<typeof operatingHoursSchema>;
 
-export const bookingSettingsSchema = z.object({
-  minLeadTimeHours: z.number().int().positive(),
+const bookingSchema = z.object({
+  minLeadTimeHours: z.number().int().min(0),
   maxBookingDaysInAdvance: z.number().int().positive(),
   slotDurationMinutes: z.number().int().positive(),
   operatingHours: z.array(operatingHoursSchema),
   serviceArea: z.object({
-    center: z.object({
-      lat: z.number(),
-      lng: z.number(),
-    }),
+    center: z.object({ lat: z.number(), lng: z.number() }),
     radiusKm: z.number().positive(),
   }),
   travelFee: z.object({
-      baseFee: z.number().nonnegative(),
-      perKmMile: z.number().nonnegative(),
-      freeRadiusKm: z.number().nonnegative(),
-  })
+    baseFee: z.number().min(0),
+    perKmMile: z.number().min(0),
+    freeRadiusKm: z.number().min(0),
+  }),
 });
-export type BookingSettings = z.infer<typeof bookingSettingsSchema>;
 
 // =================================================================
 // Website Content
 // =================================================================
-export const faqItemSchema = z.object({
-  question: z.string(),
-  answer: z.string(),
+const heroSectionSchema = z.object({
+  title: z.string().min(1, "Hero title cannot be empty."),
+  subtitle: z.string().min(1, "Hero subtitle cannot be empty."),
+  ctaButtonText: z.string().min(1, "CTA button text cannot be empty."),
 });
-export type FAQItem = z.infer<typeof faqItemSchema>;
 
-export const heroSectionSchema = z.object({
-    title: z.string(),
-    subtitle: z.string(),
-    ctaButtonText: z.string(),
+const faqItemSchema = z.object({
+  question: z.string().min(1, "FAQ question cannot be empty."),
+  answer: z.string().min(1, "FAQ answer cannot be empty."),
 });
-export type HeroSection = z.infer<typeof heroSectionSchema>;
 
-export const contentSchema = z.object({
-    hero: heroSectionSchema,
-    faq: z.array(faqItemSchema),
-    // Add other content sections here as needed
+const sidebarContentSchema = z.object({
+  mainNav: z.array(z.object({
+    href: z.string(),
+    label: z.string(),
+    icon: z.string(),
+  })),
+  adminNav: z.array(z.object({
+    href: z.string(),
+    label: z.string(),
+    icon: z.string(),
+  })),
+  contact: z.array(z.object({
+    icon: z.string(),
+    label: z.string(),
+    href: z.string().nullable(),
+  })),
 });
-export type Content = z.infer<typeof contentSchema>;
 
-// =-----------------------------------------------------------------
-// Main Client Configuration Schema
-// =-----------------------------------------------------------------
+const contentSchema = z.object({
+  hero: heroSectionSchema,
+  faq: z.array(faqItemSchema),
+  sidebar: sidebarContentSchema,
+});
+
+// =================================================================
+// Master Schema
+// =================================================================
 export const clientConfigSchema = z.object({
   branding: brandingSchema,
   businessInfo: businessInfoSchema,
-  pricing: pricingConfigSchema,
-  booking: bookingSettingsSchema,
+  pricing: pricingSchema,
+  booking: bookingSchema,
   content: contentSchema,
 });
-export type ClientConfig = z.infer<typeof clientConfigSchema>; 
+
+// Export inferred types for type safety in the application
+export type ClientConfig = z.infer<typeof clientConfigSchema>;
+export type Service = z.infer<typeof serviceSchema>;
+export type Addon = z.infer<typeof addonSchema>;
+export type VehicleSize = z.infer<typeof vehicleSizeSchema>;
+export type Content = z.infer<typeof contentSchema>; 

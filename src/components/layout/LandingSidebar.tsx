@@ -12,7 +12,7 @@ import { useSidebarContext } from './SidebarContext'
 import { cn } from '@/lib/utils'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { breakpoints, responsiveClasses } from '@/lib/constants/breakpoints'
-import { content } from '@/lib/content'
+import { SidebarContent, NavItem, ContactItem } from '@/lib/content'
 import { 
   Home, 
   Calendar, 
@@ -70,7 +70,7 @@ const contentVariants = {
   }
 }
 
-export default function LandingSidebar() {
+export default function LandingSidebar({ content }: { content: SidebarContent }) {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authTab, setAuthTab] = useState<'sign-in' | 'sign-up'>('sign-in')
   const { isCollapsed, toggleCollapsed } = useSidebarContext()
@@ -133,7 +133,7 @@ export default function LandingSidebar() {
         {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto px-4 py-6">
           <div className={responsiveClasses.list}>
-            {content.sidebar.mainNav.map((item) => {
+            {content.mainNav.map((item: NavItem) => {
               const Icon = iconMap[item.icon as keyof typeof iconMap]
               const isActive = pathname === item.href
               
@@ -170,7 +170,7 @@ export default function LandingSidebar() {
         {/* Contact Info */}
         <div className="mt-auto p-4 border-t border-[#8A2B85]/20">
           <div className={responsiveClasses.list}>
-            {content.sidebar.contact.map((item, index) => {
+            {content.contact.map((item: ContactItem, index: number) => {
               const Icon = iconMap[item.icon as keyof typeof iconMap]
               const ContactItem = (
                 <div

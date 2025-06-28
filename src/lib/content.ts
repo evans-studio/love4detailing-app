@@ -121,19 +121,19 @@ type FooterContent = {
   copyright: string;
 };
 
-type NavItem = {
+export type NavItem = {
   href: string;
   label: string;
   icon: string;
 };
 
-type ContactItem = {
+export type ContactItem = {
   icon: string;
   label: string;
   href: string | null;
 };
 
-type SidebarContent = {
+export type SidebarContent = {
   mainNav: NavItem[];
   adminNav: NavItem[];
   contact: ContactItem[];

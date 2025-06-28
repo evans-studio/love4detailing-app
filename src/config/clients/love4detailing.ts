@@ -87,6 +87,21 @@ export const love4detailingConfig: ClientConfig = {
         question: "Do you provide mobile service?",
         answer: "Yes! We come to your location with all necessary equipment and water supply. Just ensure there's space for us to work safely around your vehicle."
       }
-    ]
+    ],
+    sidebar: {
+      mainNav: [
+        { href: '/', label: 'Home', icon: 'Home' },
+        { href: '/booking', label: 'Book Now', icon: 'Calendar' },
+        { href: '/services', label: 'Services', icon: 'Star' },
+        { href: '/faq', label: 'FAQs', icon: 'FileText' }
+      ],
+      adminNav: [
+        { href: '/dashboard/admin', label: 'Admin Dashboard', icon: 'Shield' }
+      ],
+      contact: [
+        { icon: 'Phone', label: '07908 625 581', href: 'tel:07908625581' },
+        { icon: 'MapPin', label: 'South West London', href: null }
+      ]
+    }
   }
 };
