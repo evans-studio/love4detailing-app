@@ -28,45 +28,19 @@ export function ClientProvider({ children }: ClientProviderProps) {
       setIsGoogleMapsLoaded(true);
       return;
     }
+
+    // Initialize GSAP
+    initGSAP();
   }, []);
 
-  useEffect(() => {
-    let cleanup: (() => void) | undefined;
-
-    // Initialize GSAP only in browser environment
-    if (typeof window !== 'undefined' && isClient) {
-      // Ensure global objects are available
-      if (!window.self) {
-        window.self = window;
-      }
-
-      // Initialize GSAP
-      const init = async () => {
-        try {
-          cleanup = await initGSAP();
-        } catch (error) {
-          console.error('Failed to initialize GSAP:', error);
-        }
-      };
-
-      init();
-    }
-
-    return () => {
-      cleanup?.();
-    };
-  }, [isClient]);
-
-  // Prevent hydration mismatch by not rendering until client-side
   if (!isClient) {
     return null;
   }
 
   return (
     <>
-      {/* Only load Google Maps script if not already loaded */}
       {!isGoogleMapsLoaded && (
-        <LoadScript {...mapsConfig} onLoad={() => setIsGoogleMapsLoaded(true)} />
+        <LoadScript {...mapsConfig} />
       )}
       {children}
     </>

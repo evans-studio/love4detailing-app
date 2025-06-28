@@ -11,6 +11,12 @@ const nextConfig = {
     optimizePackageImports: ['@mantine/core', '@radix-ui/react-*', 'gsap'],
     serverActions: true,
   },
+  // Optimize font loading
+  optimizeFonts: true,
+  // Disable automatic font optimization to prevent preload warnings
+  fontLoaderOptions: {
+    preload: false,
+  },
   webpack: (config, { isServer, dev }) => {
     // Handle browser globals and polyfills
     if (!isServer) {
