@@ -8,6 +8,7 @@ export type AuthUser = {
   email: string
   full_name: string
   created_at: string
+  role: string
   user_metadata?: {
     avatar_url?: string
     full_name?: string
@@ -344,10 +345,7 @@ export function useProtectedRoute() {
 }
 
 export function isAdminUser(user: AuthUser | null): boolean {
-  if (!user?.email) return false
-  
-  const adminEmails = ['evanspaul87@gmail.com', 'admin@love4detailing.com', 'd.dimpauls@gmail.com']
-  return adminEmails.includes(user.email)
+  return user?.role === 'admin'
 }
 
 export function useAdminRoute() {
