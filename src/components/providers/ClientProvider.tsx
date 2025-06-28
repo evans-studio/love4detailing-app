@@ -17,18 +17,10 @@ const LoadScript = dynamic(
 
 export function ClientProvider({ children }: ClientProviderProps) {
   const [isClient, setIsClient] = useState(false);
-  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
     
-    // Check if Google Maps script is already loaded
-    const existingScript = document.getElementById('google-maps-script');
-    if (existingScript || window.google?.maps) {
-      setIsGoogleMapsLoaded(true);
-      return;
-    }
-
     // Initialize GSAP
     initGSAP();
   }, []);
@@ -37,12 +29,5 @@ export function ClientProvider({ children }: ClientProviderProps) {
     return null;
   }
 
-  return (
-    <>
-      {!isGoogleMapsLoaded && (
-        <LoadScript {...mapsConfig} />
-      )}
-      {children}
-    </>
-  );
+  return children;
 } 

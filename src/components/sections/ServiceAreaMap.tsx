@@ -4,7 +4,8 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Search, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { GoogleMap, Circle, Marker, LoadScript, Libraries } from '@react-google-maps/api'
+import { useLoadScript, GoogleMap, Circle, Marker, Libraries } from '@react-google-maps/api'
+import { mapsConfig } from '@/lib/utils/clientInit'
 
 // Service areas from the footer
 const serviceAreas = [
@@ -175,8 +176,12 @@ export const ServiceAreaMap = () => {
     isInRadius: boolean;
     location?: { lat: number; lng: number };
   } | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [apiKeyError, setApiKeyError] = useState(false)
+
+  const { isLoaded, loadError } = useLoadScript({
+    ...mapsConfig,
+    id: 'google-maps-script'
+  })
 
   useEffect(() => {
     // Check if API key is available
@@ -184,7 +189,6 @@ export const ServiceAreaMap = () => {
       setApiKeyError(true)
       console.error('Google Maps API key is missing. Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env.local file.')
     }
-    setIsLoading(false)
   }, [])
 
   const handlePostcodeCheck = () => {
@@ -299,21 +303,23 @@ export const ServiceAreaMap = () => {
 
             {/* Google Map */}
             <div className="mb-8 rounded-[1.25rem] overflow-hidden border border-[#9747FF]/20">
-              {isLoading ? (
+              {!isLoaded ? (
                 <div className="w-full h-[400px] rounded-[1.25rem] bg-[#141414]/40 flex items-center justify-center">
                   <Loader2 className="w-8 h-8 text-[#9747FF] animate-spin" />
                 </div>
+              ) : loadError ? (
+                <div className="w-full h-[400px] rounded-[1.25rem] bg-[#141414]/40 flex items-center justify-center">
+                  <div className="text-center text-[#F8F4EB]/80">
+                    <p>Error loading map.</p>
+                    <p className="text-sm">Please check your internet connection and try again.</p>
+                  </div>
+                </div>
               ) : (
-                <LoadScript
-                  googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
-                  libraries={libraries}
-                >
-                  <MapComponent
-                    postcode={postcode}
-                    searchResult={searchResult}
-                    onSearchResult={setSearchResult}
-                  />
-                </LoadScript>
+                <MapComponent
+                  postcode={postcode}
+                  searchResult={searchResult}
+                  onSearchResult={setSearchResult}
+                />
               )}
             </div>
 
