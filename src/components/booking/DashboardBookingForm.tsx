@@ -25,9 +25,9 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/lib/auth'
 import { ServiceIcons } from '@/components/ui/icons'
-import type { VehicleData, VehicleSize } from '@/types'
+import type { VehicleData } from '@/types'
 import type { TimeSlot } from '@/types'
-import { vehicleSizes } from '@/lib/constants'
+import { vehicleSizes, type VehicleSize } from '@/lib/constants'
 
 const serviceTypes = [
   { 
