@@ -36,7 +36,7 @@ module.exports = {
       colors: {
         // Final Color Palette Specification (Dev Guidelines Compliant)
         'true-black': '#141414',        // Primary Background (app shell) - Dev Guidelines
-        'deep-purple': '#8A2B85',       // Primary Accent (buttons, icons, highlights) - Dev Guidelines
+        'deep-purple': '#9747FF',       // Primary Accent (buttons, icons, highlights) - Dev Guidelines
         'canvas-white': '#F8F4EB',      // Canvas/Off-white (Text Contrast) - Dev Guidelines
         'stone-grey': '#DAD7CE',        // Support Accent (Subtle) - Dev Guidelines
         'rich-crimson': '#BA0C2F',      // Secondary Accent (hover states, subtle highlights)

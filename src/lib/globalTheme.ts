@@ -5,7 +5,7 @@ export const globalTheme = {
   // Brand Colors (Dev Guidelines Compliant)
   colors: {
     // Primary brand colors
-    primary: '#8A2B85',           // Brand purple
+    primary: '#9747FF',           // Brand purple
     secondary: '#141414',         // True Black (Base)
     accent: '#F8F4EB',           // Canvas/Off-white (Text Contrast)  
     muted: '#DAD7CE',            // Stone Grey (Support Accent)

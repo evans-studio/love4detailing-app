@@ -16,7 +16,7 @@ import { twMerge } from "tailwind-merge"
 export const theme = {
   colors: {
     // Primary brand colors (dev-guidelines compliant)
-    primary: "#8A2B85",      // Purple (Primary Accent) 
+    primary: "#9747FF",      // Purple (Primary Accent) 
     background: "#141414",   // True Black (Base)
     text: "#F8F4EB",        // Canvas/Off-white (Text Contrast)
     accent: "#DAD7CE",      // Support Accent (Stone Grey)

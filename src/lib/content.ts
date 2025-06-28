@@ -139,6 +139,66 @@ type SidebarContent = {
   contact: ContactItem[];
 };
 
+type AdminContent = {
+  customers: {
+    title: string;
+    subtitle: string;
+    filters: {
+      all: string;
+      high_value: string;
+      loyal: string;
+    };
+    sort: {
+      name: string;
+      spent: string;
+      loyalty: string;
+      recent: string;
+    };
+    errors: {
+      loadProfile: string;
+    };
+  };
+};
+
+type ProfileContent = {
+  settings: {
+    title: string;
+    subtitle: string;
+    tabs: {
+      general: string;
+      notifications: string;
+      security: string;
+    };
+    sections: {
+      personalInfo: {
+        title: string;
+        description: string;
+        fields: {
+          fullName: string;
+          email: string;
+          phone: string;
+        };
+        buttons: {
+          changePhoto: string;
+        };
+      };
+    };
+    messages: {
+      success: string;
+      error: string;
+    };
+  };
+};
+
+type FAQContent = {
+  title: string;
+  subtitle: string;
+  questions: Array<{
+    question: string;
+    answer: string;
+  }>;
+};
+
 export type ContentSchema = {
   sidebar: SidebarContent;
   hero: HeroContent;
@@ -149,6 +209,9 @@ export type ContentSchema = {
   booking: BookingContent;
   dashboard: DashboardContent;
   footer: FooterContent;
+  admin: AdminContent;
+  profile: ProfileContent;
+  faq: FAQContent;
   common: {
     brandName: string;
     errors: {
@@ -345,12 +408,87 @@ export const content: ContentSchema = {
       contact: {
         title: "Contact Us",
         info: [
-          { label: "Email", value: "info@love4detailing.com" },
-          { label: "Phone", value: "+44 20 1234 5678" }
+          { label: "Email", value: "zell@love4detailing.com" },
+          { label: "Phone", value: "07908 625 581" }
         ]
       }
     },
     copyright: "© 2024 Love 4 Detailing. All rights reserved."
+  },
+  admin: {
+    customers: {
+      title: "Customer Management",
+      subtitle: "View and manage your customer base",
+      filters: {
+        all: "All Customers",
+        high_value: "High Value",
+        loyal: "Loyal Customers"
+      },
+      sort: {
+        name: "Name",
+        spent: "Total Spent",
+        loyalty: "Loyalty Points",
+        recent: "Recent Activity"
+      },
+      errors: {
+        loadProfile: "Error loading customer profile. Please try again."
+      }
+    }
+  },
+  profile: {
+    settings: {
+      title: "Profile Settings",
+      subtitle: "Manage your account settings and preferences",
+      tabs: {
+        general: "General",
+        notifications: "Notifications",
+        security: "Security"
+      },
+      sections: {
+        personalInfo: {
+          title: "Personal Information",
+          description: "Update your personal details and contact information",
+          fields: {
+            fullName: "Full Name",
+            email: "Email",
+            phone: "Phone"
+          },
+          buttons: {
+            changePhoto: "Change Photo"
+          }
+        }
+      },
+      messages: {
+        success: "Profile updated successfully",
+        error: "Failed to update profile"
+      }
+    }
+  },
+  faq: {
+    title: "Frequently Asked Questions",
+    subtitle: "Everything you need to know about our detailing services",
+    questions: [
+      {
+        question: "What areas do you cover?",
+        answer: "We currently service all of South West London, including Richmond, Kingston, Wimbledon, and surrounding areas. Contact us for specific coverage details."
+      },
+      {
+        question: "How long does a detail take?",
+        answer: "A standard detail typically takes 2-3 hours, depending on the vehicle size and condition. Premium services may take longer. We'll provide a specific time estimate when you book."
+      },
+      {
+        question: "Do you provide mobile service?",
+        answer: "Yes! We come to your location with all necessary equipment and water supply. Just ensure there's space for us to work safely around your vehicle."
+      },
+      {
+        question: "What payment methods do you accept?",
+        answer: "We accept all major credit/debit cards, Apple Pay, Google Pay, and bank transfers. Payment is processed securely through our booking system."
+      },
+      {
+        question: "What's included in your basic service?",
+        answer: "Our Essential Clean includes exterior wash, wheel cleaning, tire dressing, interior vacuum, dashboard/console cleaning, and window cleaning inside and out."
+      }
+    ]
   },
   common: {
     brandName: "Love 4 Detailing",

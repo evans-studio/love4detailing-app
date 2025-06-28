@@ -109,7 +109,7 @@ export default function Sidebar({ className, items }: SidebarProps) {
         {/* User Profile Section */}
         {!authLoading && user && (
           <motion.div 
-            className="mb-6 p-4 border-b border-[#8A2B85]/20"
+            className="mb-6 p-4 border-b border-[#9747FF]/20"
             variants={contentVariants}
             initial="hidden"
             animate="visible"
