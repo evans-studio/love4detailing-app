@@ -54,14 +54,20 @@ const formSchema = z.object({
   vehicle: z.string().min(1, 'Please select your vehicle'),
   vehicleYear: z.string().min(4, 'Vehicle year is required'),
   vehicleColor: z.string().optional(),
-  postcode: z.string().regex(/^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i, 'Invalid UK postcode'),
-  address: z.string().min(5, 'Full address is required'),
+  postcode: z.string().min(1, 'Postcode is required'),
+  address: z.string().min(1, 'Address is required'),
   date: z.string().min(1, 'Please select a date'),
   timeSlot: z.string().min(1, 'Please select a time slot'),
-  addOns: z.array(z.string()),
+  addOns: z.array(z.string()).default([]),
   specialRequests: z.string().optional(),
-  vehicleImages: z.array(z.string()).max(5, 'Maximum 5 images allowed').optional(),
+  vehicleImages: z.array(z.string()).default([]),
   accessInstructions: z.string().optional(),
+  // Profile fields
+  fullName: z.string().min(1, 'Full name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(1, 'Phone number is required'),
+  vehicleMake: z.string().min(1, 'Vehicle make is required'),
+  vehicleModel: z.string().min(1, 'Vehicle model is required')
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -125,6 +131,7 @@ export default function DashboardBookingForm() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      serviceType: 'basic',
       vehicleSize: 'm' as const,
       vehicle: '',
       vehicleYear: '',
@@ -137,7 +144,12 @@ export default function DashboardBookingForm() {
       specialRequests: '',
       vehicleImages: [],
       accessInstructions: '',
-    },
+      fullName: '',
+      email: '',
+      phone: '',
+      vehicleMake: '',
+      vehicleModel: ''
+    }
   })
 
   const { watch } = form
@@ -187,65 +199,42 @@ export default function DashboardBookingForm() {
     fetchWorkingDays()
   }, [toast])
 
-  // Fetch user profile and vehicle details on component mount
+  // Update profile loading to handle async vehicle size
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) return
-      
+    const loadProfile = async () => {
       try {
         const { data: profile, error } = await createClientComponentClient()
           .from('profiles')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', user?.id)
           .single()
 
         if (error) throw error
 
-        setUserProfile(profile)
-        
-        // Check if user has vehicle details (first time user check)
-        const hasVehicleDetails = profile.vehicle_make && profile.vehicle_model
-        setIsFirstTime(!hasVehicleDetails)
-        
-        // Set steps based on user type
-        if (!hasVehicleDetails) {
-          setCurrentStep(0) // Start with vehicle setup for first-time users
-          setMaxSteps(5) // Add extra steps: Vehicle Setup + Service + Date/Time + Customize + Review
-        } else {
-          setCurrentStep(1) // Start with service selection for returning users
-          setMaxSteps(4) // Standard steps: Service + Date/Time + Customize + Review
-        }
-        
-        // Pre-fill form with existing vehicle details if available
-        if (hasVehicleDetails) {
-          form.setValue('vehicle', profile.vehicle_make + ' ' + profile.vehicle_model)
-          form.setValue('vehicleYear', profile.vehicle_year?.toString() || '')
+        if (profile) {
+          // Pre-fill form with profile data
+          form.setValue('fullName', profile.full_name)
+          form.setValue('email', profile.email)
+          form.setValue('phone', profile.phone)
+          form.setValue('vehicleMake', profile.vehicle_make)
+          form.setValue('vehicleModel', profile.vehicle_model)
+          form.setValue('vehicleYear', profile.vehicle_year)
           
           // Determine vehicle size based on make/model
-          const vehicleSize = determineVehicleSize(profile.vehicle_make + ' ' + profile.vehicle_model)
-          form.setValue('vehicleSize', vehicleSize)
+          if (profile.vehicle_make && profile.vehicle_model) {
+            const vehicleSize = await determineVehicleSize(profile.vehicle_make + ' ' + profile.vehicle_model)
+            form.setValue('vehicleSize', vehicleSize)
+          }
         }
-        
-        // Pre-fill address if available
-        if (profile.address) {
-          form.setValue('address', profile.address)
-        }
-        if (profile.postcode) {
-          form.setValue('postcode', profile.postcode)
-        }
-        
       } catch (error) {
-        console.error('Error fetching user profile:', error)
-        toast({
-          title: "Error",
-          description: "Failed to load your profile details.",
-          variant: "destructive",
-        })
+        console.error('Error loading profile:', error)
       }
     }
 
-    fetchUserProfile()
-  }, [user, form, toast])
+    if (user) {
+      loadProfile()
+    }
+  }, [user, form])
 
   // Helper function to get popular models for a given make
   const getPopularModels = (make: string): string => {
