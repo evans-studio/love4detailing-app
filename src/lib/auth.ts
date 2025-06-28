@@ -329,4 +329,38 @@ export function useProtectedRoute() {
   }, [user, isLoading, router])
 
   return { user, isLoading }
+}
+
+export function isAdminUser(user: AuthUser | null): boolean {
+  if (!user?.email) return false
+  
+  const adminEmails = ['evanspaul87@gmail.com', 'admin@love4detailing.com', 'd.dimpauls@gmail.com']
+  return adminEmails.includes(user.email)
+}
+
+export function useAdminRoute() {
+  const { user, isLoading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to access this page",
+          variant: "destructive",
+        })
+        router.push('/')
+      } else if (!isAdminUser(user)) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access this page",
+          variant: "destructive",
+        })
+        router.push('/dashboard')
+      }
+    }
+  }, [user, isLoading, router])
+
+  return { user, isLoading, isAdmin: isAdminUser(user) }
 } 
