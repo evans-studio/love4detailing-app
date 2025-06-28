@@ -134,9 +134,12 @@ export const initSectionTransitions = () => {
   
   // Text reveal animations
   const animateTextReveal = (selector: string) => {
-    const elements = document.querySelectorAll(selector)
+    const elements = Array.from(document.querySelectorAll(selector))
+    if (!elements.length) return
     
     elements.forEach((element) => {
+      if (!element) return
+      
       // Split text into lines
       const text = element.textContent || ''
       const lines = text.split('\n').filter(line => line.trim())
@@ -146,7 +149,8 @@ export const initSectionTransitions = () => {
           `<div style="overflow: hidden;"><div class="text-line">${line}</div></div>`
         ).join('')
         
-        const textLines = element.querySelectorAll('.text-line')
+        const textLines = Array.from(element.querySelectorAll('.text-line'))
+        if (!textLines.length) return
         
         gsap.fromTo(textLines,
           {

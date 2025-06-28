@@ -92,8 +92,8 @@ export const staggerChildren = (
 
   // Get all child elements that match the selector
   const childElements = parent instanceof Element 
-    ? parent.querySelectorAll(children)
-    : document.querySelectorAll(`${parent} ${children}`)
+    ? Array.from(parent.querySelectorAll(children))
+    : Array.from(document.querySelectorAll(`${parent} ${children}`))
 
   if (options.scrollTrigger) {
     return gsap.from(childElements, {
@@ -291,4 +291,92 @@ export const animations = {
   timings,
   easings,
   distances,
+}
+
+export const animateElements = (parent: string | Element, children: string) => {
+  if (typeof window === 'undefined') return
+
+  // Convert NodeList to Array and ensure elements exist
+  const childElements = parent instanceof Element 
+    ? Array.from(parent.querySelectorAll(children))
+    : Array.from(document.querySelectorAll(`${parent} ${children}`))
+
+  if (!childElements.length) return
+
+  gsap.fromTo(
+    childElements,
+    { 
+      opacity: 0,
+      y: 20 
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power2.out'
+    }
+  )
+}
+
+export const animateSection = (section: Element | null) => {
+  if (!section || typeof window === 'undefined') return
+
+  const elements = Array.from(section.children)
+  if (!elements.length) return
+
+  gsap.fromTo(
+    elements,
+    {
+      opacity: 0,
+      y: 30
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'power2.out'
+    }
+  )
+}
+
+export const animateHero = (heroSection: Element | null) => {
+  if (!heroSection || typeof window === 'undefined') return
+
+  const elements = Array.from(heroSection.children)
+  if (!elements.length) return
+
+  const timeline = gsap.timeline()
+
+  timeline
+    .fromTo(
+      elements,
+      {
+        opacity: 0,
+        y: 30
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        stagger: 0.2,
+        ease: 'power2.out'
+      }
+    )
+    .fromTo(
+      heroSection.querySelectorAll('.hero-accent'),
+      {
+        scale: 0.8,
+        opacity: 0
+      },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'back.out(1.7)'
+      },
+      '-=0.4'
+    )
 } 

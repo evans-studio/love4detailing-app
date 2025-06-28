@@ -117,4 +117,10 @@ export interface DashboardBookingFormData extends BookingFormData {
   serviceType: string
   notes?: string
   customerPhone?: string
+}
+
+import { ReactNode } from 'react';
+
+export interface ClientProviderProps {
+  children: ReactNode;
 } 

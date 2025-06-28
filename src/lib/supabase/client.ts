@@ -2,6 +2,16 @@ import { createBrowserClient } from '@supabase/ssr'
 import { SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_OPTIONS } from './config'
 import type { CookieOptions } from '@supabase/ssr'
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const createClient = () => {
+  return createBrowserClient(
+    supabaseUrl,
+    supabaseAnonKey
+  )
+}
+
 export const supabase = createBrowserClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY,

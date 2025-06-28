@@ -37,22 +37,26 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
   const [map, setMap] = useState<google.maps.Map | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const geocoderRef = useRef<google.maps.Geocoder | null>(null)
+  const mapRef = useRef<google.maps.Map | null>(null)
 
   const onLoad = useCallback((map: google.maps.Map) => {
+    if (!map) return
     const bounds = new google.maps.LatLngBounds(SERVICE_CENTER)
     bounds.extend({ lat: SERVICE_CENTER.lat + 0.1, lng: SERVICE_CENTER.lng + 0.1 })
     map.fitBounds(bounds)
     setMap(map)
+    mapRef.current = map
     geocoderRef.current = new google.maps.Geocoder()
   }, [])
 
   const onUnmount = useCallback(() => {
     setMap(null)
+    mapRef.current = null
     geocoderRef.current = null
   }, [])
 
   useEffect(() => {
-    if (!geocoderRef.current || !postcode) return
+    if (!geocoderRef.current || !postcode || !mapRef.current) return
 
     const checkPostcode = async () => {
       setIsLoading(true)
@@ -79,9 +83,9 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
           })
 
           // Center the map on the searched location
-          if (map) {
-            map.panTo(location)
-            map.setZoom(12)
+          if (mapRef.current) {
+            mapRef.current.panTo(location)
+            mapRef.current.setZoom(12)
           }
         } else {
           onSearchResult(null)
@@ -96,7 +100,7 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
 
     const timeoutId = setTimeout(checkPostcode, 500)
     return () => clearTimeout(timeoutId)
-  }, [postcode, map, onSearchResult])
+  }, [postcode, onSearchResult])
 
   return (
     <div className="relative">
@@ -129,20 +133,22 @@ const MapComponent = ({ postcode, searchResult, onSearchResult }: {
         }}
       >
         {/* Service Area Circle */}
-        <Circle
-          center={SERVICE_CENTER}
-          radius={RADIUS_IN_MILES * METERS_PER_MILE}
-          options={{
-            fillColor: '#9747FF',
-            fillOpacity: 0.1,
-            strokeColor: '#9747FF',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-          }}
-        />
+        {map && (
+          <Circle
+            center={SERVICE_CENTER}
+            radius={RADIUS_IN_MILES * METERS_PER_MILE}
+            options={{
+              fillColor: '#9747FF',
+              fillOpacity: 0.1,
+              strokeColor: '#9747FF',
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+            }}
+          />
+        )}
 
         {/* Search Result Marker */}
-        {searchResult?.location && (
+        {map && searchResult?.location && (
           <Marker
             position={searchResult.location}
             icon={{
