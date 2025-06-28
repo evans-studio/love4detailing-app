@@ -87,11 +87,12 @@ const bookingSchema = z.object({
 // =================================================================
 // Website Content
 // =================================================================
-const heroSectionSchema = z.object({
+export const heroSectionSchema = z.object({
   title: z.string().min(1, "Hero title cannot be empty."),
   subtitle: z.string().min(1, "Hero subtitle cannot be empty."),
   ctaButtonText: z.string().min(1, "CTA button text cannot be empty."),
 });
+export type HeroSection = z.infer<typeof heroSectionSchema>;
 
 export const faqItemSchema = z.object({
   question: z.string().min(1, "FAQ question cannot be empty."),
