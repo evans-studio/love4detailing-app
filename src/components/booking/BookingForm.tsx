@@ -8,11 +8,10 @@ import { format } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { slideVariants, fadeInUp } from '@/lib/animations/motion-variants'
 import { bookingLogger } from '@/lib/utils/logger'
-import type { BookingFormData, TimeSlot } from '@/types'
+import type { BookingFormData, TimeSlot, VehicleData } from '@/types'
 import { supabase } from '@/lib/supabase/client'
 import { calculateTravelFee } from '@/lib/utils/calculateTravelFee'
 import { calculateTimeSlots, getWorkingDays, isWorkingDay } from '@/lib/utils/calculateTimeSlots'
-import { detectVehicle, getFallbackSize } from '@/lib/utils/vehicleDatabase'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardHeader, CardContent } from '@/components/ui/Card'
@@ -42,7 +41,6 @@ import {
 } from 'lucide-react'
 import { ServiceIcons } from '@/components/ui/icons'
 import { VehicleAutocomplete } from '@/components/ui/VehicleAutocomplete'
-import { VehicleSearchResult, LicensePlateResult } from '@/lib/utils/vehicleDatabase'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import { AddressInput } from './AddressInput'
@@ -146,7 +144,7 @@ export default function BookingForm() {
   const { user } = useAuth()
   const router = useRouter()
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null)
-  const [vehicleData, setVehicleData] = useState<VehicleSearchResult | LicensePlateResult | null>(null)
+  const [vehicleData, setVehicleData] = useState<VehicleData | null>(null)
   const [autoDetectedSize, setAutoDetectedSize] = useState<VehicleSizeKey | null>(null)
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -286,28 +284,14 @@ export default function BookingForm() {
   }, [selectedPostcode])
 
   // Handle vehicle lookup and auto-size detection
-  const handleVehicleChange = (value: string, vehicleData?: VehicleSearchResult | LicensePlateResult) => {
-    setVehicleData(vehicleData || null)
-    
-    if (vehicleData?.size) {
-      // Convert size from database format to form format
-      const sizeMapping = {
-        's': 'small',
-        'm': 'medium', 
-        'l': 'large',
-        'xl': 'extraLarge'
-      }
-      
-      const mappedSize = sizeMapping[vehicleData.size as keyof typeof sizeMapping]
-      if (mappedSize) {
-        setAutoDetectedSize(mappedSize as any)
-        form.setValue('vehicleSize', mappedSize as any)
-        
-        toast({
-          title: "Vehicle Detected!",
-          description: `We've automatically selected "${vehicleSizes[mappedSize as keyof typeof vehicleSizes].label}" based on your vehicle.`,
-        })
-      }
+  const handleVehicleChange = (value: string, vehicleData?: VehicleData) => {
+    form.setValue('vehicleLookup', value)
+    if (vehicleData) {
+      setVehicleData(vehicleData)
+      // Set a default size if none is provided
+      const size = vehicleData.size || 'medium'
+      setAutoDetectedSize(size as VehicleSizeKey)
+      form.setValue('vehicleSize', size as VehicleSizeKey)
     }
   }
 
