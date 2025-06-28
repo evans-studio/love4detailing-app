@@ -11,6 +11,41 @@ try {
   console.warn('ScrollTrigger not available, animations will work without scroll triggers')
 }
 
+// Utility function to safely convert NodeList to Array and validate elements
+const getValidElements = (selector: string): Element[] => {
+  if (typeof window === 'undefined') return []
+  const elements = document.querySelectorAll(selector)
+  return Array.from(elements).filter(el => el instanceof Element)
+}
+
+// Utility function to safely animate with ScrollTrigger
+const safeAnimate = (elements: Element[], animation: gsap.TweenVars, scrollTrigger?: boolean) => {
+  if (!elements.length) return null
+  
+  try {
+    const config = scrollTrigger ? {
+      ...animation,
+      scrollTrigger: {
+        trigger: elements[0],
+        start: "top 85%",
+        end: "bottom 15%",
+        toggleActions: "play none none reverse"
+      }
+    } : animation
+
+    return gsap.fromTo(elements, 
+      { y: 60, opacity: 0, scale: 0.95 },
+      config
+    )
+  } catch (error) {
+    console.warn('Animation failed, falling back to basic animation', error)
+    return gsap.fromTo(elements, 
+      { y: 60, opacity: 0, scale: 0.95 },
+      animation
+    )
+  }
+}
+
 // Create wave divider between sections
 export const createWaveDivider = (section: HTMLElement, position: 'top' | 'bottom' = 'bottom') => {
   const wave = document.createElement('div')
@@ -56,49 +91,18 @@ export const createWaveDivider = (section: HTMLElement, position: 'top' | 'botto
 export const initSectionTransitions = () => {
   // Section entrance animations with stagger
   const animateSectionEntrance = (selector: string, delay: number = 0) => {
-    const elements = document.querySelectorAll(selector)
+    const elements = getValidElements(selector)
+    if (!elements.length) return
     
     elements.forEach((element, index) => {
-      try {
-        gsap.fromTo(element, 
-          {
-            y: 60,
-            opacity: 0,
-            scale: 0.95
-          },
-          {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            duration: 1.2,
-            ease: easePresets.premium,
-            delay: delay + (index * 0.1),
-            scrollTrigger: {
-              trigger: element,
-              start: "top 85%",
-              end: "bottom 15%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        )
-      } catch (error) {
-        // Fallback without ScrollTrigger
-        gsap.fromTo(element, 
-          {
-            y: 60,
-            opacity: 0,
-            scale: 0.95
-          },
-          {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            duration: 1.2,
-            ease: easePresets.premium,
-            delay: delay + (index * 0.1)
-          }
-        )
-      }
+      safeAnimate([element], {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        ease: easePresets.premium,
+        delay: delay + (index * 0.1)
+      }, true)
     })
   }
   
@@ -107,39 +111,25 @@ export const initSectionTransitions = () => {
     const container = document.querySelector(containerSelector)
     if (!container) return
     
-    const cards = container.querySelectorAll('[class*="Card"], .card, [class*="card"]')
+    const cards = getValidElements(`${containerSelector} [class*="Card"], ${containerSelector} .card, ${containerSelector} [class*="card"]`)
+    if (!cards.length) return
     
-    gsap.fromTo(cards,
-      {
-        y: 40,
-        opacity: 0,
-        rotateX: 10
-      },
-      {
-        y: 0,
-        opacity: 1,
-        rotateX: 0,
-        duration: 0.8,
-        ease: easePresets.premium,
-        stagger: 0.15,
-        scrollTrigger: {
-          trigger: container,
-          start: "top 75%",
-          end: "bottom 25%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    )
+    safeAnimate(cards, {
+      y: 0,
+      opacity: 1,
+      rotateX: 0,
+      duration: 0.8,
+      ease: easePresets.premium,
+      stagger: 0.15
+    }, true)
   }
   
   // Text reveal animations
   const animateTextReveal = (selector: string) => {
-    const elements = Array.from(document.querySelectorAll(selector))
+    const elements = getValidElements(selector)
     if (!elements.length) return
     
     elements.forEach((element) => {
-      if (!element) return
-      
       // Split text into lines
       const text = element.textContent || ''
       const lines = text.split('\n').filter(line => line.trim())
@@ -149,54 +139,31 @@ export const initSectionTransitions = () => {
           `<div style="overflow: hidden;"><div class="text-line">${line}</div></div>`
         ).join('')
         
-        const textLines = Array.from(element.querySelectorAll('.text-line'))
+        const textLines = getValidElements(`${selector} .text-line`)
         if (!textLines.length) return
         
-        gsap.fromTo(textLines,
-          {
-            y: '100%',
-            opacity: 0
-          },
-          {
-            y: '0%',
-            opacity: 1,
-            duration: 0.8,
-            ease: easePresets.premium,
-            stagger: 0.1,
-            scrollTrigger: {
-              trigger: element,
-              start: "top 80%",
-              end: "bottom 20%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        )
+        safeAnimate(textLines, {
+          y: '0%',
+          opacity: 1,
+          duration: 0.8,
+          ease: easePresets.premium,
+          stagger: 0.1
+        }, true)
       } else {
-        // Handle single line text
-        gsap.fromTo(element,
-          {
-            y: 20,
-            opacity: 0
-          },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.6,
-            ease: easePresets.premium,
-            scrollTrigger: {
-              trigger: element,
-              start: "top 80%",
-              end: "bottom 20%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        )
+        safeAnimate([element], {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: easePresets.premium
+        }, true)
       }
     })
   }
   
   // Initialize all section transitions
   const initializeTransitions = () => {
+    if (typeof window === 'undefined') return
+    
     // Animate main sections
     animateSectionEntrance('section', 0)
     
@@ -207,18 +174,15 @@ export const initSectionTransitions = () => {
     animateTextReveal('h1, h2')
   }
   
-  // Initialize on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeTransitions)
-  } else {
-    initializeTransitions()
-  }
+  // Run initialization
+  initializeTransitions()
   
-  return {
-    animateSectionEntrance,
-    createWaveDivider,
-    animateCards,
-    animateTextReveal
+  // Return cleanup function
+  return () => {
+    if (typeof window !== 'undefined') {
+      gsap.killTweensOf('*')
+      ScrollTrigger?.getAll().forEach(trigger => trigger.kill())
+    }
   }
 }
 

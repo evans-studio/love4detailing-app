@@ -19,7 +19,14 @@ export function FAQClient() {
           transition={{ duration: 0.5 }}
           className="max-w-3xl mx-auto"
         >
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#F8F4EB] text-center mb-4 sm:mb-6">
+          <h1 className={cn(
+            "text-3xl font-bold mt-4 mb-2",
+            "sm:text-4xl lg:text-5xl",
+            "text-[#F8F4EB] text-center",
+            "bg-gradient-to-r from-[#F8F4EB] to-[#9747FF]",
+            "bg-clip-text text-transparent",
+            "tracking-tight leading-tight"
+          )}>
             {content.faq.title}
           </h1>
           <p className="text-[#C7C7C7] text-sm sm:text-base text-center mb-8 sm:mb-12">

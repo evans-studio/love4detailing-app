@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { initGSAP } from '@/lib/utils/clientInit';
 import type { ClientProviderProps } from '@/types';
+import { mapsConfig } from '@/lib/utils/clientInit';
 
 // Import polyfills
 import '@/lib/polyfills/browser-polyfills';
@@ -20,9 +21,12 @@ export function ClientProvider({ children }: ClientProviderProps) {
 
   useEffect(() => {
     setIsClient(true);
-    // Check if Google Maps is already loaded
-    if (window.google?.maps) {
+    
+    // Check if Google Maps script is already loaded
+    const existingScript = document.getElementById('google-maps-script');
+    if (existingScript || window.google?.maps) {
       setIsGoogleMapsLoaded(true);
+      return;
     }
   }, []);
 
@@ -62,16 +66,7 @@ export function ClientProvider({ children }: ClientProviderProps) {
     <>
       {/* Only load Google Maps script if not already loaded */}
       {!isGoogleMapsLoaded && (
-        <LoadScript
-          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
-          onLoad={() => setIsGoogleMapsLoaded(true)}
-          id="google-maps-script"
-          libraries={['places']}
-          language="en"
-          region="GB"
-          version="weekly"
-          preventGoogleFontsLoading
-        />
+        <LoadScript {...mapsConfig} onLoad={() => setIsGoogleMapsLoaded(true)} />
       )}
       {children}
     </>
