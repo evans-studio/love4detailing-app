@@ -1,4 +1,3 @@
-import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { SupabaseProvider } from '@/components/providers/SupabaseProvider'
 import { MantineProvider } from '@/components/providers/MantineProvider'
@@ -7,13 +6,6 @@ import { Toaster } from '@/components/ui/toaster'
 import AppLayout from '@/components/layout/AppLayout'
 import { Viewport } from 'next'
 import PremiumLoadingProvider from '@/components/providers/PremiumLoadingProvider'
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-  preload: true,
-})
 
 export const metadata = {
   title: 'Love4Detailing',
@@ -56,20 +48,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(
       "dark",
-      inter.variable,
       "font-sans antialiased",
       "[&_*]:!transition-[background-color]",
       "motion-reduce:transform-none motion-reduce:transition-none"
     )} suppressHydrationWarning>
-      <head>
-        <link
-          rel="preload"
-          href={`/fonts/inter-var-latin.woff2`}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body className="min-h-screen font-sans antialiased bg-[#141414]">
         <SupabaseProvider>
           <MantineProvider>

@@ -175,7 +175,7 @@ module.exports = {
       },
       fontFamily: {
         'heading': ['Helvetica', 'Arial', 'sans-serif'],
-        'sans': ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        'sans': ['Helvetica', 'Arial', 'sans-serif'],
       },
       spacing: {
         'touch': '44px', // Minimum touch target size
