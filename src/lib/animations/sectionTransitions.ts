@@ -213,6 +213,8 @@ export const scaleOnScroll = (element: HTMLElement, scale = 1.2) => {
     },
     {
       scale,
+      duration: 1,
+      ease: 'power2.out',
       scrollTrigger: {
         trigger: element,
         start: 'top center',
@@ -226,6 +228,7 @@ export const scaleOnScroll = (element: HTMLElement, scale = 1.2) => {
 export const rotateOnScroll = (element: HTMLElement, rotation = 360) => {
   gsap.to(element, {
     rotation,
+    duration: 1,
     ease: 'none',
     scrollTrigger: {
       trigger: element,
@@ -234,4 +237,61 @@ export const rotateOnScroll = (element: HTMLElement, rotation = 360) => {
       scrub: true,
     },
   })
+}
+
+// Initialize all section transitions
+export const initSectionTransitions = () => {
+  if (typeof window === 'undefined') return
+
+  // Animate text elements
+  animateTextReveal('.gsap-text-reveal')
+
+  // Animate sections
+  animateSectionReveal('.gsap-section-reveal')
+
+  // Add wave dividers to sections that need them
+  document.querySelectorAll('.gsap-wave-section').forEach(section => {
+    if (section instanceof HTMLElement) {
+      createWaveDivider(section)
+    }
+  })
+
+  // Initialize parallax elements
+  document.querySelectorAll('.gsap-parallax').forEach(element => {
+    if (element instanceof HTMLElement) {
+      parallaxScroll(element)
+    }
+  })
+
+  // Initialize scale animations
+  document.querySelectorAll('.gsap-scale').forEach(element => {
+    if (element instanceof HTMLElement) {
+      scaleOnScroll(element)
+    }
+  })
+
+  // Initialize rotate animations
+  document.querySelectorAll('.gsap-rotate').forEach(element => {
+    if (element instanceof HTMLElement) {
+      rotateOnScroll(element)
+    }
+  })
+
+  // Initialize stagger animations for lists
+  document.querySelectorAll('.gsap-stagger-container').forEach(container => {
+    if (container instanceof HTMLElement) {
+      staggerChildren(container, '.gsap-stagger-item')
+    }
+  })
+
+  // Initialize fade-in animations
+  document.querySelectorAll('.gsap-fade-in').forEach((element, index) => {
+    if (element instanceof HTMLElement) {
+      fadeInOnScroll(element, index * 0.1)
+    }
+  })
+
+  return () => {
+    cleanupAnimations()
+  }
 } 
