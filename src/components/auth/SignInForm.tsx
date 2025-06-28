@@ -10,6 +10,7 @@ import { content } from '@/lib/content'
 import { useToast } from '@/hooks/use-toast'
 import { signIn } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -120,7 +121,14 @@ export const SignInForm = ({
         className="w-full"
         disabled={isLoading}
       >
-        {content.auth.signIn.button}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          content.auth.signIn.button
+        )}
       </Button>
 
       <p className="text-center text-sm text-[#F8F4EB]/70">

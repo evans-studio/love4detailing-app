@@ -10,6 +10,7 @@ import { content } from '@/lib/content'
 import { useToast } from '@/hooks/use-toast'
 import { signUp } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 
 const signUpSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -134,7 +135,14 @@ export const SignUpForm = ({
         className="w-full"
         disabled={isLoading}
       >
-        {content.auth.signUp.button}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Creating account...
+          </>
+        ) : (
+          content.auth.signUp.button
+        )}
       </Button>
 
       <p className="text-center text-sm text-[#F8F4EB]/70">
