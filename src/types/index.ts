@@ -55,6 +55,7 @@ export interface VehicleData {
   motStatus?: string
   taxStatus?: string
   registrationNumber?: string
+  size?: 's' | 'm' | 'l' | 'xl'
 }
 
 export interface PaymentResult {

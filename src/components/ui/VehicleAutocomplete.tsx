@@ -2,19 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Input } from './Input'
-import { 
-  searchVehicles, 
-  VehicleSearchResult, 
-  isUKLicensePlate, 
-  lookupByLicensePlate, 
-  LicensePlateResult 
-} from '@/lib/utils/vehicleDatabase'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { VehicleData } from '@/types'
+import type { VehicleSize } from '@/lib/constants'
 
 interface VehicleAutocompleteProps {
   value: string
-  onChange: (value: string, vehicleData?: VehicleSearchResult | LicensePlateResult) => void
+  onChange: (value: string, vehicleData?: VehicleData) => void
   placeholder?: string
   className?: string
   disabled?: boolean
@@ -23,13 +18,12 @@ interface VehicleAutocompleteProps {
 export function VehicleAutocomplete({ 
   value, 
   onChange, 
-  placeholder = "Enter reg plate (AB12 CDE) or search vehicle...", 
+  placeholder = "Enter reg plate (AB12 CDE)...", 
   className,
   disabled = false 
 }: VehicleAutocompleteProps) {
   const [query, setQuery] = useState(value)
-  const [prediction, setPrediction] = useState('')
-  const [selectedVehicle, setSelectedVehicle] = useState<VehicleSearchResult | LicensePlateResult | null>(null)
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleData | null>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -39,71 +33,50 @@ export function VehicleAutocomplete({
     setQuery(value)
   }, [value])
 
-  // Detect input type and search accordingly
+  // UK license plate format validation
+  const isUKLicensePlate = (input: string): boolean => {
+    const cleanInput = input.replace(/\s+/g, '').toUpperCase()
+    return /^[A-Z]{2}[0-9]{2}[A-Z]{3}$/.test(cleanInput)
+  }
+
+  // Detect input type and search using DVLA API
   useEffect(() => {
     const detectAndSearch = async () => {
       if (query.length < 2) {
-        setPrediction('')
         setSelectedVehicle(null)
         setShowConfirmation(false)
         return
       }
 
-      const isRegPlate = isUKLicensePlate(query)
+      const isRegPlate = isUKLicensePlate(query.replace(/\s+/g, ''))
 
-      if (isRegPlate && query.replace(/\s+/g, '').length >= 6) {
-        // License plate lookup
+      if (isRegPlate) {
+        // License plate lookup via DVLA API
         setIsLoading(true)
         try {
-          const result = await lookupByLicensePlate(query)
-          if (result) {
-            setSelectedVehicle(result)
+          const response = await fetch(`/api/dvla/vehicle-details?registration=${query}`)
+          const data = await response.json()
+          
+          if (response.ok && data) {
+            setSelectedVehicle(data)
             setShowConfirmation(true)
-            setPrediction('')
           } else {
             setSelectedVehicle(null)
             setShowConfirmation(false)
-            setPrediction('')
           }
         } catch (error) {
           console.error('License plate lookup failed:', error)
           setSelectedVehicle(null)
           setShowConfirmation(false)
-          setPrediction('')
         }
         setIsLoading(false)
       } else {
-        // Predictive text search
-        const results = searchVehicles(query, 1)
-        if (results.length > 0) {
-          const topResult = results[0]
-          const displayName = topResult.displayName.toLowerCase()
-          const queryLower = query.toLowerCase()
-          
-          // Only show prediction if the result starts with what user typed
-          if (displayName.startsWith(queryLower) && displayName !== queryLower) {
-            setPrediction(topResult.displayName)
-            setSelectedVehicle(topResult)
-            setShowConfirmation(false)
-          } else if (displayName === queryLower) {
-            // Exact match - show confirmation
-            setPrediction('')
-            setSelectedVehicle(topResult)
-            setShowConfirmation(true)
-          } else {
-            setPrediction('')
-            setSelectedVehicle(null)
-            setShowConfirmation(false)
-          }
-        } else {
-          setPrediction('')
-          setSelectedVehicle(null)
-          setShowConfirmation(false)
-        }
+        setSelectedVehicle(null)
+        setShowConfirmation(false)
       }
     }
 
-    const debounceTimer = setTimeout(detectAndSearch, isUKLicensePlate(query) ? 300 : 100)
+    const debounceTimer = setTimeout(detectAndSearch, 300)
     return () => clearTimeout(debounceTimer)
   }, [query])
 
@@ -113,53 +86,28 @@ export function VehicleAutocomplete({
     onChange(newValue)
   }
 
-  const acceptPrediction = () => {
-    if (prediction && selectedVehicle) {
-      setQuery(prediction)
-      onChange(prediction, selectedVehicle)
-      setPrediction('')
-      setShowConfirmation(true)
-    }
-  }
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case 'Tab':
-      case 'ArrowRight':
-        if (prediction) {
-          e.preventDefault()
-          acceptPrediction()
-        }
-        break
-      case 'Enter':
-        if (prediction) {
-          e.preventDefault()
-          acceptPrediction()
-        } else if (selectedVehicle && showConfirmation) {
-          e.preventDefault()
-          // Already confirmed, do nothing
-        }
-        break
-      case 'Escape':
-        setPrediction('')
-        setSelectedVehicle(null)
-        setShowConfirmation(false)
-        inputRef.current?.blur()
-        break
+    if (e.key === 'Enter' && selectedVehicle && showConfirmation) {
+      e.preventDefault()
+      // Already confirmed, do nothing
+    } else if (e.key === 'Escape') {
+      setSelectedVehicle(null)
+      setShowConfirmation(false)
+      inputRef.current?.blur()
     }
   }
 
-  const getSizeColor = (size: string) => {
+  const getSizeColor = (size: VehicleSize) => {
     switch (size) {
       case 's': return 'bg-green-100 text-green-800'
       case 'm': return 'bg-blue-100 text-blue-800'
-              case 'l': return 'bg-deep-purple/20 text-deep-purple'
+      case 'l': return 'bg-deep-purple/20 text-deep-purple'
       case 'xl': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
 
-  const getSizeLabel = (size: string) => {
+  const getSizeLabel = (size: VehicleSize) => {
     switch (size) {
       case 's': return 'Small'
       case 'm': return 'Medium'
@@ -167,10 +115,6 @@ export function VehicleAutocomplete({
       case 'xl': return 'Extra Large'
       default: return 'Medium'
     }
-  }
-
-  const isLicensePlateResult = (vehicle: any): vehicle is LicensePlateResult => {
-    return vehicle && 'registrationNumber' in vehicle
   }
 
   return (
@@ -183,18 +127,6 @@ export function VehicleAutocomplete({
           </div>
         )}
 
-        {/* Prediction text (gray background text) */}
-        {prediction && !isLoading && (
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="w-full h-full flex items-center px-3 text-gray-400">
-              <span className="invisible">{query}</span>
-              <span className="text-gray-400">
-                {prediction.slice(query.length)}
-              </span>
-            </div>
-          </div>
-        )}
-
         {/* Actual input */}
         <Input
           ref={inputRef}
@@ -203,53 +135,42 @@ export function VehicleAutocomplete({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className={cn("relative z-10 bg-transparent", isLoading && "pr-10", className)}
+          className={cn(
+            "pr-10",
+            showConfirmation && "pr-16",
+            className
+          )}
           disabled={disabled}
           autoComplete="off"
         />
+
+        {/* Confirmation checkmark */}
+        {showConfirmation && selectedVehicle && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          </div>
+        )}
       </div>
 
-      {/* Subtle prediction hint */}
-      {prediction && !isLoading && (
-        <div className="mt-1 text-xs text-muted-foreground">
-          Press Tab to complete: <span className="font-medium">{prediction}</span>
-        </div>
-      )}
-
-      {/* Clean confirmation message */}
-      {showConfirmation && selectedVehicle && (
-        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <div className="flex-1">
-              {isLicensePlateResult(selectedVehicle) ? (
-                // License plate result
-                <div>
-                  <div className="text-sm font-medium text-green-900">
-                    {selectedVehicle.make} {selectedVehicle.model || ''}
-                  </div>
-                  <div className="text-xs text-green-700">
-                    {selectedVehicle.registrationNumber} • {selectedVehicle.yearOfManufacture} • {selectedVehicle.fuelType}
-                  </div>
-                </div>
-              ) : (
-                // Search result
-                <div>
-                  <div className="text-sm font-medium text-green-900">
-                    {selectedVehicle.make} {selectedVehicle.model}
-                  </div>
-                  <div className="text-xs text-green-700">
-                    {selectedVehicle.trim}
-                  </div>
-                </div>
-              )}
+      {/* Vehicle details preview */}
+      {selectedVehicle && showConfirmation && (
+        <div className="absolute top-full left-0 right-0 mt-1 p-2 bg-white border rounded-md shadow-lg z-50">
+          <div className="text-sm">
+            <div className="font-medium">
+              {selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.yearOfManufacture})
             </div>
-            <span className={cn(
-              "px-2 py-1 rounded-full text-xs font-medium",
-              getSizeColor(selectedVehicle.size)
-            )}>
-              {getSizeLabel(selectedVehicle.size)}
-            </span>
+            <div className="text-gray-500 text-xs mt-1">
+              {selectedVehicle.colour} • {selectedVehicle.fuelType}
+              {selectedVehicle.engineCapacity && ` • ${selectedVehicle.engineCapacity}cc`}
+            </div>
+            {selectedVehicle.size && (
+              <div className={cn(
+                "inline-block px-2 py-0.5 rounded text-xs mt-2",
+                getSizeColor(selectedVehicle.size as VehicleSize)
+              )}>
+                {getSizeLabel(selectedVehicle.size as VehicleSize)}
+              </div>
+            )}
           </div>
         </div>
       )}
