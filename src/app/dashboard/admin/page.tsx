@@ -8,9 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useAdminRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -33,18 +32,18 @@ import {
   Phone,
   Mail,
   Filter,
-  Download,
   Eye,
   UserCheck,
   CalendarDays,
   PoundSterling,
-  Award,
-  MoreHorizontal,
-  Settings,
   BarChart3,
   Activity,
   ChevronRight,
-  User
+  User,
+  Download,
+  Settings,
+  MoreHorizontal,
+  Award
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

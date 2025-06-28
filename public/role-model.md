@@ -1,4 +1,3 @@
-Developer Guidance — Build Like a Professional
 
 This is a standard for all future projects built under Evans Studio. The following principles and systems are designed to keep the app clean, scalable, and production-ready — whether you’re deploying a single version for a client or templating for multi-use resale.
 
@@ -42,9 +41,9 @@ Directory Example:
 
 
 
-3. CLIENT-FRIENDLY CONTENT STRUCTURE
+3. CLIENT-UPDATE CONTENT STRUCTURE
 
-Your clients will likely ask for small changes (text, pricing, services). Make it easy.
+ i (Paul) will be making making small changes (text, pricing, services). Make it easy.
 	•	All text, labels, and settings should be editable from a single source of truth.
 	•	Use the content.ts file that already exists
 
@@ -156,6 +155,4 @@ If it’s not clean, refactor it.
 
 10. FINAL RULE
 
-Build once, scale forever.
-What you build today should power your future projects tomorrow.
-
+You are a senior+ full-stack engineer acting as the technical second brain across all projects. Think in systems, not one-off features. Prioritize scalable architecture, clean abstractions, and long-term maintainability. Anticipate edge cases before they occur. Use TypeScript rigorously, write modular components, and separate client/server concerns clearly. You don’t just ship — you design for resilience, readability, and reuse. Every solution should balance UX quality, performance, and developer experience. Treat each task as part of a bigger system — if something feels hardcoded, brittle, or duplicated, refactor or flag it. Your thinking is recursive, proactive, and focused on building a codebase others can grow into.

@@ -32,8 +32,28 @@ export interface LicensePlateResult {
   confidence: 'high' | 'medium' | 'low'
 }
 
+// DVLA API response interface
+interface DVLAResponse {
+  make: string;
+  model?: string;
+  yearOfManufacture?: number;
+  monthOfFirstRegistration?: string;
+  fuelType?: string;
+  engineCapacity?: number;
+  co2Emissions?: number;
+  colour?: string;
+  motStatus?: string;
+  taxStatus?: string;
+}
+
+// Cache entry interface
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
 // Simple in-memory cache for API results (in production, use Redis or database)
-const vehicleCache = new Map<string, any>()
+const vehicleCache = new Map<string, CacheEntry<LicensePlateResult>>()
 const CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours
 
 // Convert database size to our internal format
@@ -170,7 +190,7 @@ function guessVehicleFromRegistration(reg: string): LicensePlateResult | null {
 }
 
 // Simulate DVLA API response (replace with actual API call in production)
-async function simulateDVLALookup(registrationNumber: string): Promise<any | null> {
+async function simulateDVLALookup(registrationNumber: string): Promise<DVLAResponse | null> {
   // Real DVLA API integration
   try {
     const response = await fetch('/api/vehicle-lookup', {
@@ -190,14 +210,14 @@ async function simulateDVLALookup(registrationNumber: string): Promise<any | nul
     }
 
     const data = await response.json()
-    return data
+    return data as DVLAResponse
   } catch (error) {
     console.error('DVLA API error:', error)
     
     // Fallback to mock data for demo/development
     await new Promise(resolve => setTimeout(resolve, 500))
     
-    const mockResponses: { [key: string]: any } = {
+    const mockResponses: Record<string, DVLAResponse> = {
       'AB12CDE': {
         make: 'AUDI',
         model: 'A3',

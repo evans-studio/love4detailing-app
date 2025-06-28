@@ -8,11 +8,10 @@ import { format } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { slideVariants, fadeInUp } from '@/lib/animations/motion-variants'
 import { bookingLogger } from '@/lib/utils/logger'
-import type { BookingFormData, PaymentResult, PaymentError } from '@/types'
+import type { BookingFormData, TimeSlot } from '@/types'
 import { supabase } from '@/lib/supabase/client'
 import { calculateTravelFee } from '@/lib/utils/calculateTravelFee'
 import { calculateTimeSlots, getWorkingDays, isWorkingDay } from '@/lib/utils/calculateTimeSlots'
-import type { TimeSlot } from '@/types'
 import { detectVehicle, getFallbackSize } from '@/lib/utils/vehicleDatabase'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -49,7 +48,38 @@ import Image from 'next/image'
 import { AddressInput } from './AddressInput'
 import { Label } from '@/components/ui/label'
 
-const vehicleSizes = {
+type VehicleSizeKey = 'small' | 'medium' | 'large' | 'extraLarge'
+type AddOn = typeof addOns[number]
+type Step = typeof steps[number]
+
+interface VehicleSizeConfig {
+  label: string
+  description: string
+  price: number
+}
+
+interface DistanceResult {
+  isWithinRange: boolean
+  requiresManualApproval: boolean
+  distance?: {
+    miles: number
+    text: string
+  }
+}
+
+type ErrorType = {
+  message: string;
+  code?: string;
+}
+
+type PaymentIntent = {
+  status: string;
+  id: string;
+  amount: number;
+  currency: string;
+}
+
+const vehicleSizes: Record<VehicleSizeKey, VehicleSizeConfig> = {
   small: { label: 'Small Vehicle', description: 'Fiesta, Polo, Mini, Corsa', price: 55 },
   medium: { label: 'Medium Vehicle', description: 'Focus, Golf, Civic, Astra', price: 60 },
   large: { label: 'Large Vehicle', description: 'BMW 5 Series, SUVs, Estates', price: 65 },
@@ -88,24 +118,36 @@ const steps = [
   { id: 'datetime', title: 'Date & Time', icon: Calendar },
   { id: 'extras', title: 'Add-ons & Photos', icon: Plus },
   { id: 'summary', title: 'Review & Book', icon: CreditCard },
-]
+] as const
+
+interface PaymentResult {
+  status: 'succeeded' | 'pending' | 'failed'
+  id: string
+  amount: number
+  currency: string
+}
+
+interface PaymentError {
+  code: string
+  message: string
+}
 
 export default function BookingForm() {
-  const [currentStep, setCurrentStep] = useState(0)
-  const [direction, setDirection] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [travelFee, setTravelFee] = useState(0)
+  const [currentStep, setCurrentStep] = useState<number>(0)
+  const [direction, setDirection] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [travelFee, setTravelFee] = useState<number>(0)
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
-  const [totalPrice, setTotalPrice] = useState(0)
+  const [totalPrice, setTotalPrice] = useState<number>(0)
   const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([])
   const [workingDays, setWorkingDays] = useState<number[]>([1, 2, 3, 4, 5, 6]) // Monday=1, Tuesday=2, etc.
   const { toast } = useToast()
-  const [showPostBookingModal, setShowPostBookingModal] = useState(false)
+  const [showPostBookingModal, setShowPostBookingModal] = useState<boolean>(false)
   const { user } = useAuth()
   const router = useRouter()
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null)
   const [vehicleData, setVehicleData] = useState<VehicleSearchResult | LicensePlateResult | null>(null)
-  const [autoDetectedSize, setAutoDetectedSize] = useState<string | null>(null)
+  const [autoDetectedSize, setAutoDetectedSize] = useState<VehicleSizeKey | null>(null)
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -121,15 +163,8 @@ export default function BookingForm() {
     requiresManualApproval: false,
     distance: undefined,
   })
-  const [isAddressValid, setIsAddressValid] = useState(false)
-  const [distanceResult, setDistanceResult] = useState<{
-    isWithinRange: boolean
-    requiresManualApproval: boolean
-    distance?: {
-      miles: number
-      text: string
-    }
-  } | null>(null)
+  const [isAddressValid, setIsAddressValid] = useState<boolean>(false)
+  const [distanceResult, setDistanceResult] = useState<DistanceResult | null>(null)
 
   // Redirect authenticated users to dashboard booking form
   useEffect(() => {
@@ -265,7 +300,7 @@ export default function BookingForm() {
       
       const mappedSize = sizeMapping[vehicleData.size as keyof typeof sizeMapping]
       if (mappedSize) {
-        setAutoDetectedSize(mappedSize)
+        setAutoDetectedSize(mappedSize as any)
         form.setValue('vehicleSize', mappedSize as any)
         
         toast({
@@ -471,43 +506,36 @@ export default function BookingForm() {
     }
   }
 
-  const handlePaymentSuccess = async (paymentDetails: PaymentResult) => {
+  const handlePaymentSuccess = async (result: { paymentIntent: PaymentIntent }) => {
     try {
-      // Update booking with payment details
-      const bookingDetails = JSON.parse(localStorage.getItem('lastBooking') || '{}')
-      
-      if (bookingDetails.id) {
-        // Update the booking in the database with payment confirmation
-        const response = await fetch('/api/bookings', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: bookingDetails.id,
-            payment_status: 'paid',
-            payment_id: paymentDetails.paymentId,
-            status: 'confirmed'
-          }),
-        })
+      if (!createdBookingId) return
 
-        if (response.ok) {
-          toast({
-            title: "Payment Successful!",
-            description: "Your booking has been confirmed. You'll receive a confirmation email shortly.",
-            variant: "default",
-          })
-          
-          // Redirect to success page
-          router.push('/booking/success')
-        }
-      }
-    } catch (error) {
-      bookingLogger.error('Payment success handling error', error)
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          payment_status: result.paymentIntent.status === 'succeeded' ? 'paid' : 'failed',
+          payment_id: result.paymentIntent.id,
+          payment_amount: result.paymentIntent.amount,
+          payment_currency: result.paymentIntent.currency,
+        })
+        .eq('id', createdBookingId)
+
+      if (error) throw error
+
       toast({
-        title: "Payment Processed",
-        description: "Your payment was successful, but there was an issue updating your booking. We'll contact you to confirm.",
-        variant: "default",
+        title: "Payment Successful",
+        description: "Your booking has been confirmed.",
+        variant: "default"
+      })
+
+      setShowPostBookingModal(true)
+    } catch (error) {
+      const err = error as Error
+      bookingLogger.error('Payment success handling error:', err)
+      toast({
+        title: "Error",
+        description: "Failed to update payment status. Please contact support.",
+        variant: "destructive"
       })
     }
   }
@@ -519,6 +547,14 @@ export default function BookingForm() {
       description: "There was an issue processing your payment. Please try again or contact us for assistance.",
       variant: "destructive",
     })
+  }
+
+  const handleError = (error: ErrorType) => {
+    // ... existing code ...
+  }
+
+  const handleAddressChange = (value: { formatted_address: string; geometry: { location: { lat: number; lng: number } } }) => {
+    // ... existing code ...
   }
 
   const renderStepContent = () => {

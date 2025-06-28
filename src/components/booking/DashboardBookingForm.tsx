@@ -298,6 +298,20 @@ const vehicleDatabase = {
   ]
 }
 
+interface PaymentResult {
+  status: 'succeeded' | 'pending' | 'failed'
+  id: string
+  amount: number
+  currency: string
+  metadata?: Record<string, unknown>
+}
+
+interface PaymentError {
+  code: string
+  message: string
+  details?: string
+}
+
 export default function DashboardBookingForm() {
   const [currentStep, setCurrentStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -679,64 +693,49 @@ export default function DashboardBookingForm() {
     }
   }
 
-  const handlePaymentSuccess = async (paymentResult: any) => {
+  const handlePaymentSuccess = async (paymentResult: PaymentResult) => {
     try {
-      if (createdBookingId) {
-        // Update booking status to confirmed
-        const { error: updateError } = await createClientComponentClient()
-          .from('bookings')
-          .update({
-            status: 'confirmed',
-            payment_status: 'paid',
-            payment_id: paymentResult.paymentId
-          })
-          .eq('id', createdBookingId)
-
-        if (updateError) {
-          console.error('Update error:', updateError)
-          throw updateError
-        }
-
-        // Add rewards points
-        if (user?.id) {
-          const pointsToAdd = Math.floor(totalPrice * 0.1)
-          
-          const { error: rewardsError } = await createClientComponentClient()
-            .rpc('add_rewards_points', {
-              user_id: user.id,
-              points_to_add: pointsToAdd,
-              booking_id: createdBookingId
-            })
-
-          if (rewardsError) console.error('Rewards error:', rewardsError)
-        }
-
-        toast({
-          title: "Payment Successful!",
-          description: `Your booking has been confirmed. Booking reference: L4D-${createdBookingId}. You'll receive a confirmation email shortly.`,
-        })
-
-        // Redirect to bookings page after a short delay
-        setTimeout(() => {
-          router.push('/dashboard/bookings')
-        }, 2000)
+      if (!createdBookingId) {
+        throw new Error('No booking ID found')
       }
-    } catch (error) {
-      console.error('Payment success handling error:', error)
+
+      const { error } = await createClientComponentClient()
+        .from('bookings')
+        .update({
+          payment_status: paymentResult.status === 'succeeded' ? 'paid' : 'pending',
+          payment_id: paymentResult.id,
+          payment_amount: paymentResult.amount,
+          payment_currency: paymentResult.currency,
+          status: paymentResult.status === 'succeeded' ? 'confirmed' : 'pending'
+        })
+        .eq('id', createdBookingId)
+
+      if (error) throw error
+
       toast({
-        title: "Payment Processed",
-        description: "Your payment was successful, but there was an issue updating your booking. We'll contact you to confirm.",
-        variant: "default",
+        title: "Payment Successful",
+        description: "Your booking has been confirmed.",
+        variant: "default"
+      })
+
+      router.push('/dashboard/bookings')
+    } catch (error) {
+      const err = error as Error
+      console.error('Payment success handling error:', err)
+      toast({
+        title: "Error",
+        description: "Failed to update payment status. Please contact support.",
+        variant: "destructive"
       })
     }
   }
 
-  const handlePaymentError = (error: any) => {
+  const handlePaymentError = (error: PaymentError) => {
     console.error('Payment error:', error)
     toast({
       title: "Payment Failed",
-      description: "There was an issue processing your payment. Please try again or contact us for assistance.",
-      variant: "destructive",
+      description: error.message || "There was an issue processing your payment. Please try again.",
+      variant: "destructive"
     })
   }
 

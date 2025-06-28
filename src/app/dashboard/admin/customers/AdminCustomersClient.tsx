@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -9,13 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useAdminRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { format } from 'date-fns'
-import { Users, Search, Filter, Download } from 'lucide-react'
+import { Users, Search, Filter } from 'lucide-react'
 import { CustomerList } from './components/CustomerList'
 import { CustomerProfile } from './components/CustomerProfile'
 import { StatsGrid } from './components/StatsGrid'
 import { LoadingSkeleton } from './components/LoadingSkeleton'
 import { Customer, CustomerProfile as CustomerProfileType } from './types'
 import { content } from '@/lib/content'
+import { motion } from "framer-motion"
 
 export default function AdminCustomersClient() {
   const { user, isLoading: authLoading, isAdmin } = useAdminRoute()
@@ -259,7 +259,6 @@ export default function AdminCustomersClient() {
             }}
             className="w-full sm:w-auto touch-target"
           >
-            <Download className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Export </span>Customers
           </Button>
         </div>

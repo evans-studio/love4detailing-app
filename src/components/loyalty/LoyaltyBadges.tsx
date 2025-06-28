@@ -10,15 +10,47 @@ import { useAuth } from '@/lib/auth'
 import { Trophy, Star, Crown, Award, Target } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
+interface BadgeRequirements {
+  bookings?: number
+  spending?: number
+  points?: number
+}
+
 interface LoyaltyBadge {
   id: string
   name: string
   description: string
   icon: string
   color: string
-  requirements: any
+  requirements: BadgeRequirements
   tier: number
   earned_at?: string
+  is_active?: boolean
+}
+
+interface DatabaseBadge {
+  id: string
+  name: string
+  description: string
+  icon: string
+  color: string
+  requirements: BadgeRequirements
+  tier: number
+  is_active: boolean
+}
+
+interface DatabaseUserBadge {
+  earned_at: string
+  loyalty_badges: DatabaseBadge
+}
+
+interface Booking {
+  total_price: number
+  status: string
+}
+
+interface Rewards {
+  points: number
 }
 
 interface UserProgress {
@@ -77,17 +109,21 @@ export default function LoyaltyBadges({ showProgress = true, compact = false }: 
         .single()
 
       // Process data
-      const earned = userBadges?.map(ub => ({
-        ...(ub.loyalty_badges as any),
-        earned_at: ub.earned_at
-      })) || []
+      const earned = (userBadges || []).map((ub: unknown) => {
+        const userBadge = ub as DatabaseUserBadge
+        return {
+          ...userBadge.loyalty_badges,
+          earned_at: userBadge.earned_at
+        }
+      })
 
       const earnedIds = earned.map(b => b.id)
-      const available = allBadges?.filter(b => !earnedIds.includes(b.id)) || []
+      const available = (allBadges || []).map((b: unknown) => b as DatabaseBadge)
+        .filter(b => !earnedIds.includes(b.id))
 
-      const totalBookings = bookings?.filter(b => b.status === 'completed').length || 0
-      const totalSpent = bookings?.reduce((sum, b) => sum + (b.total_price || 0), 0) || 0
-      const currentPoints = rewards?.points || 0
+      const totalBookings = (bookings as Booking[] || []).filter(b => b.status === 'completed').length
+      const totalSpent = (bookings as Booking[] || []).reduce((sum, b) => sum + (b.total_price || 0), 0)
+      const currentPoints = (rewards as Rewards)?.points || 0
 
       setEarnedBadges(earned)
       setAvailableBadges(available)
@@ -109,22 +145,28 @@ export default function LoyaltyBadges({ showProgress = true, compact = false }: 
     fetchBadgesAndProgress()
   }, [fetchBadgesAndProgress])
 
-  const calculateProgress = (requirements: any): number => {
+  const calculateProgress = (requirements: BadgeRequirements): number => {
     if (requirements.bookings) {
       return Math.min((userProgress.totalBookings / requirements.bookings) * 100, 100)
     }
     if (requirements.spending) {
       return Math.min((userProgress.totalSpent / requirements.spending) * 100, 100)
     }
+    if (requirements.points) {
+      return Math.min((userProgress.currentPoints / requirements.points) * 100, 100)
+    }
     return 0
   }
 
-  const getProgressText = (requirements: any): string => {
+  const getProgressText = (requirements: BadgeRequirements): string => {
     if (requirements.bookings) {
       return `${userProgress.totalBookings}/${requirements.bookings} bookings`
     }
     if (requirements.spending) {
       return `£${userProgress.totalSpent.toFixed(0)}/£${requirements.spending} spent`
+    }
+    if (requirements.points) {
+      return `${userProgress.currentPoints}/${requirements.points} points`
     }
     return ''
   }
@@ -196,120 +238,75 @@ export default function LoyaltyBadges({ showProgress = true, compact = false }: 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-                              <Trophy className="h-5 w-5 text-platinum-silver" />
+              <Trophy className="h-5 w-5 text-platinum-silver" />
               Your Badges ({earnedBadges.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <AnimatePresence>
-                {earnedBadges.map((badge, index) => (
-                  <motion.div
-                    key={badge.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="relative"
-                  >
-                    <Card className="border-2" style={{ borderColor: badge.color }}>
-                      <CardContent className="pt-4">
-                        <div className="text-center space-y-2">
-                          <div className="text-3xl">{badge.icon}</div>
-                          <div>
-                            <h4 className="font-semibold text-sm">{badge.name}</h4>
-                            <p className="text-xs text-muted-foreground">{badge.description}</p>
-                          </div>
-                          <Badge className={getTierColor(badge.tier)}>
-                            {getTierIcon(badge.tier)}
-                            Tier {badge.tier}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+            <div className="space-y-4">
+              {earnedBadges.map((badge) => (
+                <motion.div
+                  key={badge.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {getTierIcon(badge.tier)}
+                      <div>
+                        <h4 className="font-medium">{badge.name}</h4>
+                        <p className="text-sm text-muted-foreground">{badge.description}</p>
+                      </div>
+                    </div>
+                    <Badge className={getTierColor(badge.tier)}>
+                      Earned {new Date(badge.earned_at!).toLocaleDateString()}
+                    </Badge>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Available Badges with Progress */}
+      {/* Available Badges */}
       {showProgress && availableBadges.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-blue-500" />
-              Next Badges to Earn
+              <Target className="h-5 w-5 text-muted-foreground" />
+              Next Badges ({availableBadges.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {availableBadges.slice(0, 5).map((badge) => {
-                const progress = calculateProgress(badge.requirements)
-                const isCloseToEarning = progress >= 80
-                
-                return (
-                  <motion.div
-                    key={badge.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`p-4 border rounded-lg ${isCloseToEarning ? 'border-green-200 bg-green-50' : 'border-border'}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl">{badge.icon}</div>
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-medium text-sm">{badge.name}</h4>
-                            <p className="text-xs text-muted-foreground">{badge.description}</p>
-                          </div>
-                          <Badge className={getTierColor(badge.tier)}>
-                            {getTierIcon(badge.tier)}
-                            Tier {badge.tier}
-                          </Badge>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span>{getProgressText(badge.requirements)}</span>
-                            <span>{Math.round(progress)}%</span>
-                          </div>
-                          <Progress value={progress} className="h-2" />
-                          {isCloseToEarning && (
-                            <p className="text-xs text-green-600 font-medium">
-                              🎉 Almost there! Keep going!
-                            </p>
-                          )}
+              {availableBadges.map((badge) => (
+                <motion.div
+                  key={badge.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {getTierIcon(badge.tier)}
+                        <div>
+                          <h4 className="font-medium">{badge.name}</h4>
+                          <p className="text-sm text-muted-foreground">{badge.description}</p>
                         </div>
                       </div>
+                      <Badge variant="outline">{getProgressText(badge.requirements)}</Badge>
                     </div>
-                  </motion.div>
-                )
-              })}
+                    <Progress value={calculateProgress(badge.requirements)} className="h-2" />
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Stats Summary */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-500">{userProgress.totalBookings}</div>
-              <div className="text-xs text-muted-foreground">Total Bookings</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-500">£{userProgress.totalSpent.toFixed(0)}</div>
-              <div className="text-xs text-muted-foreground">Total Spent</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-500">{userProgress.currentPoints}</div>
-              <div className="text-xs text-muted-foreground">Loyalty Points</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 } 
