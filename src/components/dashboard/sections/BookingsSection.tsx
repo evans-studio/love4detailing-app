@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { content } from '@/lib/content'
 import { ROUTES } from '@/lib/constants'
-import { formatCurrency, formatDate } from '@/lib/utils/index'
+import { formatCurrency, formatDate } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 

@@ -5,7 +5,7 @@
 
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { SERVICES, BOOKING, REWARDS, BRAND } from '@/lib/constants'
+import { SERVICES, BOOKING, REWARDS } from '@/lib/constants'
 import type { 
   VehicleSize, 
   ServicePackage, 
@@ -13,7 +13,6 @@ import type {
   BookingStatus,
   RewardTier 
 } from '@/lib/constants'
-import { format } from 'date-fns'
 
 // =================================================================
 // STYLING UTILITIES
@@ -26,190 +25,72 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Format currency values according to brand settings
- */
-export function formatCurrency(amount: number, currency: string = BOOKING.payment.currency): string {
-  return new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency,
-  }).format(amount)
-}
-
-/**
- * Format phone numbers for display and links
- */
-export function formatPhone(phone: string, forLink: boolean = false): string {
-  if (forLink) {
-    return phone.replace(/\s/g, '')
-  }
-  // Format for display (UK format)
-  const cleaned = phone.replace(/\D/g, '')
-  if (cleaned.length === 11 && cleaned.startsWith('0')) {
-    return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`
-  }
-  return phone
-}
-
-/**
- * Format dates for consistent display
- */
-export function formatDate(date: string | Date, format: 'short' | 'long' | 'time' = 'short'): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date
-  
-  switch (format) {
-    case 'long':
-      return dateObj.toLocaleDateString('en-GB', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    case 'time':
-      return dateObj.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    default:
-      return dateObj.toLocaleDateString('en-GB')
-  }
-}
-
 // =================================================================
-// PRICING CALCULATIONS
+// BUSINESS LOGIC UTILITIES
 // =================================================================
 
 /**
- * Calculate base price for service and vehicle size combination
+ * Calculate base price for a service
  */
-export function calculateBasePrice(vehicleSize: VehicleSize, servicePackage: ServicePackage): number {
-  const sizeData = SERVICES.vehicleSizes[vehicleSize]
-  if (!sizeData) throw new Error(`Invalid vehicle size: ${vehicleSize}`)
-  
-  const price = sizeData.pricing[servicePackage]
-  if (price === undefined) throw new Error(`No pricing for ${servicePackage} on ${vehicleSize}`)
-  
-  return price
-}
-
-/**
- * Calculate total price including add-ons
- */
-export function calculateTotalPrice(
+export function calculateBasePrice(
+  packageType: ServicePackage,
   vehicleSize: VehicleSize,
-  servicePackage: ServicePackage,
-  addOns: AddOnService[] = [],
-  loyaltyDiscount: number = 0
-): {
-  basePrice: number
-  addOnsPrice: number
-  subtotal: number
-  discount: number
-  total: number
-} {
-  const basePrice = calculateBasePrice(vehicleSize, servicePackage)
-  
-  const addOnsPrice = addOns.reduce((total, addOnId) => {
-    const addOn = SERVICES.addOns[addOnId]
-    return total + (addOn?.price || 0)
-  }, 0)
-  
-  const subtotal = basePrice + addOnsPrice
-  const discount = Math.round(subtotal * (loyaltyDiscount / 100))
-  const total = subtotal - discount
-  
-  return {
-    basePrice,
-    addOnsPrice,
-    subtotal,
-    discount,
-    total,
-  }
+  addOns: AddOnService[] = []
+): number {
+  const basePrice = SERVICES.vehicleSizes[vehicleSize].pricing[packageType]
+  const addOnTotal = addOns.reduce((total, addon) => total + SERVICES.addOns[addon].price, 0)
+  return basePrice + addOnTotal
 }
 
 /**
- * Calculate deposit amount based on total price
+ * Calculate total price including discounts
+ */
+export function calculateTotalPrice(basePrice: number, discountPercentage: number = 0): number {
+  const discount = basePrice * (discountPercentage / 100)
+  return basePrice - discount
+}
+
+/**
+ * Calculate deposit amount
  */
 export function calculateDeposit(totalPrice: number): number {
   return Math.round(totalPrice * (BOOKING.payment.depositPercentage / 100))
 }
 
-// =================================================================
-// LOYALTY & REWARDS SYSTEM
-// =================================================================
-
 /**
- * Determine user's loyalty tier based on points
+ * Get user's reward tier
  */
-export function getUserTier(points: number): {
-  current: RewardTier
-  next: RewardTier | null
-  pointsToNext: number
-  progress: number
-} {
-  const tiers = Object.entries(REWARDS.tiers) as [RewardTier, typeof REWARDS.tiers[RewardTier]][]
-  const sortedTiers = tiers.sort(([, a], [, b]) => a.threshold - b.threshold)
-  
-  let current: RewardTier = 'bronze'
-  let next: RewardTier | null = null
-  let pointsToNext = 0
-  let progress = 0
-  
-  for (let i = 0; i < sortedTiers.length; i++) {
-    const [tierId, tier] = sortedTiers[i]
-    
-    if (points >= tier.threshold) {
-      current = tierId
-      if (i < sortedTiers.length - 1) {
-        const [nextTierId, nextTier] = sortedTiers[i + 1]
-        next = nextTierId
-        pointsToNext = nextTier.threshold - points
-        progress = ((points - tier.threshold) / (nextTier.threshold - tier.threshold)) * 100
-      } else {
-        // Highest tier reached
-        next = null
-        pointsToNext = 0
-        progress = 100
-      }
+export function getUserTier(points: number): RewardTier {
+  const tiers = Object.entries(REWARDS.tiers)
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    const [tier, { threshold }] = tiers[i]
+    if (points >= threshold) {
+      return tier as RewardTier
     }
   }
-  
-  return { current, next, pointsToNext, progress: Math.min(100, Math.max(0, progress)) }
+  return 'bronze'
 }
 
 /**
- * Calculate points earned for an action
+ * Calculate points earned from booking
  */
-export function calculatePointsEarned(action: keyof typeof REWARDS.pointsEarning, metadata?: any): number {
-  const basePoints = REWARDS.pointsEarning[action] || 0
-  
-  // Add bonus logic here if needed (e.g., first booking bonus)
-  if (action === 'booking' && metadata?.isFirstBooking) {
-    return basePoints + REWARDS.pointsEarning.firstBooking
-  }
-  
-  return basePoints
+export function calculatePointsEarned(totalSpent: number): number {
+  return Math.floor(totalSpent * REWARDS.pointsEarning.booking / 100)
 }
 
 /**
- * Get loyalty discount percentage for a tier
+ * Get loyalty discount percentage
  */
 export function getLoyaltyDiscount(tier: RewardTier): number {
-  return REWARDS.tiers[tier]?.discountPercentage || 0
+  return REWARDS.tiers[tier].discountPercentage
 }
 
-// =================================================================
-// BOOKING UTILITIES
-// =================================================================
-
 /**
- * Check if a booking can be cancelled
+ * Check if booking can be cancelled
  */
-export function canCancelBooking(bookingDate: string, bookingTime: string): boolean {
-  const bookingDateTime = new Date(`${bookingDate}T${bookingTime}`)
+export function canCancelBooking(bookingDate: Date): boolean {
   const now = new Date()
-  const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60)
-  
+  const hoursUntilBooking = (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60)
   return hoursUntilBooking >= BOOKING.constraints.cancellationHours
 }
 
@@ -222,52 +103,53 @@ export function generateBookingReference(): string {
   const month = (date.getMonth() + 1).toString().padStart(2, '0')
   const day = date.getDate().toString().padStart(2, '0')
   const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-  
   return `L4D${year}${month}${day}${random}`
 }
 
 /**
- * Get status color for booking status
+ * Get status color for UI
  */
 export function getStatusColor(status: BookingStatus): string {
-  const statusConfig = BOOKING.statuses[status]
-  if (!statusConfig) return 'gray'
+  const colors: Record<BookingStatus, string> = {
+    pending: 'yellow',
+    confirmed: 'green',
+    completed: 'blue',
+    cancelled: 'red',
+    inProgress: 'blue'
+  }
+  return colors[status] || 'gray'
+}
+
+/**
+ * Check if date is available
+ */
+export function isDateAvailable(date: Date): boolean {
+  const day = date.getDay()
+  return day >= 1 && day <= 6 // Monday to Saturday
+}
+
+/**
+ * Get available time slots
+ */
+export function getAvailableTimeSlots(date: Date): string[] {
+  const day = date.getDay()
+  const slots = []
   
-  const colorMap = {
-    primary: 'blue',
-    success: 'green',
-    warning: 'yellow',
-    error: 'red',
-    info: 'blue',
+  // Monday to Friday: 9:00 - 17:00
+  if (day >= 1 && day <= 5) {
+    for (let hour = 9; hour < 17; hour++) {
+      slots.push(`${hour}:00`)
+    }
   }
   
-  return colorMap[statusConfig.color] || 'gray'
-}
-
-/**
- * Check if a date is available for booking
- */
-export function isDateAvailable(date: string): boolean {
-  const bookingDate = new Date(date)
-  const today = new Date()
-  const maxDate = new Date()
-  maxDate.setDate(today.getDate() + BOOKING.constraints.advanceBookingDays)
+  // Saturday: 10:00 - 16:00
+  if (day === 6) {
+    for (let hour = 10; hour < 16; hour++) {
+      slots.push(`${hour}:00`)
+    }
+  }
   
-  // Reset time to compare dates only
-  today.setHours(0, 0, 0, 0)
-  bookingDate.setHours(0, 0, 0, 0)
-  maxDate.setHours(0, 0, 0, 0)
-  
-  return bookingDate >= today && bookingDate <= maxDate
-}
-
-/**
- * Get available time slots for a date
- */
-export function getAvailableTimeSlots(date: string, bookedSlots: string[] = []): string[] {
-  if (!isDateAvailable(date)) return []
-  
-  return BOOKING.timeSlots.filter(slot => !bookedSlots.includes(slot))
+  return slots
 }
 
 // =================================================================
@@ -275,136 +157,35 @@ export function getAvailableTimeSlots(date: string, bookedSlots: string[] = []):
 // =================================================================
 
 /**
- * Validate UK postcode format
+ * Validate UK postcode
  */
 export function isValidPostcode(postcode: string): boolean {
-  const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i
-  return ukPostcodeRegex.test(postcode)
+  const regex = /^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i
+  return regex.test(postcode.trim())
 }
 
 /**
  * Validate UK phone number
  */
 export function isValidPhone(phone: string): boolean {
-  const cleaned = phone.replace(/\D/g, '')
-  return cleaned.length >= 10 && cleaned.length <= 15
+  const regex = /^(?:(?:\+44)|(?:0))(?:(?:(?:\d{10})|(?:\d{3}[\s-]\d{3}[\s-]\d{4})))$/
+  return regex.test(phone.trim())
 }
 
 /**
- * Validate email format
+ * Validate email address
  */
 export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
+  const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+  return regex.test(email.trim())
 }
 
 /**
- * Validate vehicle registration
+ * Validate UK vehicle registration
  */
-export function isValidRegistration(registration: string): boolean {
-  const cleaned = registration.replace(/\s/g, '').toUpperCase()
-  // UK registration patterns
-  const patterns = [
-    /^[A-Z]{2}[0-9]{2}[A-Z]{3}$/, // Current format
-    /^[A-Z][0-9]{1,3}[A-Z]{3}$/, // Prefix format
-    /^[A-Z]{3}[0-9]{1,3}[A-Z]$/, // Suffix format
-  ]
-  
-  return patterns.some(pattern => pattern.test(cleaned))
-}
-
-// =================================================================
-// TEXT UTILITIES
-// =================================================================
-
-/**
- * Truncate text with ellipsis
- */
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text
-  return text.substring(0, maxLength).trim() + '...'
-}
-
-/**
- * Convert string to slug format
- */
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
-
-/**
- * Capitalize first letter of each word
- */
-export function capitalizeWords(text: string): string {
-  return text.replace(/\b\w/g, char => char.toUpperCase())
-}
-
-/**
- * Format vehicle description
- */
-export function formatVehicleDescription(make?: string, model?: string, year?: number): string {
-  const parts = [
-    year && year.toString(),
-    make && capitalizeWords(make),
-    model && capitalizeWords(model),
-  ].filter(Boolean)
-  
-  return parts.join(' ') || 'Vehicle'
-}
-
-// =================================================================
-// TIME UTILITIES
-// =================================================================
-
-/**
- * Get relative time string (e.g., "2 hours ago")
- */
-export function getRelativeTime(date: string | Date): string {
-  const now = new Date()
-  const targetDate = typeof date === 'string' ? new Date(date) : date
-  const diffMs = now.getTime() - targetDate.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  
-  if (diffDays > 0) {
-    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
-  } else if (diffHours > 0) {
-    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`
-  } else if (diffMinutes > 0) {
-    return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`
-  } else {
-    return 'Just now'
-  }
-}
-
-/**
- * Check if time is in business hours
- */
-export function isBusinessHours(date: Date = new Date()): boolean {
-  const day = date.getDay() // 0 = Sunday
-  const hour = date.getHours()
-  
-  // Monday to Friday: 8:00 - 18:00
-  if (day >= 1 && day <= 5) {
-    return hour >= 8 && hour < 18
-  }
-  
-  // Saturday: 9:00 - 17:00
-  if (day === 6) {
-    return hour >= 9 && hour < 17
-  }
-  
-  // Sunday: 10:00 - 16:00
-  if (day === 0) {
-    return hour >= 10 && hour < 16
-  }
-  
-  return false
+export function isValidRegistration(reg: string): boolean {
+  const regex = /^[A-Z]{2}[0-9]{2}[A-Z]{3}$/i
+  return regex.test(reg.replace(/\s/g, ''))
 }
 
 // =================================================================
@@ -412,81 +193,19 @@ export function isBusinessHours(date: Date = new Date()): boolean {
 // =================================================================
 
 /**
- * Extract error message from various error types
+ * Get user-friendly error message
  */
 export function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-  
-  if (typeof error === 'string') {
-    return error
-  }
-  
-  if (error && typeof error === 'object' && 'message' in error) {
-    return String(error.message)
-  }
-  
-  return 'An unexpected error occurred'
+  if (error instanceof Error) return error.message
+  return String(error)
 }
 
 /**
- * Check if error is a network error
+ * Check if error is network related
  */
 export function isNetworkError(error: unknown): boolean {
-  if (error instanceof Error) {
-    return error.message.toLowerCase().includes('network') ||
-           error.message.toLowerCase().includes('fetch') ||
-           error.name === 'NetworkError'
-  }
-  return false
-}
-
-// =================================================================
-// EXPORT ALL UTILITIES
-// =================================================================
-
-export const utils = {
-  // Styling
-  cn,
-  formatCurrency,
-  formatPhone,
-  formatDate,
-  
-  // Pricing
-  calculateBasePrice,
-  calculateTotalPrice,
-  calculateDeposit,
-  
-  // Loyalty
-  getUserTier,
-  calculatePointsEarned,
-  getLoyaltyDiscount,
-  
-  // Booking
-  canCancelBooking,
-  generateBookingReference,
-  getStatusColor,
-  isDateAvailable,
-  getAvailableTimeSlots,
-  
-  // Validation
-  isValidPostcode,
-  isValidPhone,
-  isValidEmail,
-  isValidRegistration,
-  
-  // Text
-  truncateText,
-  slugify,
-  capitalizeWords,
-  formatVehicleDescription,
-  
-  // Time
-  getRelativeTime,
-  isBusinessHours,
-  
-  // Error handling
-  getErrorMessage,
-  isNetworkError,
+  return error instanceof Error && 
+    ['NetworkError', 'Failed to fetch'].some(msg => 
+      error.message.includes(msg)
+    )
 } 

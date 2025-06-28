@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { content } from '@/lib/content'
-import { formatDate } from '@/lib/utils/index'
+import { formatDate } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'

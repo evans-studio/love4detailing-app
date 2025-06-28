@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/Card'
 import { Customer } from '../types'
-import { formatCurrency } from '@/lib/utils/format'
+import { formatCurrency } from '@/lib/utils/formatters'
 import { LoadingSkeleton } from './LoadingSkeleton'
 
 interface ProcessedCustomer extends Customer {

@@ -1,37 +1,45 @@
+import { BOOKING } from '@/lib/constants'
+
 /**
- * Format a number as GBP currency
- * @param amount - The amount to format
- * @returns Formatted currency string
+ * Format currency values according to brand settings
  */
-export const formatCurrency = (amount: number): string => {
+export function formatCurrency(amount: number, currency: string = BOOKING.payment.currency): string {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
-    currency: 'GBP',
+    currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(amount)
 }
 
 /**
- * Format a date string to a human-readable format
- * @param date - The date to format
- * @returns Formatted date string
+ * Format dates for consistent display
  */
-export const formatDate = (date: string | Date): string => {
-  return new Intl.DateTimeFormat('en-GB', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(new Date(date))
+export function formatDate(date: string | Date, format: 'short' | 'long' | 'time' = 'short'): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  
+  switch (format) {
+    case 'long':
+      return dateObj.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    case 'time':
+      return dateObj.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    default:
+      return dateObj.toLocaleDateString('en-GB')
+  }
 }
 
 /**
  * Format a time string to 12-hour format
- * @param time - The time to format (HH:mm)
- * @returns Formatted time string
  */
-export const formatTime = (time: string): string => {
+export function formatTime(time: string): string {
   const [hours, minutes] = time.split(':')
   const date = new Date()
   date.setHours(parseInt(hours))
@@ -46,27 +54,23 @@ export const formatTime = (time: string): string => {
 
 /**
  * Format a phone number to UK format
- * @param phone - The phone number to format
- * @returns Formatted phone number
  */
-export const formatPhoneNumber = (phone: string): string => {
-  // Remove all non-numeric characters
-  const cleaned = phone.replace(/\D/g, '')
-  
-  // Format as UK number
-  if (cleaned.length === 11) {
-    return cleaned.replace(/(\d{5})(\d{6})/, '$1 $2')
+export function formatPhone(phone: string, forLink: boolean = false): string {
+  if (forLink) {
+    return phone.replace(/\s/g, '')
   }
-  
+  // Format for display (UK format)
+  const cleaned = phone.replace(/\D/g, '')
+  if (cleaned.length === 11 && cleaned.startsWith('0')) {
+    return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`
+  }
   return phone
 }
 
 /**
  * Format a postcode to standard UK format
- * @param postcode - The postcode to format
- * @returns Formatted postcode
  */
-export const formatPostcode = (postcode: string): string => {
+export function formatPostcode(postcode: string): string {
   // Remove all whitespace and convert to uppercase
   const cleaned = postcode.replace(/\s+/g, '').toUpperCase()
   
@@ -76,4 +80,28 @@ export const formatPostcode = (postcode: string): string => {
   }
   
   return cleaned
+}
+
+/**
+ * Format vehicle description
+ */
+export function formatVehicleDescription(make?: string, model?: string, year?: number): string {
+  const parts = [
+    year && year.toString(),
+    make && capitalizeWords(make),
+    model && capitalizeWords(model),
+  ].filter(Boolean)
+  
+  return parts.join(' ') || 'Vehicle'
+}
+
+/**
+ * Capitalize each word in text
+ */
+export function capitalizeWords(text: string): string {
+  return text
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 } 

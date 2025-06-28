@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase/client'
 import type { DashboardData } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
+import { formatCurrency, formatDate } from '@/lib/utils/formatters'
 import { Calendar, Car, CreditCard, Star } from 'lucide-react'
 
 interface UserMetadata {

@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/Card'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
+import { formatCurrency, formatDate } from '@/lib/utils/formatters'
 import type { Customer } from '@/types'
 
 interface ProcessedCustomer extends Customer {

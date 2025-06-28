@@ -1,6 +1,6 @@
 import { BRAND, EMAIL } from '@/lib/constants'
 import type { BookingData } from '@/lib/schemas'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { formatDate, formatCurrency } from '@/lib/utils/formatters'
 
 // Shared components
 const emailHeader = (title: string, subtitle: string) => `

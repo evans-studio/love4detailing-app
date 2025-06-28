@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { formatCurrency, formatDate } from '@/lib/utils/index'
+import { formatCurrency, formatDate } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'

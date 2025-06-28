@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Users, DollarSign, TrendingUp, Calendar } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils/format'
+import { formatCurrency } from '@/lib/utils/formatters'
 
 interface StatsGridProps {
   totalCustomers: number
