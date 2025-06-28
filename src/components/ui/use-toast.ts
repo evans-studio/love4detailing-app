@@ -6,7 +6,7 @@ export interface ToastProps {
 }
 
 export const useToast = () => {
-  const toast = useToastOriginal()
+  const { toast } = useToastOriginal()
   return {
     toast: (props: ToastProps) => toast(props)
   }
