@@ -18,24 +18,19 @@ export const HeroSection = () => {
         >
           {/* Main heading */}
           <motion.h1 
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
-            style={{
-              background: 'linear-gradient(135deg, #F8F4EB 0%, #9747FF 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              wordSpacing: '0.1em'
-            }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6 text-[#F8F4EB]"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {content.hero.title}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F8F4EB] to-[#9747FF]">
+              {content.hero.title}
+            </span>
           </motion.h1>
           
           {/* Subheading */}
           <motion.p 
-            className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#F8F4EB] max-w-4xl mx-auto leading-relaxed font-medium"
+            className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#F8F4EB]/90 max-w-4xl mx-auto leading-relaxed font-medium"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -45,7 +40,7 @@ export const HeroSection = () => {
 
           {/* CTA buttons */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}

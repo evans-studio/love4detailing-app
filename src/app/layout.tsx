@@ -8,7 +8,12 @@ import AppLayout from '@/components/layout/AppLayout'
 import { Viewport } from 'next'
 import PremiumLoadingProvider from '@/components/providers/PremiumLoadingProvider'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+  preload: true,
+})
 
 export const metadata = {
   title: 'Love4Detailing',
@@ -56,6 +61,15 @@ export default function RootLayout({
       "[&_*]:!transition-[background-color]",
       "motion-reduce:transform-none motion-reduce:transition-none"
     )} suppressHydrationWarning>
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/inter.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-screen font-sans antialiased">
         <SupabaseProvider>
           <MantineProvider>
