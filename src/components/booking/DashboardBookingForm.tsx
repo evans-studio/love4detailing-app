@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -25,7 +25,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/lib/auth'
 import { ServiceIcons } from '@/components/ui/icons'
-import { detectVehicle, getFallbackSize, type VehicleSearchResult, type LicensePlateResult } from '@/lib/utils/vehicleDatabase'
+import type { VehicleData } from '@/types'
 import type { TimeSlot } from '@/types'
 import { vehicleSizes, type VehicleSize } from '@/lib/constants'
 
@@ -48,8 +48,11 @@ const addOns = [
   { id: 'headlightRestoration', label: 'Headlight Restoration', price: 18, description: 'Restore cloudy headlights' },
 ] as const
 
+const addOnIds = ['interiorShampoo', 'wheelShine', 'paintProtection', 'engineBay', 'headlightRestoration'] as const
+type AddOnId = typeof addOnIds[number]
+
 const formSchema = z.object({
-  serviceType: z.enum(['basic']),
+  serviceType: z.literal('basic'),
   vehicleSize: z.enum(['s', 'm', 'l', 'xl'] as const),
   vehicle: z.string().min(1, 'Please select your vehicle'),
   vehicleYear: z.string().min(4, 'Vehicle year is required'),
@@ -58,7 +61,7 @@ const formSchema = z.object({
   address: z.string().min(1, 'Address is required'),
   date: z.string().min(1, 'Please select a date'),
   timeSlot: z.string().min(1, 'Please select a time slot'),
-  addOns: z.array(z.string()).default([]),
+  addOns: z.array(z.enum(addOnIds)).default([]),
   specialRequests: z.string().optional(),
   vehicleImages: z.array(z.string()).default([]),
   accessInstructions: z.string().optional(),
@@ -71,6 +74,10 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
+
+interface ExtendedVehicleData extends VehicleData {
+  size?: VehicleSize
+}
 
 // Vehicle size determination is now handled by DVLA API
 const determineVehicleSize = async (registration: string): Promise<VehicleSize> => {
@@ -121,7 +128,7 @@ export default function DashboardBookingForm() {
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null)
   const [maxSteps, setMaxSteps] = useState(5)
-  const [selectedVehicleData, setSelectedVehicleData] = useState<VehicleSearchResult | LicensePlateResult | null>(null)
+  const [selectedVehicleData, setSelectedVehicleData] = useState<ExtendedVehicleData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [bookingError, setBookingError] = useState<string | null>(null)
   const { toast } = useToast()
@@ -129,7 +136,7 @@ export default function DashboardBookingForm() {
   const router = useRouter()
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       serviceType: 'basic',
       vehicleSize: 'm' as const,
@@ -154,7 +161,7 @@ export default function DashboardBookingForm() {
 
   const { watch } = form
   const selectedDate = watch('date')
-  const vehicleSize = watch('vehicleSize') as keyof typeof vehicleSizes
+  const vehicleSize = watch('vehicleSize')
   const selectedServiceType = watch('serviceType')
   const selectedAddOns = watch('addOns')
   const selectedPostcode = watch('postcode')
@@ -162,8 +169,10 @@ export default function DashboardBookingForm() {
   const watchedYear = watch('vehicleYear')
 
   useEffect(() => {
-    if (selectedVehicleData) {
-      form.setValue('vehicleSize', selectedVehicleData.size || 'medium')
+    if (selectedVehicleData?.size) {
+      form.setValue('vehicleSize', selectedVehicleData.size)
+    } else {
+      form.setValue('vehicleSize', 'm')
     }
   }, [selectedVehicleData, form])
 
@@ -288,7 +297,8 @@ export default function DashboardBookingForm() {
     const calculatePrice = () => {
       if (!vehicleSize || !selectedServiceType) return
 
-      const basePrice = vehicleSizes[vehicleSize].price
+      const currentSize = vehicleSize as VehicleSize
+      const basePrice = vehicleSizes[currentSize].price
       const serviceMultiplier = serviceTypes.find(s => s.id === selectedServiceType)?.multiplier ?? 1
       let price = Math.round(basePrice * serviceMultiplier)
       
