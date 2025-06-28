@@ -17,12 +17,27 @@ import { Settings, Clock, Users, DollarSign, Calendar, Shield, Save, RefreshCw }
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 
+type NumericSetting = 
+  | 'max_daily_bookings'
+  | 'booking_advance_days'
+  | 'loyalty_points_rate'
+  | 'cancellation_window_hours'
+  | 'loyalty_points_per_pound'
+  | 'points_redemption_rate'
+  | 'welcome_bonus_points'
+  | 'referral_bonus_points'
+
+type BooleanSetting = 'loyalty_program_enabled'
+
+type SettingKey = NumericSetting | BooleanSetting
+
 interface AdminSetting {
   id: string
-  setting_key: string
-  setting_value: any
+  setting_key: SettingKey
+  setting_value: number | boolean
   description: string
   updated_at: string
+  updated_by?: string
 }
 
 interface WorkingHour {
@@ -42,6 +57,13 @@ interface BusinessStats {
   monthlyRevenue: number
   averageBookingValue: number
   todayBookings: number
+}
+
+interface Booking {
+  total_price: number
+  status: string
+  created_at: string
+  user_id: string
 }
 
 export default function AdminControlPanel() {
@@ -89,7 +111,7 @@ export default function AdminControlPanel() {
         .select('id')
 
       // Calculate stats
-      const completedBookings = bookings?.filter(b => b.status === 'completed') || []
+      const completedBookings = (bookings as Booking[] || []).filter(b => b.status === 'completed')
       const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.total_price || 0), 0)
       const totalBookings = completedBookings.length
       const totalCustomers = profiles?.length || 0
@@ -105,7 +127,7 @@ export default function AdminControlPanel() {
 
       // Today's bookings
       const today = new Date().toDateString()
-      const todayBookings = bookings?.filter(b => 
+      const todayBookings = (bookings as Booking[] || []).filter(b => 
         new Date(b.created_at).toDateString() === today
       ).length || 0
 
@@ -140,7 +162,7 @@ export default function AdminControlPanel() {
     }
   }, [user, fetchAdminData])
 
-  async function updateSetting(key: string, value: any) {
+  async function updateSetting(key: SettingKey, value: number | boolean) {
     setIsSaving(true)
     try {
       const { error } = await supabase
@@ -178,14 +200,13 @@ export default function AdminControlPanel() {
     setIsSaving(true)
     try {
       // Ensure we have all required fields for upsert
-      const workingHourData = {
+      const workingHourData: Omit<WorkingHour, 'id'> = {
         day_of_week: dayOfWeek,
         start_time: updates.start_time || '10:00',
         end_time: updates.end_time || '17:00',
-        is_active: updates.is_active !== undefined ? updates.is_active : true,
+        is_active: typeof updates.is_active === 'boolean' ? updates.is_active : true,
         slot_duration_minutes: updates.slot_duration_minutes || 90,
-        max_bookings_per_slot: updates.max_bookings_per_slot || 1,
-        ...updates // Override with any specific updates
+        max_bookings_per_slot: updates.max_bookings_per_slot || 1
       }
 
       const { error } = await supabase
@@ -201,6 +222,7 @@ export default function AdminControlPanel() {
         description: "Working hours updated successfully"
       })
 
+      // Refresh working hours
       fetchAdminData()
 
     } catch (error) {
@@ -215,13 +237,18 @@ export default function AdminControlPanel() {
     }
   }
 
-  const getSetting = (key: string) => {
+  const getNumericSetting = (key: NumericSetting): number => {
     const setting = settings.find(s => s.setting_key === key)
-    return setting?.setting_value
+    return (setting?.setting_value as number) || 0
   }
 
-  const getWorkingHour = (dayOfWeek: number) => {
-    return workingHours.find(wh => wh.day_of_week === dayOfWeek)
+  const getBooleanSetting = (key: BooleanSetting): boolean => {
+    const setting = settings.find(s => s.setting_key === key)
+    return (setting?.setting_value as boolean) || true
+  }
+
+  const getWorkingHour = (dayOfWeek: number): WorkingHour | undefined => {
+    return workingHours.find(h => h.day_of_week === dayOfWeek)
   }
 
   if (isLoading) {
@@ -332,7 +359,7 @@ export default function AdminControlPanel() {
                       id="max-daily-bookings"
                       type="number"
                       className="touch-target"
-                      value={getSetting('max_daily_bookings') || 5}
+                      value={getNumericSetting('max_daily_bookings')}
                       onChange={(e) => updateSetting('max_daily_bookings', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -344,7 +371,7 @@ export default function AdminControlPanel() {
                       id="booking-advance-days"
                       type="number"
                       className="touch-target"
-                      value={getSetting('booking_advance_days') || 30}
+                      value={getNumericSetting('booking_advance_days')}
                       onChange={(e) => updateSetting('booking_advance_days', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -356,7 +383,7 @@ export default function AdminControlPanel() {
                       id="loyalty-points-rate"
                       type="number"
                       className="touch-target"
-                      value={getSetting('loyalty_points_rate') || 10}
+                      value={getNumericSetting('loyalty_points_rate')}
                       onChange={(e) => updateSetting('loyalty_points_rate', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -368,7 +395,7 @@ export default function AdminControlPanel() {
                       id="cancellation-window"
                       type="number"
                       className="touch-target"
-                      value={getSetting('cancellation_window_hours') || 24}
+                      value={getNumericSetting('cancellation_window_hours')}
                       onChange={(e) => updateSetting('cancellation_window_hours', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -510,7 +537,7 @@ export default function AdminControlPanel() {
                       id="points-per-pound"
                       type="number"
                       className="touch-target"
-                      value={getSetting('loyalty_points_per_pound') || 1}
+                      value={getNumericSetting('loyalty_points_per_pound')}
                       onChange={(e) => updateSetting('loyalty_points_per_pound', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -523,7 +550,7 @@ export default function AdminControlPanel() {
                       type="number"
                       className="touch-target"
                       placeholder="100 points = £1"
-                      value={getSetting('points_redemption_rate') || 100}
+                      value={getNumericSetting('points_redemption_rate')}
                       onChange={(e) => updateSetting('points_redemption_rate', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -535,7 +562,7 @@ export default function AdminControlPanel() {
                       id="welcome-bonus"
                       type="number"
                       className="touch-target"
-                      value={getSetting('welcome_bonus_points') || 100}
+                      value={getNumericSetting('welcome_bonus_points')}
                       onChange={(e) => updateSetting('welcome_bonus_points', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -547,7 +574,7 @@ export default function AdminControlPanel() {
                       id="referral-bonus"
                       type="number"
                       className="touch-target"
-                      value={getSetting('referral_bonus_points') || 500}
+                      value={getNumericSetting('referral_bonus_points')}
                       onChange={(e) => updateSetting('referral_bonus_points', parseInt(e.target.value))}
                       disabled={isSaving}
                     />
@@ -556,16 +583,14 @@ export default function AdminControlPanel() {
 
                 <Separator />
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Enable loyalty program</h4>
-                    <p className="text-xs text-muted-foreground">Allow customers to earn and redeem points</p>
-                  </div>
+                <div className="flex items-center space-x-2">
                   <Switch
-                    checked={getSetting('loyalty_program_enabled') || true}
+                    id="loyalty-program"
+                    checked={getBooleanSetting('loyalty_program_enabled')}
                     onCheckedChange={(checked) => updateSetting('loyalty_program_enabled', checked)}
                     disabled={isSaving}
                   />
+                  <Label htmlFor="loyalty-program">Enable Loyalty Program</Label>
                 </div>
               </CardContent>
             </Card>

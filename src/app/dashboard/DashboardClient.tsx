@@ -13,12 +13,28 @@ import { useProtectedRoute } from '@/lib/auth'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { Calendar, Car, CreditCard, Star } from 'lucide-react'
 
+interface Booking {
+  id: string
+  user_id: string
+  booking_date: string
+  total_price: number
+  status: string
+  service_type: string
+  vehicle: string
+  created_at: string
+}
+
 interface DashboardData {
-  recentBookings: any[]
+  recentBookings: Booking[]
   totalBookings: number
   totalSpent: number
   rewardPoints: number
   nextRewardThreshold: number
+}
+
+interface UserMetadata {
+  avatar_url?: string
+  full_name?: string
 }
 
 export function DashboardClient() {
@@ -89,6 +105,7 @@ export function DashboardClient() {
   }
 
   const progressToNextReward = (dashboardData.rewardPoints % 1000) / 10
+  const userMetadata = user?.user_metadata as UserMetadata | undefined
 
   return (
     <div className="space-y-6">
@@ -102,13 +119,13 @@ export function DashboardClient() {
           <CardContent className="pt-6">
             <div className="flex items-center space-x-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarImage src={userMetadata?.avatar_url} />
                 <AvatarFallback>
-                  {user?.user_metadata?.full_name?.split(' ').map((n: string) => n[0]).join('')}
+                  {userMetadata?.full_name?.split(' ').map((n) => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-2xl font-bold">Welcome back, {user?.user_metadata?.full_name}</h2>
+                <h2 className="text-2xl font-bold">Welcome back, {userMetadata?.full_name}</h2>
                 <p className="text-muted-foreground">Here's what's happening with your account</p>
               </div>
             </div>
@@ -198,39 +215,21 @@ export function DashboardClient() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4 text-[#9747FF]" />
-                            <span>{formatDate(booking.booking_date)}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Car className="h-4 w-4 text-[#9747FF]" />
-                            <span>{booking.vehicle_details}</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
-                            {booking.status}
-                          </Badge>
-                          <p className="mt-2 font-semibold">{formatCurrency(booking.total_price)}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{booking.service_type}</p>
+                      <p className="text-sm text-muted-foreground">{booking.vehicle}</p>
+                    </div>
+                    <Badge variant={booking.status === 'completed' ? 'default' : 'secondary'}>
+                      {booking.status}
+                    </Badge>
+                  </div>
+                  <div className="mt-2 flex items-center text-sm text-muted-foreground">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {formatDate(booking.created_at)}
+                  </div>
                 </motion.div>
               ))}
-              {dashboardData.recentBookings.length > 0 && (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => router.push('/dashboard/bookings')}
-                >
-                  View All Bookings
-                </Button>
-              )}
             </div>
           </CardContent>
         </Card>
