@@ -5,39 +5,15 @@ import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { Service, VehicleSize } from '@/config/schema'
+import { formatCurrency } from '@/lib/utils/formatters'
 
-// Reusable data structure for easy content management
-const essentialFeatures = [
-  "Exterior wash & dry",
-  "Interior vacuum",
-  "Window cleaning",
-  "Tyre shine"
-]
+interface PricingSectionProps {
+  service: Service;
+  vehicleSizes: VehicleSize[];
+}
 
-const vehicles = [
-  {
-    size: "Small",
-    price: "£55",
-    description: "Perfect for compact cars and small SUVs"
-  },
-  {
-    size: "Medium",
-    price: "£60",
-    description: "Focus, Golf, Civic, Astra"
-  },
-  {
-    size: "Large",
-    price: "£65",
-    description: "BMW 5 Series, SUVs, Estates"
-  },
-  {
-    size: "Extra Large",
-    price: "£70",
-    description: "Vans, Range Rovers, 7-Seaters"
-  }
-]
-
-export const EssentialCleanPricingSection = () => {
+export const EssentialCleanPricingSection = ({ service, vehicleSizes }: PricingSectionProps) => {
   return (
     <section className="relative w-full py-24">
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,13 +31,13 @@ export const EssentialCleanPricingSection = () => {
             Our Services
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#F8F4EB] tracking-tight">
-            Essential Clean
+            {service.name}
           </h2>
           
           {/* Features List */}
           <div className="max-w-2xl mx-auto">
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {essentialFeatures.map((feature, index) => (
+              {service.features.map((feature, index) => (
                 <motion.li
                   key={feature}
                   initial={{ opacity: 0, x: -20 }}
@@ -79,9 +55,9 @@ export const EssentialCleanPricingSection = () => {
 
         {/* Vehicle Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {vehicles.map((vehicle, index) => (
+          {vehicleSizes.map((vehicle, index) => (
             <motion.div
-              key={vehicle.size}
+              key={vehicle.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -99,10 +75,10 @@ export const EssentialCleanPricingSection = () => {
                   
                   <div className="relative">
                     <h3 className="text-lg font-semibold text-[#F8F4EB] mb-2">
-                      {vehicle.size}
+                      {vehicle.name}
                     </h3>
                     <p className="text-3xl font-bold text-[#8A2B85] mb-4">
-                      {vehicle.price}
+                      {formatCurrency(service.prices[vehicle.id])}
                     </p>
                     <p className="text-sm text-stone-300 mb-6">
                       {vehicle.description}

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import PremiumLoadingScreen, { usePremiumLoading } from '@/components/ui/PremiumLoadingScreen'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { motion } from 'framer-motion'
 
 export function LoadingDemoClient() {
   const [showDemo, setShowDemo] = useState(false)

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef } from 'react'
-import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { supabase } from '@/lib/supabase/client'
@@ -79,7 +78,7 @@ export default function ProfileImageUpload({
       const fileName = `${user.id}/profile-${Date.now()}.${fileExt}`
 
       // Upload to Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('profile-images')
         .upload(fileName, file, {
           cacheControl: '3600',

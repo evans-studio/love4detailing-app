@@ -79,11 +79,10 @@ export async function signUp(email: string, password: string, full_name: string)
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Ensure profile exists (fallback if trigger failed)
-    const { data: existingProfile, error: profileCheckError } = await supabase
+    const { error: profileCheckError } = await supabase
       .from('profiles')
       .select('id')
       .eq('id', data.user.id)
-      .single()
 
     if (profileCheckError && profileCheckError.code === 'PGRST116') {
       // Profile doesn't exist, create it manually
@@ -103,11 +102,10 @@ export async function signUp(email: string, password: string, full_name: string)
     }
 
     // Ensure rewards record exists (fallback if trigger failed)
-    const { data: existingRewards, error: rewardsCheckError } = await supabase
+    const { error: rewardsCheckError } = await supabase
       .from('rewards')
       .select('id')
       .eq('user_id', data.user.id)
-      .single()
 
     if (rewardsCheckError && rewardsCheckError.code === 'PGRST116') {
       // Rewards record doesn't exist, create it manually

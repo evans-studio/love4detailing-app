@@ -31,7 +31,7 @@ export const supabase = createBrowserClient(
         const sameSite = secure ? '; SameSite=None' : '; SameSite=Lax'
         document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${options.maxAge ?? 3600}${secure ? '; Secure' : ''}${sameSite}`
       },
-      remove(name: string, options: CookieOptions) {
+      remove(name: string) {
         if (typeof window === 'undefined') return
         document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`
       },

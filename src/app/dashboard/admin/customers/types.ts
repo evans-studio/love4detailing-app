@@ -1,15 +1,14 @@
-export interface Customer {
-  id: string
-  full_name: string
-  email: string
-  phone: string
-  postcode: string
-  total_spent: number
-  total_bookings: number
-  loyalty_points: number
-  last_booking_date?: string
-  created_at: string
-  status: 'active' | 'inactive'
+import type { Customer as GlobalCustomer } from '@/types'
+
+export type Customer = GlobalCustomer
+
+export interface CustomerStats {
+  totalCustomers: number
+  activeCustomers: number
+  totalRevenue: number
+  averageSpent: number
+  loyalCustomers: number
+  recentBookings: number
 }
 
 export interface CustomerProfile extends Customer {

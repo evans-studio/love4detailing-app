@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -14,12 +14,12 @@ import {
   Calendar, 
   Clock, 
   MapPin, 
-  Car, 
   CheckCircle,
   XCircle,
   AlertCircle,
   Eye,
-  Plus
+  Plus,
+  Car
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import Image from 'next/image'
@@ -167,7 +167,7 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
 }
 
 export default function BookingsClient() {
-  const { user, isLoading: authLoading } = useProtectedRoute()
+  const { isLoading: authLoading } = useProtectedRoute()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
@@ -248,7 +248,7 @@ export default function BookingsClient() {
                 <div className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-300">
                   {bookings.length}
                 </div>
-                <p className="text-xs text-blue-600 dark:text-blue-400">Total Bookings</p>
+                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium truncate">Total Bookings</p>
               </div>
             </div>
           </CardContent>
@@ -264,23 +264,7 @@ export default function BookingsClient() {
                 <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-300">
                   {completedBookings}
                 </div>
-                <p className="text-xs text-green-600 dark:text-green-400">Completed</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-md bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-orange-500 rounded-full">
-                <AlertCircle className="h-4 w-4 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-lg sm:text-2xl font-bold text-orange-700 dark:text-orange-300">
-                  {upcomingBookings.length}
-                </div>
-                <p className="text-xs text-orange-600 dark:text-orange-400">Upcoming</p>
+                <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium truncate">Completed</p>
               </div>
             </div>
           </CardContent>
@@ -290,13 +274,29 @@ export default function BookingsClient() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2">
               <div className="p-2 bg-purple-500 rounded-full">
-                <Car className="h-4 w-4 text-white" />
+                <Calendar className="h-4 w-4 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300 truncate">
-                  £{totalSpent.toFixed(0)}
+                <div className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300">
+                  {upcomingBookings.length}
                 </div>
-                <p className="text-xs text-purple-600 dark:text-purple-400">Total Spent</p>
+                <p className="text-xs sm:text-sm text-purple-600 dark:text-purple-400 font-medium truncate">Upcoming</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-0 shadow-md bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-yellow-500 rounded-full">
+                <CheckCircle className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-lg sm:text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+                  £{totalSpent.toFixed(2)}
+                </div>
+                <p className="text-xs sm:text-sm text-yellow-600 dark:text-yellow-400 font-medium truncate">Total Spent</p>
               </div>
             </div>
           </CardContent>

@@ -1,11 +1,15 @@
 "use client"
 
 import { motion } from 'framer-motion'
-import { content } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import Link from 'next/link';
+import { HeroSection as HeroContent } from '@/config/schema';
 
-export const HeroSection = () => {
+interface HeroSectionProps {
+  content: HeroContent
+}
+
+export const HeroSection = ({ content }: HeroSectionProps) => {
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden pb-16">
       {/* Content container */}
@@ -24,7 +28,7 @@ export const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F8F4EB] to-[#9747FF]">
-              {content.hero.title}
+              {content.title}
             </span>
           </motion.h1>
           
@@ -35,7 +39,7 @@ export const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            {content.hero.subtitle}
+            {content.subtitle}
           </motion.p>
 
           {/* CTA buttons */}
@@ -51,7 +55,7 @@ export const HeroSection = () => {
                 size="lg"
                 className="w-full sm:w-auto text-lg px-8 py-4 bg-[#9747FF] hover:bg-[#9747FF]/90 text-white font-semibold rounded-[0.5rem] transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-sm"
               >
-                {content.hero.ctaButton}
+                {content.ctaButtonText}
               </Button>
             </Link>
           </motion.div>

@@ -20,32 +20,13 @@ const Circle = dynamic(
   { ssr: false }
 )
 
-// Service areas from the footer
-const serviceAreas = [
-  'Clapham', 'Brixton', 'Battersea', 'Wandsworth', 
-  'Putney', 'Balham', 'Tooting', 'Streatham'
-]
-
 // Center point of service area (South West London)
 const SERVICE_CENTER = {
   lat: 51.5074,
   lng: -0.1278
 }
 
-const mapContainerStyle = {
-  width: '100%',
-  height: '400px',
-  borderRadius: '0.5rem',
-  overflow: 'hidden'
-}
-
 export default function ServiceAreaMap() {
-  const [selectedArea, setSelectedArea] = useState<{
-    name: string
-    lat: number
-    lng: number
-    radius: number
-  } | null>(null)
   const [apiKeyError, setApiKeyError] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
 

@@ -2,16 +2,26 @@
 
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/Card'
-import { Users, TrendingUp, CreditCard, Award } from 'lucide-react'
+import { Users, DollarSign, TrendingUp, Calendar } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils/format'
 
 interface StatsGridProps {
   totalCustomers: number
   activeCustomers: number
   totalRevenue: number
   averageSpent: number
+  loyalCustomers: number
+  recentBookings: number
 }
 
-export function StatsGrid({ totalCustomers, activeCustomers, totalRevenue, averageSpent }: StatsGridProps) {
+export function StatsGrid({
+  totalCustomers,
+  activeCustomers,
+  totalRevenue,
+  averageSpent,
+  loyalCustomers,
+  recentBookings
+}: StatsGridProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -39,7 +49,7 @@ export function StatsGrid({ totalCustomers, activeCustomers, totalRevenue, avera
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-green-500 rounded-full">
-              <TrendingUp className="h-4 w-4 text-white" />
+              <Users className="h-4 w-4 text-white" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-300">
@@ -55,11 +65,11 @@ export function StatsGrid({ totalCustomers, activeCustomers, totalRevenue, avera
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-purple-500 rounded-full">
-              <CreditCard className="h-4 w-4 text-white" />
+              <DollarSign className="h-4 w-4 text-white" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300 truncate">
-                £{totalRevenue.toFixed(0)}
+                {formatCurrency(totalRevenue)}
               </div>
               <p className="text-xs text-purple-600 dark:text-purple-400">Revenue</p>
             </div>
@@ -71,13 +81,45 @@ export function StatsGrid({ totalCustomers, activeCustomers, totalRevenue, avera
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-orange-500 rounded-full">
-              <Award className="h-4 w-4 text-white" />
+              <TrendingUp className="h-4 w-4 text-white" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-lg sm:text-2xl font-bold text-orange-700 dark:text-orange-300 truncate">
-                £{averageSpent.toFixed(0)}
+                {formatCurrency(averageSpent)}
               </div>
               <p className="text-xs text-orange-600 dark:text-orange-400">Avg Value</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-md bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 bg-red-500 rounded-full">
+              <Users className="h-4 w-4 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-lg sm:text-2xl font-bold text-red-700 dark:text-red-300">
+                {loyalCustomers}
+              </div>
+              <p className="text-xs text-red-600 dark:text-red-400">Loyal Customers</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 bg-indigo-500 rounded-full">
+              <Calendar className="h-4 w-4 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-lg sm:text-2xl font-bold text-indigo-700 dark:text-indigo-300">
+                {recentBookings}
+              </div>
+              <p className="text-xs text-indigo-600 dark:text-indigo-400">Recent Bookings</p>
             </div>
           </div>
         </CardContent>

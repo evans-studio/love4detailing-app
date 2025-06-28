@@ -1,21 +1,19 @@
 "use client"
 
 import { useEffect, useState, useCallback } from 'react'
-import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/auth'
 import { useToast } from '@/hooks/use-toast'
-import { Settings, Clock, Users, DollarSign, Calendar, Shield, Save, RefreshCw } from 'lucide-react'
+import { Settings, Clock, Users, DollarSign, Shield, RefreshCw } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type NumericSetting = 
   | 'max_daily_bookings'
@@ -294,7 +292,7 @@ export default function AdminControlPanel() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-blue-500 rounded-full">
-                <Calendar className="h-4 w-4 text-white" />
+                <Clock className="h-4 w-4 text-white" />
               </div>
               <div className="space-y-1 min-w-0 flex-1">
                 <p className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">Monthly Revenue</p>

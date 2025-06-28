@@ -1,36 +1,16 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { useEffect, useCallback, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { motion } from 'framer-motion'
+import { useProtectedRoute } from '@/lib/auth'
+import { supabase } from '@/lib/supabase/client'
+import type { DashboardData } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { supabase } from '@/lib/supabase/client'
-import { useProtectedRoute } from '@/lib/auth'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { Calendar, Car, CreditCard, Star } from 'lucide-react'
-
-interface Booking {
-  id: string
-  user_id: string
-  booking_date: string
-  total_price: number
-  status: string
-  service_type: string
-  vehicle: string
-  created_at: string
-}
-
-interface DashboardData {
-  recentBookings: Booking[]
-  totalBookings: number
-  totalSpent: number
-  rewardPoints: number
-  nextRewardThreshold: number
-}
 
 interface UserMetadata {
   avatar_url?: string
@@ -38,7 +18,6 @@ interface UserMetadata {
 }
 
 export function DashboardClient() {
-  const router = useRouter()
   const { user, isLoading: authLoading } = useProtectedRoute()
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     recentBookings: [],

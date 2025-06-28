@@ -2,13 +2,11 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { v4 as uuidv4 } from 'uuid'
 import { X, Upload, Camera, Image as ImageIcon, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { useToast } from '@/hooks/use-toast'
-import { supabase } from '@/lib/supabase/client'
 import Image from 'next/image'
 
 interface ImageUploadProps {
@@ -135,29 +133,11 @@ export function ImageUpload({ form, name }: ImageUploadProps) {
     fileInputRef.current?.click()
   }
 
-  const uploadToSupabase = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${uuidv4()}.${fileExt}`
-    const filePath = `bookings/${fileName}`
-
-    const { data, error } = await supabase.storage
-      .from('user-uploads')
-      .upload(filePath, file)
-
-    if (error) throw error
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('user-uploads')
-      .getPublicUrl(filePath)
-
-    return publicUrl
-  }
-
   return (
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={() => (
         <FormItem>
           <div className="space-y-4">
             {/* Upload Area */}

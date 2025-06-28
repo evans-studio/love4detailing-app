@@ -12,8 +12,13 @@ import Link from 'next/link'
 import { initGSAPBackground } from '@/lib/animations/backgroundAnimations'
 import { initSectionTransitions } from '@/lib/animations/sectionTransitions'
 import { buttonHover } from '@/lib/animations/responsive-animations'
+import { ClientConfig } from '@/config/schema'
 
-export function HomeClient() {
+interface HomeClientProps {
+  config: ClientConfig
+}
+
+export function HomeClient({ config }: HomeClientProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -59,12 +64,19 @@ export function HomeClient() {
       {/* Main content sections with proper background handling */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-true-black/50 to-true-black pointer-events-none" />
-        <HeroSection />
-        <EssentialCleanPricingSection />
+        <HeroSection content={config.content.hero} />
+        <EssentialCleanPricingSection 
+          service={config.pricing.services.find(s => s.id === 'essential_clean')!}
+          vehicleSizes={config.pricing.vehicleSizes}
+        />
         <HowItWorksSection />
         <ServiceAreaMap />
         <FeaturesSection />
-        <FAQSection />
+        <FAQSection 
+          title="Frequently Asked Questions" 
+          subtitle="Everything you need to know about our mobile car detailing service" 
+          questions={config.content.faq} 
+        />
         <FooterSection />
       </div>
     </div>

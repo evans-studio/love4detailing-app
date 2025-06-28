@@ -1,7 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Toaster } from '@/components/ui/toaster'
 import { ErrorBoundary } from 'react-error-boundary'
 import { ErrorFallback } from '@/components/ui/error-fallback'

@@ -20,44 +20,41 @@ export interface UserProfile {
 
 export interface Booking {
   id: string
-  user_id?: string
-  customer_name: string
-  email: string
-  phone?: string
-  postcode: string
-  vehicle_size: 'small' | 'medium' | 'large' | 'extraLarge'
-  vehicle_lookup?: string
-  vehicle_info?: Record<string, unknown>
-  booking_date: string
-  booking_time: string
+  user_id: string
   service_type: string
-  add_ons: string[]
+  vehicle_size: VehicleSize
+  vehicle: string
+  vehicle_lookup?: string
+  vehicle_info?: {
+    make: string
+    model: string
+    year?: number
+    registration?: string
+    fuelType?: string
+    colour?: string
+  }
+  date: string
+  time: string
+  status: string
   total_price: number
-  travel_fee?: number
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
-  payment_status: 'pending' | 'paid' | 'failed' | 'refunded'
-  payment_id?: string
-  notes?: string
-  vehicle_images?: string[]
+  travel_fee: number
+  add_ons: string[]
+  vehicle_images: string[]
   created_at: string
   updated_at: string
+  postcode: string
+  notes?: string
+  booking_reference?: string
+  payment_status?: string
 }
 
 import type { VehicleSize } from '@/lib/constants'
 
 export interface VehicleData {
+  registration: string
   make: string
   model: string
-  yearOfManufacture?: number
-  monthOfFirstRegistration?: string
-  fuelType?: string
-  engineCapacity?: number
-  co2Emissions?: number
-  colour?: string
-  motStatus?: string
-  taxStatus?: string
-  registrationNumber?: string
-  size?: VehicleSize
+  yearOfManufacture: string
 }
 
 export interface PaymentResult {
@@ -126,4 +123,41 @@ import { ReactNode } from 'react';
 
 export interface ClientProviderProps {
   children: ReactNode;
+}
+
+export interface DashboardData {
+  recentBookings: Booking[]
+  totalBookings: number
+  totalSpent: number
+  rewardPoints: number
+  nextRewardThreshold: number
+}
+
+export interface Customer {
+  id: string
+  email: string
+  full_name: string | null
+  avatar_url: string | null
+  postcode: string | null
+  phone?: string
+  created_at: string
+  total_spent?: number
+  total_bookings?: number
+  loyalty_points?: number
+  last_booking_date?: string | null
+  status?: 'active' | 'inactive'
+  bookings?: CustomerBooking[]
+}
+
+export interface CustomerBooking {
+  id: string
+  booking_date: string
+  booking_time: string
+  service: string
+  total_price: number
+  status: string
+}
+
+export interface CustomerProfile extends Customer {
+  bookings: CustomerBooking[]
 } 

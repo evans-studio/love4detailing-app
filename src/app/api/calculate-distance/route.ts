@@ -1,4 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { distanceCalculationSchema } from '@/lib/schemas/api'
+import { rateLimit, RATE_LIMITS } from '@/lib/utils/rateLimit'
+import { getFromCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
+import { headers } from 'next/headers'
 
 const MAX_DISTANCE_METERS = 16093 // 10 miles in meters
 const HQ_POSTCODE = 'SW9' // Base location
@@ -20,80 +24,118 @@ interface DistanceResponse {
   status: string;
 }
 
-interface ApiResponse {
+interface SuccessResponse {
   distance: {
     meters: number;
     miles: number;
     text: string;
   };
   isWithinRange: boolean;
-  error?: string;
-  requiresManualApproval?: boolean;
+  requiresManualApproval: boolean;
 }
 
-export async function POST(request: Request) {
+interface ErrorResponse {
+  error: string;
+  requiresManualApproval: boolean;
+}
+
+type ApiResponse = SuccessResponse | ErrorResponse
+
+export async function POST(request: NextRequest) {
   try {
-    const { postcode } = await request.json()
-    
-    if (!postcode) {
-      return NextResponse.json({ 
-        error: 'Postcode is required',
-        requiresManualApproval: true 
-      }, { status: 400 })
+    // Get client IP for rate limiting
+    const forwardedFor = headers().get('x-forwarded-for')
+    const ip = forwardedFor?.split(',')[0] || 'unknown'
+
+    // Apply rate limiting
+    const rateLimitResult = await rateLimit(ip, 'distance_calc', RATE_LIMITS.DISTANCE_CALC)
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY
-    if (!apiKey) {
-      return NextResponse.json({ 
-        error: 'Service temporarily unavailable',
-        requiresManualApproval: true 
-      }, { status: 500 })
+    // Validate request body
+    const body = await request.json()
+    const validationResult = distanceCalculationSchema.safeParse(body)
+
+    if (!validationResult.success) {
+      const errorResponse: ErrorResponse = {
+        error: 'Invalid request',
+        requiresManualApproval: true
+      }
+      return NextResponse.json(errorResponse, { status: 400 })
     }
 
-    const apiResponse = await fetch(
-      `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${HQ_POSTCODE}&destinations=${encodeURIComponent(
-        postcode
-      )}&key=${apiKey}`
+    const { postcode } = validationResult.data
+
+    // Generate cache key
+    const cacheKey = generateCacheKey('distance', HQ_POSTCODE, postcode)
+
+    // Try to get from cache or calculate fresh
+    const result = await getFromCache<ApiResponse>(
+      cacheKey,
+      async () => {
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY
+        if (!apiKey) {
+          return {
+            error: 'Service temporarily unavailable',
+            requiresManualApproval: true
+          }
+        }
+
+        const apiResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${HQ_POSTCODE}&destinations=${encodeURIComponent(
+            postcode
+          )}&key=${apiKey}`
+        )
+
+        const data: DistanceResponse = await apiResponse.json()
+
+        // Check for valid response
+        if (data.status !== 'OK' || !data.rows?.[0]?.elements?.[0]) {
+          return {
+            error: 'Could not calculate distance',
+            requiresManualApproval: true
+          }
+        }
+
+        const element = data.rows[0].elements[0]
+        
+        if (element.status !== 'OK') {
+          return {
+            error: 'Invalid address or postcode',
+            requiresManualApproval: true
+          }
+        }
+
+        const distanceInMeters = element.distance.value
+        const distanceInMiles = distanceInMeters / 1609.34
+
+        const successResponse: SuccessResponse = {
+          distance: {
+            meters: distanceInMeters,
+            miles: distanceInMiles,
+            text: element.distance.text
+          },
+          isWithinRange: distanceInMeters <= MAX_DISTANCE_METERS,
+          requiresManualApproval: distanceInMeters > MAX_DISTANCE_METERS
+        }
+
+        return successResponse
+      },
+      CACHE_CONFIGS.DISTANCE_CALC
     )
 
-    const data: DistanceResponse = await apiResponse.json()
-
-    // Check for valid response
-    if (data.status !== 'OK' || !data.rows?.[0]?.elements?.[0]) {
-      return NextResponse.json({ 
-        error: 'Could not calculate distance',
-        requiresManualApproval: true 
-      }, { status: 400 })
-    }
-
-    const element = data.rows[0].elements[0]
-    
-    if (element.status !== 'OK') {
-      return NextResponse.json({ 
-        error: 'Invalid address or postcode',
-        requiresManualApproval: true 
-      }, { status: 400 })
-    }
-
-    const distanceInMeters = element.distance.value
-    const distanceInMiles = distanceInMeters / 1609.34
-
-    const result: ApiResponse = {
-      distance: {
-        meters: distanceInMeters,
-        miles: distanceInMiles,
-        text: element.distance.text
-      },
-      isWithinRange: distanceInMeters <= MAX_DISTANCE_METERS,
-      requiresManualApproval: distanceInMeters > MAX_DISTANCE_METERS
+    if ('error' in result) {
+      return NextResponse.json(result, { status: 400 })
     }
 
     return NextResponse.json(result)
   } catch (error) {
     console.error('Error calculating distance:', error)
-    return NextResponse.json({ 
+    const errorResponse: ErrorResponse = {
       error: 'Failed to process request',
-      requiresManualApproval: true 
-    }, { status: 500 })
+      requiresManualApproval: true
+    }
+    return NextResponse.json(errorResponse, { status: 500 })
   }
 } 

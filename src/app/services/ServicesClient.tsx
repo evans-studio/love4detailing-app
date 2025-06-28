@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/badge"
 import { Car, Clock, CheckCircle, ArrowLeft } from 'lucide-react'
-import Container, { Section } from '@/components/ui/Container'
+import Container from '@/components/ui/Container'
 import { cn } from '@/lib/utils'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { breakpoints } from '@/lib/constants/breakpoints'
@@ -107,7 +107,6 @@ const itemVariants = {
 }
 
 export function ServicesClient() {
-  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
   const isMedium = useMediaQuery(`(min-width: ${breakpoints.md}px)`)
 
   return (

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import Container from '@/components/ui/Container'
 import { AuthModal } from '@/components/auth/AuthModal'
@@ -21,10 +21,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Menu, Home, Calendar, Star, LogOut } from 'lucide-react'
+import { Menu, Home, Calendar, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { breakpoints } from '@/lib/constants/breakpoints'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -38,7 +36,6 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { user, isLoading } = useAuth()
-  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
 
   // Handle scroll effect
   useEffect(() => {

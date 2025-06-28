@@ -1,24 +1,10 @@
 "use client"
 
 import { Button } from '@/components/ui/Button'
-import { CheckCircle } from 'lucide-react'
-import { Text } from '@mantine/core'
 import { content } from '@/lib/content'
 
 interface SignUpSuccessProps {
   onSignIn: () => void
-}
-
-const theme = {
-  colors: {
-    primary: '#8A2B85',
-    black: '#141414',
-    offWhite: '#F8F4EB',
-    gray: '#C7C7C7',
-  },
-  opacity: {
-    high: '0.9',
-  },
 }
 
 export const SignUpSuccess = ({ onSignIn }: SignUpSuccessProps) => {

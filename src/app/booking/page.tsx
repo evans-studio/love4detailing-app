@@ -1,36 +1,22 @@
-import BookingForm from '@/components/booking/BookingForm'
-import Container from '@/components/ui/Container'
-import { cn } from '@/lib/utils'
+import config from '@/config/config';
+import { ConfigurableBookingForm } from '@/components/booking/ConfigurableBookingForm';
 
-export const metadata = {
-  title: 'Book a Service | Love 4 Detailing',
-  description: 'Book your car valeting service with Love 4 Detailing. Choose your vehicle size, preferred date and time, and any add-ons.',
-}
+export default async function BookingPage() {
 
-export default function BookingPage() {
   return (
-    <Container 
-      maxWidth="lg"
-      className="py-6 sm:py-8 lg:py-12"
-    >
-      <div className="w-full">
-        <h1 className={cn(
-          "text-2xl sm:text-3xl font-bold",
-          "text-[#F8F4EB] text-center",
-          "mb-4 sm:mb-6"
-        )}>
-          Book Your Car Valeting Service
+    <div className="container mx-auto px-4 py-12 md:py-24">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="text-3xl font-bold tracking-tight text-center sm:text-4xl">
+          Book Your Detailing Service
         </h1>
-        <p className={cn(
-          "text-[#C7C7C7]",
-          "text-base sm:text-lg",
-          "mb-6 sm:mb-8 text-center",
-          "max-w-2xl mx-auto"
-        )}>
-          Choose your preferred service options and we'll take care of the rest.
+        <p className="mt-4 text-center text-lg text-muted-foreground">
+          Fill out the form below to schedule your appointment.
         </p>
-        <BookingForm />
+
+        <div className="mt-12">
+            <ConfigurableBookingForm config={config} />
+        </div>
       </div>
-    </Container>
-  )
+    </div>
+  );
 } 

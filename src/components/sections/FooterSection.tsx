@@ -11,8 +11,7 @@ import {
   Clock,
   Instagram,
   Facebook,
-  Twitter,
-  Star
+  Twitter
 } from 'lucide-react'
 
 

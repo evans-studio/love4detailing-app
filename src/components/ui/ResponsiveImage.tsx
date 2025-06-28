@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { useResponsive } from '@/hooks/useResponsive'
 import { breakpoints } from '@/lib/constants/breakpoints'
 
 interface ResponsiveImageProps {
@@ -36,7 +35,6 @@ export default function ResponsiveImage({
     xxl: '100vw',
   },
 }: ResponsiveImageProps) {
-  const { breakpoint } = useResponsive()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 

@@ -5,111 +5,107 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { useAdminRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
 import { format } from 'date-fns'
-import { Users, Search, Filter } from 'lucide-react'
+import { Search, User } from 'lucide-react'
 import { CustomerList } from './components/CustomerList'
-import { CustomerProfile } from './components/CustomerProfile'
+import { CustomerProfileView } from './components/CustomerProfile'
 import { StatsGrid } from './components/StatsGrid'
 import { LoadingSkeleton } from './components/LoadingSkeleton'
-import { Customer, CustomerProfile as CustomerProfileType } from './types'
+import type { Customer } from '@/types'
 import { content } from '@/lib/content'
 import { motion } from "framer-motion"
+import { useProtectedRoute } from '@/lib/auth'
+import { useToast } from '@/hooks/use-toast'
+
+type SortBy = 'name' | 'spent' | 'loyalty' | 'recent'
+
+interface ProcessedCustomer extends Customer {
+  total_spent: number
+  total_bookings: number
+  loyalty_points: number
+}
 
 export default function AdminCustomersClient() {
-  const { user, isLoading: authLoading, isAdmin } = useAdminRoute()
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
+  const { user } = useProtectedRoute()
+  const [customers, setCustomers] = useState<ProcessedCustomer[]>([])
+  const [filteredCustomers, setFilteredCustomers] = useState<ProcessedCustomer[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'high_value' | 'loyal'>('all')
-  const [sortBy, setSortBy] = useState<'name' | 'spent' | 'loyalty' | 'recent'>('name')
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerProfileType | null>(null)
+  const [sortBy, setSortBy] = useState<SortBy>('name')
+  const [selectedCustomer, setSelectedCustomer] = useState<ProcessedCustomer | null>(null)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+  const { toast } = useToast()
 
   const fetchCustomers = useCallback(async () => {
     try {
-      setIsLoading(true)
-      console.log('🔍 Starting customer fetch...')
-      
-      // Fetch all customers
       const { data: customersData, error: customersError } = await supabase
-        .from('profiles')
+        .from('customers')
         .select('*')
 
-      // Fetch all bookings to calculate customer stats
+      if (customersError) throw customersError
+
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select('*')
 
-      // Fetch all rewards data
+      if (bookingsError) throw bookingsError
+
       const { data: rewardsData, error: rewardsError } = await supabase
         .from('rewards')
         .select('*')
 
-      if (customersData && bookingsData) {
-        const customerStats = customersData.map(customer => {
-          const customerBookings = bookingsData.filter(b => b.user_id === customer.id)
-          const customerRewards = rewardsData?.find(r => r.user_id === customer.id)
-          const totalSpent = customerBookings.reduce((sum, b) => sum + (b.total_price || 0), 0)
-          const lastBooking = customerBookings.length > 0 
-            ? customerBookings.sort((a, b) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())[0].booking_date
-            : null
+      if (rewardsError) throw rewardsError
 
-          return {
-            id: customer.id,
-            full_name: customer.full_name || 'Unknown',
-            email: customer.email,
-            phone: customer.phone,
-            postcode: customer.postcode,
-            total_spent: totalSpent,
-            total_bookings: customerBookings.length,
-            loyalty_points: customerRewards?.points || 0,
-            last_booking_date: lastBooking,
-            created_at: customer.created_at,
-            status: customerBookings.length > 0 ? 'active' : 'inactive' as 'active' | 'inactive'
-          }
-        })
+      const processedCustomers: ProcessedCustomer[] = customersData.map((customer: any) => ({
+        id: customer.id,
+        email: customer.email,
+        full_name: customer.full_name || null,
+        avatar_url: customer.avatar_url || null,
+        postcode: customer.postcode || null,
+        phone: customer.phone || null,
+        created_at: customer.created_at,
+        total_spent: customer.total_spent || 0,
+        total_bookings: bookingsData.filter((b: any) => b.user_id === customer.id).length,
+        loyalty_points: rewardsData.find((r: any) => r.user_id === customer.id)?.points || 0,
+        last_booking_date: bookingsData
+          .filter((b: any) => b.user_id === customer.id)
+          .sort((a: any, b: any) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())[0]?.booking_date || null,
+        status: customer.status || 'inactive'
+      }))
 
-        setCustomers(customerStats)
-      }
+      setCustomers(processedCustomers)
+      setIsLoading(false)
     } catch (error) {
       console.error('Error fetching customers:', error)
-    } finally {
       setIsLoading(false)
     }
   }, [])
 
-  const filterAndSortCustomers = useCallback((customers: Customer[]) => {
+  const filterAndSortCustomers = useCallback((customers: ProcessedCustomer[]) => {
     return customers
       .filter(customer => {
-        const matchesSearch = searchTerm === '' ||
-          customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-
-        const matchesFilter = selectedFilter === 'all' ||
-          (selectedFilter === 'high_value' && customer.total_spent > 1000) ||
-          (selectedFilter === 'loyal' && customer.loyalty_points > 500)
-
-        return matchesSearch && matchesFilter
+        const searchLower = searchTerm.toLowerCase()
+        const nameMatch = customer.full_name?.toLowerCase().includes(searchLower) || false
+        const emailMatch = customer.email.toLowerCase().includes(searchLower)
+        return nameMatch || emailMatch
       })
       .sort((a, b) => {
         switch (sortBy) {
           case 'name':
-            return a.full_name.localeCompare(b.full_name)
+            return (a.full_name || '').localeCompare(b.full_name || '')
           case 'spent':
-            return b.total_spent - a.total_spent
+            return (b.total_spent || 0) - (a.total_spent || 0)
           case 'loyalty':
-            return b.loyalty_points - a.loyalty_points
+            return (b.loyalty_points || 0) - (a.loyalty_points || 0)
           case 'recent':
             return new Date(b.last_booking_date || 0).getTime() - new Date(a.last_booking_date || 0).getTime()
           default:
             return 0
         }
       })
-  }, [searchTerm, selectedFilter, sortBy])
+  }, [searchTerm, sortBy])
 
   useEffect(() => {
     if (customers) {
@@ -137,74 +133,55 @@ export default function AdminCustomersClient() {
     }
   }, [user, fetchCustomers])
 
-  const fetchCustomerProfile = async (customerId: string) => {
-    setIsLoadingProfile(true)
-    
+  const handleViewProfile = useCallback(async (customer: ProcessedCustomer) => {
     try {
-      // Fetch detailed customer profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', customerId)
-        .single()
-
-      if (profileError) throw profileError
-
-      // Fetch customer bookings
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select('*')
-        .eq('user_id', customerId)
+        .eq('user_id', customer.id)
         .order('booking_date', { ascending: false })
 
       if (bookingsError) throw bookingsError
 
-      // Fetch customer rewards
-      const { data: rewardsData, error: rewardsError } = await supabase
-        .from('rewards')
-        .select('*')
-        .eq('user_id', customerId)
-        .single()
-
-      if (rewardsData) {
-        const bookings = bookingsData || []
-        const customerProfile: CustomerProfileType = {
-          ...profileData,
-          total_spent: bookings.reduce((sum, b) => sum + (b.total_price || 0), 0),
-          total_bookings: bookings.length,
-          loyalty_points: rewardsData.points,
-          last_booking_date: bookings.length > 0 ? bookings[0].booking_date : null,
-          status: bookings.length > 0 ? 'active' : 'inactive',
-          bookings: bookings.map(b => ({
-            id: b.id,
-            booking_date: b.booking_date,
-            booking_time: b.booking_time,
-            service: b.service_id,
-            total_price: b.total_price,
-            status: b.status
-          }))
-        }
-
-        setSelectedCustomer(customerProfile)
-        setIsProfileModalOpen(true)
+      const processedCustomer: ProcessedCustomer = {
+        ...customer,
+        bookings: bookingsData.map(booking => ({
+          id: booking.id,
+          booking_date: booking.booking_date,
+          booking_time: booking.booking_time,
+          service: booking.service_type,
+          total_price: booking.total_price,
+          status: booking.status
+        }))
       }
+
+      setSelectedCustomer(processedCustomer)
+      setIsProfileModalOpen(true)
     } catch (error) {
       console.error('Error fetching customer profile:', error)
-      if (typeof window !== 'undefined') {
-        alert(content.admin.customers.errors.loadProfile)
-      }
-    } finally {
-      setIsLoadingProfile(false)
+      toast({
+        title: 'Error',
+        description: 'Failed to load customer profile',
+        variant: 'destructive'
+      })
     }
-  }
+  }, [toast])
 
-  if (authLoading || isLoading) {
+  if (isLoading) {
     return <LoadingSkeleton />
   }
 
-  const totalRevenue = customers.reduce((sum, c) => sum + c.total_spent, 0)
-  const activeCustomers = customers.filter(c => c.status === 'active').length
-  const averageSpent = customers.length > 0 ? totalRevenue / customers.length : 0
+  const customerStats = {
+    totalCustomers: customers.length,
+    activeCustomers: customers.filter(c => c.status === 'active').length,
+    totalRevenue: customers.reduce((sum, c) => sum + (c.total_spent || 0), 0),
+    averageSpent: customers.length > 0 
+      ? customers.reduce((sum, c) => sum + (c.total_spent || 0), 0) / customers.length 
+      : 0,
+    loyalCustomers: customers.filter(c => (c.loyalty_points || 0) > 500).length,
+    recentBookings: customers.filter(c => c.last_booking_date && 
+      new Date(c.last_booking_date).getTime() > Date.now() - 30 * 24 * 60 * 60 * 1000).length
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -239,7 +216,7 @@ export default function AdminCustomersClient() {
               const csvContent = [
                 ['Name', 'Email', 'Phone', 'Status', 'Total Spent', 'Total Bookings', 'Joined'],
                 ...filteredCustomers.map(c => [
-                  c.full_name,
+                  c.full_name || '',
                   c.email,
                   c.phone || '',
                   c.status,
@@ -266,10 +243,12 @@ export default function AdminCustomersClient() {
 
       {/* Stats Grid */}
       <StatsGrid
-        totalCustomers={customers.length}
-        activeCustomers={activeCustomers}
-        totalRevenue={totalRevenue}
-        averageSpent={averageSpent}
+        totalCustomers={customerStats.totalCustomers}
+        activeCustomers={customerStats.activeCustomers}
+        totalRevenue={customerStats.totalRevenue}
+        averageSpent={customerStats.averageSpent}
+        loyalCustomers={customerStats.loyalCustomers}
+        recentBookings={customerStats.recentBookings}
       />
 
       {/* Customer List */}
@@ -321,8 +300,8 @@ export default function AdminCustomersClient() {
           <CardContent className="pt-0">
             <CustomerList
               customers={filteredCustomers}
-              onViewProfile={fetchCustomerProfile}
-              isLoadingProfile={isLoadingProfile}
+              onCustomerClick={handleViewProfile}
+              isLoading={isLoading}
             />
           </CardContent>
         </Card>
@@ -333,13 +312,13 @@ export default function AdminCustomersClient() {
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
+              <User className="h-5 w-5" />
               Customer Profile
             </DialogTitle>
           </DialogHeader>
           
           {selectedCustomer && (
-            <CustomerProfile customer={selectedCustomer} />
+            <CustomerProfileView customer={selectedCustomer} />
           )}
         </DialogContent>
       </Dialog>

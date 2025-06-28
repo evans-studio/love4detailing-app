@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import type { LoadScriptProps } from '@react-google-maps/api';
 
 // GSAP and ScrollTrigger types

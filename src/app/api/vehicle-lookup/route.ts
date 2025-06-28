@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { vehicleLogger } from '@/lib/utils/logger'
-import type { VehicleData } from '@/types'
+import { vehicleLookupSchema } from '@/lib/schemas/api'
+import { rateLimit, RATE_LIMITS } from '@/lib/utils/rateLimit'
+import { getFromCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
+import { headers } from 'next/headers'
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic'
@@ -10,117 +13,105 @@ const DVLA_API_URL = 'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquir
 
 interface DVLAResponse {
   make: string
-  model?: string
-  yearOfManufacture: number
-  monthOfFirstRegistration: string
-  fuelType: string
-  engineCapacity: number
-  co2Emissions: number
-  colour: string
-  motStatus: string
-  taxStatus: string
-  registrationNumber?: string
+  model: string
+  yearOfManufacture: string
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { registrationNumber } = await request.json()
+    // Get client IP for rate limiting
+    const forwardedFor = headers().get('x-forwarded-for')
+    const ip = forwardedFor?.split(',')[0] || 'unknown'
 
-    if (!registrationNumber) {
+    // Apply rate limiting
+    const rateLimitResult = await rateLimit(ip, 'vehicle_lookup', RATE_LIMITS.VEHICLE_LOOKUP)
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
+    // Validate request body
+    const body = await request.json()
+    const validationResult = vehicleLookupSchema.safeParse(body)
+
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Registration number is required' },
+        { error: 'Invalid request', details: validationResult.error.errors },
         { status: 400 }
       )
     }
 
-    // Clean the registration number
-    const cleanedReg = registrationNumber.replace(/\s+/g, '').toUpperCase()
+    const { registration } = validationResult.data
+    const cleanReg = registration.replace(/\s/g, '')
 
-    // Validate UK registration format
-    const ukRegPattern = /^[A-Z]{2}[0-9]{2}[A-Z]{3}$|^[A-Z][0-9]{1,3}[A-Z]{3}$|^[A-Z]{3}[0-9]{1,3}[A-Z]$|^[0-9]{1,4}[A-Z]{1,3}$|^[A-Z]{1,3}[0-9]{1,4}$/
-    
-    if (!ukRegPattern.test(cleanedReg)) {
-      return NextResponse.json(
-        { error: 'Invalid UK registration format' },
-        { status: 400 }
-      )
-    }
+    // Generate cache key
+    const cacheKey = generateCacheKey('vehicle', cleanReg)
 
-    // Get DVLA API key from environment variables
-    const apiKey = process.env.DVLA_API_KEY
+    // Try to get from cache or fetch from DVLA
+    const vehicleData = await getFromCache<DVLAResponse | null>(
+      cacheKey,
+      async () => {
+        // Get DVLA API key from environment variables
+        const apiKey = process.env.DVLA_API_KEY
 
-    if (!apiKey) {
-      vehicleLogger.warn('DVLA_API_KEY not found in environment variables. Using mock data.')
-      
-      // Return mock data when API key is not available
-      const mockData = getMockVehicleData(cleanedReg)
-      if (mockData) {
-        return NextResponse.json(mockData)
-      } else {
-        return NextResponse.json(
-          { error: 'Vehicle not found' },
-          { status: 404 }
-        )
-      }
-    }
-
-    // Call DVLA API
-    const response = await fetch(DVLA_API_URL, {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        registrationNumber: cleanedReg
-      }),
-    })
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        // Try mock data first before returning error
-        const mockData = getMockVehicleData(cleanedReg)
-        if (mockData) {
-          vehicleLogger.info('DVLA API returned 404, using mock data', { registration: cleanedReg })
-          return NextResponse.json(mockData)
+        if (!apiKey) {
+          vehicleLogger.warn('DVLA_API_KEY not found in environment variables. Using mock data.')
+          return getMockVehicleData(cleanReg)
         }
-        return NextResponse.json(
-          { error: 'Vehicle not found' },
-          { status: 404 }
-        )
-      }
-      
-      const errorText = await response.text()
-      vehicleLogger.error('DVLA API error', { status: response.status, error: errorText })
-      
-      // For any other error (including 403), try mock data as fallback
-      const mockData = getMockVehicleData(cleanedReg)
-      if (mockData) {
-        vehicleLogger.info('DVLA API failed, using mock data', { registration: cleanedReg })
-        return NextResponse.json(mockData)
-      }
-      
+
+        // Call DVLA API
+        const response = await fetch(DVLA_API_URL, {
+          method: 'POST',
+          headers: {
+            'x-api-key': apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            registrationNumber: cleanReg
+          }),
+        })
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            // Try mock data first before returning error
+            const mockData = getMockVehicleData(cleanReg)
+            if (mockData) {
+              vehicleLogger.info('DVLA API returned 404, using mock data', { registration: cleanReg })
+              return mockData
+            }
+            return null
+          }
+          
+          const errorText = await response.text()
+          vehicleLogger.error('DVLA API error', { status: response.status, error: errorText })
+          
+          // For any other error (including 403), try mock data as fallback
+          const mockData = getMockVehicleData(cleanReg)
+          if (mockData) {
+            vehicleLogger.info('DVLA API failed, using mock data', { registration: cleanReg })
+            return mockData
+          }
+          
+          return null
+        }
+
+        return await response.json()
+      },
+      CACHE_CONFIGS.VEHICLE_LOOKUP
+    )
+
+    if (!vehicleData) {
       return NextResponse.json(
-        { error: 'Failed to fetch vehicle data' },
-        { status: response.status }
+        { error: 'Vehicle not found' },
+        { status: 404 }
       )
     }
 
-    const vehicleData: DVLAResponse = await response.json()
-    
     // Transform DVLA response to our format
-    const transformedData: VehicleData = {
+    const transformedData = {
+      registration: cleanReg,
       make: vehicleData.make,
       model: vehicleData.model || '',
-      yearOfManufacture: vehicleData.yearOfManufacture,
-      monthOfFirstRegistration: vehicleData.monthOfFirstRegistration,
-      fuelType: vehicleData.fuelType,
-      engineCapacity: vehicleData.engineCapacity,
-      co2Emissions: vehicleData.co2Emissions,
-      colour: vehicleData.colour,
-      motStatus: vehicleData.motStatus,
-      taxStatus: vehicleData.taxStatus,
-      registrationNumber: vehicleData.registrationNumber || cleanedReg
+      year: parseInt(vehicleData.yearOfManufacture, 10)
     }
 
     return NextResponse.json(transformedData)
@@ -135,59 +126,27 @@ export async function POST(request: NextRequest) {
 }
 
 // Mock data for development/demo when DVLA API key is not available
-function getMockVehicleData(registrationNumber: string): VehicleData | null {
-  const mockResponses: Record<string, VehicleData> = {
+function getMockVehicleData(registrationNumber: string): DVLAResponse | null {
+  const mockResponses: Record<string, DVLAResponse> = {
     'AB12CDE': {
       make: 'AUDI',
       model: 'A3',
-      yearOfManufacture: 2020,
-      monthOfFirstRegistration: '2020-03',
-      fuelType: 'PETROL',
-      engineCapacity: 1395,
-      co2Emissions: 128,
-      colour: 'BLUE',
-      motStatus: 'Valid',
-      taxStatus: 'Taxed',
-      registrationNumber: 'AB12CDE'
+      yearOfManufacture: '2020'
     },
     'XY34ZAB': {
       make: 'BMW',
       model: 'X5',
-      yearOfManufacture: 2019,
-      monthOfFirstRegistration: '2019-09',
-      fuelType: 'DIESEL',
-      engineCapacity: 2993,
-      co2Emissions: 156,
-      colour: 'BLACK',
-      motStatus: 'Valid',
-      taxStatus: 'Taxed',
-      registrationNumber: 'XY34ZAB'
+      yearOfManufacture: '2019'
     },
     'CD56EFG': {
       make: 'FORD',
       model: 'FOCUS',
-      yearOfManufacture: 2018,
-      monthOfFirstRegistration: '2018-07',
-      fuelType: 'PETROL',
-      engineCapacity: 1499,
-      co2Emissions: 115,
-      colour: 'WHITE',
-      motStatus: 'Valid',
-      taxStatus: 'Taxed',
-      registrationNumber: 'CD56EFG'
+      yearOfManufacture: '2018'
     },
     'HI78JKL': {
       make: 'VOLKSWAGEN',
       model: 'GOLF',
-      yearOfManufacture: 2021,
-      monthOfFirstRegistration: '2021-01',
-      fuelType: 'PETROL',
-      engineCapacity: 1395,
-      co2Emissions: 122,
-      colour: 'SILVER',
-      motStatus: 'Valid',
-      taxStatus: 'Taxed',
-      registrationNumber: 'HI78JKL'
+      yearOfManufacture: '2021'
     }
   }
 

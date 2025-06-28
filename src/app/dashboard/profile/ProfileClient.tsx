@@ -11,8 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
 import { useProtectedRoute } from '@/lib/auth'
 import { supabase } from '@/lib/supabase/client'
-import { cn } from '@/lib/utils'
-import { User, Settings, Bell, Shield } from 'lucide-react'
+import { User } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { content } from '@/lib/content'
 
@@ -49,7 +48,6 @@ export function ProfileClient() {
   const { user, isLoading: authLoading } = useProtectedRoute()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
 
   const fetchProfile = useCallback(async () => {
@@ -84,7 +82,6 @@ export function ProfileClient() {
     if (!user || !profile) return
 
     try {
-      setIsSaving(true)
       const { error } = await supabase
         .from('profiles')
         .update(updates)
@@ -104,8 +101,6 @@ export function ProfileClient() {
         description: 'Failed to update profile',
         variant: 'destructive'
       })
-    } finally {
-      setIsSaving(false)
     }
   }
 

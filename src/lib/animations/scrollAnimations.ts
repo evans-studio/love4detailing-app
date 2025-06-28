@@ -1,5 +1,4 @@
 import { gsap } from 'gsap'
-import { easePresets } from './utils'
 
 // Try to register ScrollTrigger if available
 let ScrollTrigger: any = null
@@ -47,7 +46,7 @@ export const initParallaxEffects = () => {
   
   parallaxElements.forEach((element, index) => {
     gsap.to(element, {
-      y: (i, target) => -ScrollTrigger.maxScroll(window) * (0.15 + (index * 0.02)), // Use index instead of random
+      y: () => -ScrollTrigger.maxScroll(window) * (0.15 + (index * 0.02)), // Use index instead of random
       ease: "none",
       scrollTrigger: {
         trigger: "body",

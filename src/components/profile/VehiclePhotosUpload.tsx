@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/Card'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/auth'
 import { useToast } from '@/hooks/use-toast'
-import { Upload, X, Loader2, Camera, Plus } from 'lucide-react'
+import { Upload, X, Loader2, Plus } from 'lucide-react'
 
 interface VehiclePhotosUploadProps {
   currentPhotos?: string[]
@@ -81,7 +81,7 @@ export default function VehiclePhotosUpload({
         const fileName = `${user.id}/vehicle-${Date.now()}-${i}.${fileExt}`
 
         // Upload to Supabase Storage
-        const { data, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('vehicle-photos')
           .upload(fileName, file, {
             cacheControl: '3600',

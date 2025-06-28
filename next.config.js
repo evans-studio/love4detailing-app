@@ -22,6 +22,11 @@ const nextConfig = {
       };
     }
 
+    // Ignore warnings from @supabase/realtime-js
+    config.ignoreWarnings = [
+      { module: /@supabase\/realtime-js/ },
+    ];
+
     // Optimize chunk loading
     config.optimization = {
       ...config.optimization,

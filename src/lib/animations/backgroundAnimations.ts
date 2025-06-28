@@ -1,5 +1,4 @@
 import { gsap } from 'gsap'
-import { easePresets } from './utils'
 
 export const initGSAPBackground = (container: HTMLElement) => {
   if (!container) return

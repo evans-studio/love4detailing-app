@@ -4,30 +4,24 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/Button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { supabase } from '@/lib/supabase/client'
 import Image from 'next/image'
-import { useProtectedRoute } from '@/lib/auth'
-import { cn } from '@/lib/utils'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
-import { Search, User, Car, Calendar, CreditCard } from 'lucide-react'
 
 interface Customer {
   id: string
   full_name: string
   email: string
-  phone: string
   postcode: string
   vehicle_images?: string[]
   profile_image_url?: string
   created_at: string
   total_bookings: number
   total_spent: number
-  loyalty_points: number
   rewards_points: number
   last_booking_date?: string
   bookings?: {
@@ -45,7 +39,6 @@ export function CustomersClient() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function fetchCustomers() {
@@ -81,8 +74,6 @@ export function CustomersClient() {
         }
       } catch (error) {
         console.error('Error fetching customers:', error)
-      } finally {
-        setIsLoading(false)
       }
     }
 

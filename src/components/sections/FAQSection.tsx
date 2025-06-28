@@ -3,43 +3,15 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Minus } from 'lucide-react'
+import { FAQItem } from '@/config/schema'
 
-const faqs = [
-  {
-    question: "How does the mobile service work?",
-    answer: "We bring all necessary equipment and supplies directly to your location. Simply choose your preferred time slot, and our professional team will arrive with everything needed to detail your vehicle at your home, office, or any convenient location."
-  },
-  {
-    question: "What areas do you cover?",
-    answer: "We proudly serve South West London including Richmond, Putney, Wimbledon, Kingston, Clapham, Battersea, and surrounding areas. Contact us to confirm coverage for your specific location."
-  },
-  {
-    question: "How long does a typical service take?",
-    answer: "Service time varies by package: Express Wash (30-45 mins), Interior/Exterior Details (45-60 mins), Full Service Detail (1.5-2 hours). We'll provide an estimated time when you book."
-  },
-  {
-    question: "What if I'm not satisfied with the service?",
-    answer: "Your satisfaction is our priority. If you're not completely happy with our work, we'll return to make it right at no additional cost. We stand behind our 100% satisfaction guarantee."
-  },
-  {
-    question: "Do I need to provide water or electricity?",
-    answer: "No! We bring our own water supply and battery-powered equipment, making us completely self-sufficient. All you need to provide is access to your vehicle."
-  },
-  {
-    question: "How do I pay for the service?",
-    answer: "We accept all major credit/debit cards, contactless payments, and digital wallets. Payment is processed securely through our app or can be handled on-site with our mobile payment system."
-  },
-  {
-    question: "Can you clean the interior if it's very dirty?",
-    answer: "Absolutely! Our deep cleaning service is designed to handle heavily soiled interiors. We use professional-grade equipment and products to restore your interior to like-new condition."
-  },
-  {
-    question: "What happens if it rains?",
-    answer: "We monitor weather conditions closely. If rain is forecast, we'll contact you to reschedule. For light drizzle, we can often work under covered areas like garages or carports."
-  }
-]
+interface FAQSectionProps {
+  title: string
+  subtitle: string
+  questions: FAQItem[]
+}
 
-export const FAQSection = () => {
+export const FAQSection = ({ title, subtitle, questions }: FAQSectionProps) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   const toggleFAQ = (index: number) => {
@@ -57,19 +29,16 @@ export const FAQSection = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#F8F4EB] mb-6">
-              Frequently Asked
-              <span className="block bg-gradient-to-r from-[#9747FF] to-[#8A2B85] bg-clip-text text-transparent">
-                Questions
-              </span>
-            </h2>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#F8F4EB] mb-6"
+              dangerouslySetInnerHTML={{ __html: title.replace(/ (\w+)$/, ' <span class="block bg-gradient-to-r from-[#9747FF] to-[#8A2B85] bg-clip-text text-transparent">$1</span>') }}
+            />
             <p className="text-xl text-[#F8F4EB]/80 max-w-2xl mx-auto">
-              Everything you need to know about our mobile car detailing service
+              {subtitle}
             </p>
           </motion.div>
 
           <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-[#9747FF]/20 scrollbar-track-transparent hover:scrollbar-thumb-[#9747FF]/40">
-            {faqs.map((faq, index) => (
+            {questions.map((faq: FAQItem, index: number) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}

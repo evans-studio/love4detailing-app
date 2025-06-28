@@ -9,7 +9,7 @@ import { UserFeedbackForm } from '../feedback/UserFeedbackForm'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useState } from 'react'
 import { BackgroundOrbs } from '@/components/ui/BackgroundOrbs'
-import { Shield, Users, Calendar, Star, User, Home, FileText, LogOut, Menu } from 'lucide-react'
+import { Shield, Users, Calendar, Star, User, Home, LogOut, Menu } from 'lucide-react'
 import { responsiveClasses } from '@/lib/constants/breakpoints'
 
 const dashboardItems = [

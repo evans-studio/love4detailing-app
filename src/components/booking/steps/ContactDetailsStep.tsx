@@ -5,7 +5,7 @@ import { User } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { slideVariants } from '@/lib/animations/motion-variants'
 import { Input } from '@/components/ui/Input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import type { BookingFormData } from '@/types'
 
 interface ContactDetailsStepProps {

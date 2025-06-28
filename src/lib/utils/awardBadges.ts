@@ -1,11 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
 
-interface UserStats {
-  totalBookings: number
-  totalSpent: number
-  userId: string
-}
-
 export async function checkAndAwardBadges(userId: string) {
   try {
     // Get user stats

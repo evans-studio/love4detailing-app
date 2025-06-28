@@ -5,7 +5,6 @@ import { Input } from './Input'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { VehicleData } from '@/types'
-import type { VehicleSize } from '@/lib/constants'
 
 interface VehicleAutocompleteProps {
   value: string
@@ -97,26 +96,6 @@ export function VehicleAutocomplete({
     }
   }
 
-  const getSizeColor = (size: VehicleSize) => {
-    switch (size) {
-      case 's': return 'bg-green-100 text-green-800'
-      case 'm': return 'bg-blue-100 text-blue-800'
-      case 'l': return 'bg-deep-purple/20 text-deep-purple'
-      case 'xl': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  const getSizeLabel = (size: VehicleSize) => {
-    switch (size) {
-      case 's': return 'Small'
-      case 'm': return 'Medium'
-      case 'l': return 'Large'
-      case 'xl': return 'Extra Large'
-      default: return 'Medium'
-    }
-  }
-
   return (
     <div className="relative">
       <div className="relative">
@@ -159,18 +138,6 @@ export function VehicleAutocomplete({
             <div className="font-medium">
               {selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.yearOfManufacture})
             </div>
-            <div className="text-gray-500 text-xs mt-1">
-              {selectedVehicle.colour} • {selectedVehicle.fuelType}
-              {selectedVehicle.engineCapacity && ` • ${selectedVehicle.engineCapacity}cc`}
-            </div>
-            {selectedVehicle.size && (
-              <div className={cn(
-                "inline-block px-2 py-0.5 rounded text-xs mt-2",
-                getSizeColor(selectedVehicle.size as VehicleSize)
-              )}>
-                {getSizeLabel(selectedVehicle.size as VehicleSize)}
-              </div>
-            )}
           </div>
         </div>
       )}
