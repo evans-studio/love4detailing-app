@@ -212,6 +212,18 @@ export async function signIn(email: string, password: string) {
   }
 }
 
+export async function resetPasswordForEmail(email: string) {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`,
+    });
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    return { error: error instanceof Error ? error : new Error('An unexpected error occurred') };
+  }
+}
+
 export async function signOut() {
   try {
     const { error } = await supabase.auth.signOut()

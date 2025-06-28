@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/hooks/use-toast'
-import { signIn } from '@/lib/auth'
+import { signIn, resetPasswordForEmail } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 
@@ -39,6 +39,7 @@ export const SignInForm = ({
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -85,6 +86,33 @@ export const SignInForm = ({
     }
   }
 
+  const handlePasswordReset = async () => {
+    const email = getValues("email");
+    if (!email) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address to reset your password.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsLoading(true);
+    const { error } = await resetPasswordForEmail(email);
+    setIsLoading(false);
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Check your email",
+        description: "A password reset link has been sent to your email address.",
+      });
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
@@ -107,6 +135,15 @@ export const SignInForm = ({
           {errors.password && (
             <p className="text-sm text-red-500">{errors.password.message}</p>
           )}
+          <div className="text-right pt-1">
+            <button
+              type="button"
+              onClick={handlePasswordReset}
+              className="text-xs text-[#9747FF] hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
         </div>
       </div>
 
