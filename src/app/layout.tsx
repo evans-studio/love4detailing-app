@@ -64,13 +64,13 @@ export default function RootLayout({
       <head>
         <link
           rel="preload"
-          href="/fonts/inter.woff2"
+          href={`/fonts/inter-var-latin.woff2`}
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-screen font-sans antialiased">
+      <body className="min-h-screen font-sans antialiased bg-[#141414]">
         <SupabaseProvider>
           <MantineProvider>
             <ClientProvider>

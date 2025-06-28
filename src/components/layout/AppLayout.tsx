@@ -155,13 +155,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-[100svh] w-full">
       {/* Global Background */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-true-black" />
+      <div className="fixed inset-0 z-[-1]">
+        <div className="absolute inset-0 bg-[#141414]" />
         <BackgroundOrbs intensity="high" className="absolute inset-0" />
       </div>
       
       {/* Main App Content */}
-      <div className="relative z-10 w-full">
+      <div className="relative z-[1] w-full">
         <SidebarProvider>
           <LayoutContent>
             {children}
