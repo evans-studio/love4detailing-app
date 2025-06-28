@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@/hooks/use-toast'
+import { useToast } from '@/components/ui/use-toast'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -27,14 +27,7 @@ import { useAuth } from '@/lib/auth'
 import { ServiceIcons } from '@/components/ui/icons'
 import { detectVehicle, getFallbackSize, type VehicleSearchResult, type LicensePlateResult } from '@/lib/utils/vehicleDatabase'
 import type { TimeSlot } from '@/types'
-
-// Vehicle size categories
-const vehicleSizes = {
-  s: { label: 'Small', description: 'Fiesta, Polo, Mini', price: 55 },
-  m: { label: 'Medium', description: 'Focus, Golf, Civic', price: 60 },
-  l: { label: 'Large', description: 'BMW 5 Series, SUV, Estate', price: 65 },
-  xl: { label: 'Extra Large', description: 'Van, Range Rover, 7-Seater', price: 70 },
-} as const
+import { vehicleSizes, type VehicleSize } from '@/lib/constants'
 
 const serviceTypes = [
   { 
@@ -57,7 +50,7 @@ const addOns = [
 
 const formSchema = z.object({
   serviceType: z.enum(['basic']),
-  vehicleSize: z.enum(['s', 'm', 'l', 'xl']),
+  vehicleSize: z.enum(['s', 'm', 'l', 'xl'] as const),
   vehicle: z.string().min(1, 'Please select your vehicle'),
   vehicleYear: z.string().min(4, 'Vehicle year is required'),
   vehicleColor: z.string().optional(),
@@ -73,229 +66,28 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
-// Comprehensive vehicle database for automatic size categorization - purely by dimensions
-const vehicleDatabase = {
-  // Small vehicles (£55)
-  small: [
-    // BMW
-    'bmw mini', 'mini cooper', 'mini one', 'mini countryman',
-    // Ford
-    'ford fiesta', 'ford ka', 'ford puma',
-    // Volkswagen
-    'volkswagen polo', 'vw polo', 'volkswagen up', 'vw up',
-    // Vauxhall
-    'vauxhall corsa', 'vauxhall adam', 'vauxhall viva',
-    // Peugeot
-    'peugeot 108', 'peugeot 208', 'peugeot 2008',
-    // Renault
-    'renault clio', 'renault twingo', 'renault captur',
-    // Citroen
-    'citroen c1', 'citroen c3', 'citroen c3 aircross',
-    // Toyota
-    'toyota aygo', 'toyota yaris', 'toyota yaris cross',
-    // Nissan
-    'nissan micra', 'nissan juke',
-    // Hyundai
-    'hyundai i10', 'hyundai i20',
-    // Kia
-    'kia picanto', 'kia rio', 'kia stonic',
-    // Seat
-    'seat ibiza', 'seat arona',
-    // Skoda
-    'skoda fabia', 'skoda kamiq',
-    // Fiat
-    'fiat 500', 'fiat panda', 'fiat tipo',
-    // Dacia
-    'dacia sandero', 'dacia logan',
-    // Suzuki
-    'suzuki swift', 'suzuki ignis', 'suzuki baleno',
-    // MG
-    'mg 3'
-  ],
-  
-  // Medium vehicles (£60)
-  medium: [
-    // Audi
-    'audi a3', 'audi a3 sportback', 'audi a3 saloon', 'audi a3 tfsi', 'audi a3 tdi', 'audi s3', 'audi rs3',
-    'audi q2', 'audi tt', 'audi tt coupe', 'audi tt roadster', 'audi tt rs',
-    // BMW
-    'bmw 1 series', 'bmw 2 series', 'bmw x1',
-    'bmw 116i', 'bmw 118i', 'bmw 118d', 'bmw 120i', 'bmw 125i', 'bmw m135i', 'bmw m140i',
-    'bmw 216i', 'bmw 218i', 'bmw 218d', 'bmw 220i', 'bmw 225i', 'bmw m240i', 'bmw m235i',
-    // Citroen
-    'citroen c4', 'citroen c4 cactus', 'citroen c3 aircross', 'citroen c5 aircross',
-    // Dacia
-    'dacia duster', 'dacia jogger',
-    // DS
-    'ds 3', 'ds 4',
-    // Fiat
-    'fiat tipo', 'fiat 500x',
-    // Ford
-    'ford focus', 'ford escort', 'ford kuga', 'ford c-max', 'ford puma', 'ford ecosport',
-    // Honda
-    'honda civic', 'honda cr-v', 'honda crv', 'honda hr-v', 'honda hrv',
-    // Hyundai
-    'hyundai i30', 'hyundai tucson', 'hyundai kona',
-    // Kia
-    'kia ceed', 'kia xceed', 'kia sportage', 'kia niro',
-    // Mazda
-    'mazda 3', 'mazda 6', 'mazda cx-3', 'mazda cx3', 'mazda mx-5',
-    // Mercedes
-    'mercedes a-class', 'mercedes a class', 'mercedes b-class', 'mercedes b class', 'mercedes cla',
-    'mercedes a35 amg', 'mercedes a45 amg',
-    // MG
-    'mg zs', 'mg 4',
-    // Mini
-    'mini hatch', 'mini clubman', 'mini countryman',
-    // Nissan
-    'nissan qashqai', 'nissan sentra', 'nissan leaf', 'nissan juke',
-    // Peugeot
-    'peugeot 308', 'peugeot 3008', 'peugeot 408', 'peugeot 2008',
-    // Renault
-    'renault megane', 'renault kadjar', 'renault scenic', 'renault captur',
-    // Seat
-    'seat leon', 'seat ateca', 'seat arona',
-    // Skoda
-    'skoda octavia', 'skoda karoq', 'skoda scala',
-    // Suzuki
-    'suzuki vitara', 'suzuki sx4 s-cross',
-    // Tesla
-    'tesla model 3',
-    // Toyota
-    'toyota corolla', 'toyota auris', 'toyota c-hr', 'toyota chr', 'toyota yaris cross',
-    // Vauxhall
-    'vauxhall astra', 'vauxhall mokka', 'vauxhall crossland', 'vauxhall grandland',
-    // Volkswagen
-    'volkswagen golf', 'vw golf', 'volkswagen jetta', 'vw jetta', 'volkswagen tiguan', 'vw tiguan',
-    'volkswagen t-roc', 'vw t-roc',
-    // Volvo
-    'volvo v40', 'volvo xc40'
-  ],
-  
-  // Large vehicles (£65) - includes performance cars of this size
-  large: [
-    // BMW
-    'bmw 3 series', 'bmw 4 series', 'bmw 5 series', 'bmw x3', 'bmw x4',
-    'bmw 320i', 'bmw 320d', 'bmw 330i', 'bmw 330d', 'bmw 335i',
-    'bmw 420i', 'bmw 420d', 'bmw 430i', 'bmw 440i',
-    'bmw 520i', 'bmw 520d', 'bmw 530i', 'bmw 530d', 'bmw 535i', 'bmw 540i',
-    'bmw m2', 'bmw m3', 'bmw m4', 'bmw x3m', 'bmw x4m', 'bmw z4', 'bmw i4', 'bmw i4 m50',
-    // Audi
-    'audi a4', 'audi a5', 'audi a6', 'audi q3', 'audi q5',
-    'audi a4 avant', 'audi a4 allroad', 'audi a5 sportback', 'audi a5 coupe',
-    'audi a6 avant', 'audi s4', 'audi s5', 'audi s6', 'audi rs4', 'audi rs5', 'audi rs6',
-    'audi sq5', 'audi rsq3', 'audi r8', 'audi e-tron gt',
-    // Mercedes
-    'mercedes c-class', 'mercedes c class', 'mercedes e-class', 'mercedes e class', 
-    'mercedes glc', 'mercedes gla', 'mercedes gle',
-    'mercedes c200', 'mercedes c220', 'mercedes c250', 'mercedes c300',
-    'mercedes e200', 'mercedes e220', 'mercedes e250', 'mercedes e300',
-    'mercedes c43 amg', 'mercedes c63 amg', 'mercedes e43 amg', 'mercedes e63 amg',
-    'mercedes amg gt', 'mercedes amg gtr', 'mercedes slc', 'mercedes sl',
-    // Porsche (most models are large by dimensions)
-    'porsche 911', 'porsche 718', 'porsche boxster', 'porsche cayman', 'porsche macan',
-    'porsche 911 turbo', 'porsche 911 gt3', 'porsche 911 gt2', 'porsche carrera', 'porsche targa',
-    // Volkswagen
-    'volkswagen passat', 'vw passat', 'volkswagen arteon', 'vw arteon', 
-    'volkswagen touran', 'vw touran', 'volkswagen atlas', 'vw atlas',
-    // Ford
-    'ford mondeo', 'ford galaxy', 'ford s-max', 'ford edge', 'ford explorer',
-    // Vauxhall
-    'vauxhall insignia', 'vauxhall grandland',
-    // Peugeot
-    'peugeot 508', 'peugeot 5008',
-    // Renault
-    'renault talisman', 'renault koleos', 'renault espace',
-    // Toyota
-    'toyota camry', 'toyota rav4', 'toyota highlander', 'toyota prius', 'toyota avensis',
-    // Nissan
-    'nissan x-trail', 'nissan xtrail', 'nissan murano', 'nissan maxima',
-    // Honda
-    'honda accord', 'honda pilot', 'honda passport',
-    // Hyundai
-    'hyundai i40', 'hyundai santa fe', 'hyundai ioniq',
-    // Kia
-    'kia optima', 'kia sorento', 'kia ev6',
-    // Mazda
-    'mazda 6', 'mazda cx-5', 'mazda cx5', 'mazda cx-60', 'mazda cx-9',
-    // Volvo
-    'volvo s60', 'volvo v60', 'volvo xc60', 'volvo s90',
-    // Jaguar
-    'jaguar xe', 'jaguar xf', 'jaguar f-pace', 'jaguar e-pace', 'jaguar f-type', 'jaguar xkr', 'jaguar xfr',
-    // Land Rover
-    'land rover discovery sport', 'land rover evoque',
-    // Lexus
-    'lexus is', 'lexus nx', 'lexus rx', 'lexus es', 'lexus lc', 'lexus rcf', 'lexus gsf', 'lexus isf',
-    // Tesla
-    'tesla model y', 'tesla model s', 'tesla model s plaid',
-    // Genesis
-    'genesis g70', 'genesis gv70',
-    // Infiniti
-    'infiniti q50', 'infiniti qx50', 'infiniti q60',
-    // Maserati (smaller models)
-    'maserati ghibli', 'maserati quattroporte',
-    // Lotus
-    'lotus evora', 'lotus elise', 'lotus exige', 'lotus emira',
-    // Alpine
-    'alpine a110'
-  ],
-  
-  // Extra Large vehicles (£70) - includes large performance cars and luxury SUVs
-  extraLarge: [
-    // BMW
-    'bmw 6 series', 'bmw 7 series', 'bmw x5', 'bmw x6', 'bmw x7',
-    'bmw m5', 'bmw m6', 'bmw m8', 'bmw x5m', 'bmw x6m', 'bmw i8', 'bmw ix', 'bmw ix m60',
-    // Audi
-    'audi a7', 'audi a8', 'audi q7', 'audi q8', 'audi e-tron',
-    'audi s7', 'audi s8', 'audi rs7', 'audi sq7', 'audi sq8', 'audi rsq8',
-    // Mercedes
-    'mercedes s-class', 'mercedes s class', 'mercedes gle', 'mercedes gls', 'mercedes g-class', 'mercedes g class', 
-    'mercedes v-class', 'mercedes v class', 'mercedes s63 amg', 'mercedes s65 amg', 'mercedes g63 amg', 
-    'mercedes g65 amg', 'mercedes gle63 amg', 'mercedes gls63 amg', 'mercedes maybach',
-    // Range Rover & Land Rover
-    'range rover', 'range rover sport', 'range rover velar', 'range rover vogue', 'range rover svr',
-    'land rover discovery', 'land rover defender',
-    // Porsche (larger models)
-    'porsche cayenne', 'porsche panamera', 'porsche taycan',
-    // Luxury Brands
-    'bentley continental', 'bentley bentayga', 'bentley mulsanne', 'bentley flying spur',
-    'rolls royce ghost', 'rolls royce phantom', 'rolls royce cullinan', 'rolls royce wraith', 'rolls royce dawn',
-    'ferrari 488', 'ferrari f8', 'ferrari portofino', 'ferrari roma', 'ferrari sf90', 'ferrari 296',
-    'lamborghini huracan', 'lamborghini aventador', 'lamborghini urus',
-    'mclaren 570s', 'mclaren 720s', 'mclaren gt', 'mclaren artura',
-    'aston martin vantage', 'aston martin db11', 'aston martin dbx',
-    'maserati levante', 'maserati mc20',
-    // Volkswagen
-    'volkswagen touareg', 'vw touareg', 'volkswagen sharan', 'vw sharan', 'volkswagen caravelle', 'vw caravelle',
-    // Ford
-    'ford transit', 'ford ranger', 'ford expedition',
-    // Toyota
-    'toyota land cruiser', 'toyota prado', 'toyota sienna', 'toyota sequoia',
-    // Nissan
-    'nissan patrol', 'nissan armada', 'nissan titan',
-    // Volvo
-    'volvo xc90', 'volvo v90',
-    // Jaguar
-    'jaguar xj', 'jaguar i-pace',
-    // Lexus
-    'lexus lx', 'lexus gx', 'lexus ls',
-    // Cadillac
-    'cadillac escalade', 'cadillac cts-v', 'cadillac ats-v',
-    // Lincoln
-    'lincoln navigator',
-    // Chevrolet
-    'chevrolet tahoe', 'chevrolet suburban',
-    // Tesla
-    'tesla model x', 'tesla model x plaid', 'tesla roadster',
-    // Genesis
-    'genesis g90', 'genesis gv80',
-    // Infiniti
-    'infiniti qx80',
-    // Chrysler
-    'chrysler 300c srt',
-    // Vans and Commercial
-    'mercedes sprinter', 'ford transit custom', 'volkswagen crafter', 'vw crafter', 'iveco daily'
-  ]
+// Vehicle size determination is now handled by DVLA API
+const determineVehicleSize = async (registration: string): Promise<VehicleSize> => {
+  try {
+    // Call DVLA API endpoint
+    const response = await fetch(`/api/dvla/vehicle-details?registration=${registration}`)
+    const data = await response.json()
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch vehicle details')
+    }
+
+    // Size determination logic from DVLA data
+    const size = data.size as VehicleSize
+    if (!size || !vehicleSizes[size]) {
+      return 'm'
+    }
+    return size
+  } catch (error) {
+    console.error('Error fetching vehicle size:', error)
+    // Default to medium size if API fails
+    return 'm'
+  }
 }
 
 interface PaymentResult {
@@ -333,7 +125,7 @@ export default function DashboardBookingForm() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      vehicleSize: 'm',
+      vehicleSize: 'm' as const,
       vehicle: '',
       vehicleYear: '',
       vehicleColor: '',
@@ -366,20 +158,23 @@ export default function DashboardBookingForm() {
   // Auto-update vehicle size when make/model changes
   useEffect(() => {
     if (watchedVehicle && watchedYear) {
-      const detectedSize = determineVehicleSize(watchedVehicle, watchedYear)
-      const currentSize = form.getValues('vehicleSize')
-      
-      // Only update if it's different to avoid infinite loops
-      if (detectedSize !== currentSize) {
-        form.setValue('vehicleSize', detectedSize)
-        
-        // Show a helpful toast
-        const sizeLabels = { s: 'Small', m: 'Medium', l: 'Large', xl: 'Extra Large' }
-        toast({
-          title: "Vehicle Size Detected",
-          description: `${watchedVehicle} ${watchedYear} has been categorized as ${sizeLabels[detectedSize]} (£${vehicleSizes[detectedSize].price})`,
+      determineVehicleSize(watchedVehicle + ' ' + watchedYear)
+        .then(detectedSize => {
+          const currentSize = form.getValues('vehicleSize')
+          if (currentSize !== detectedSize) {
+            form.setValue('vehicleSize', detectedSize)
+            
+            // Show a helpful toast
+            const sizeLabels = { s: 'Small', m: 'Medium', l: 'Large', xl: 'Extra Large' }
+            toast({
+              title: "Vehicle Size Detected",
+              description: `${watchedVehicle} ${watchedYear} has been categorized as ${sizeLabels[detectedSize]} (£${vehicleSizes[detectedSize].price})`,
+            })
+          }
         })
-      }
+        .catch(error => {
+          console.error('Error determining vehicle size:', error)
+        })
     }
   }, [watchedVehicle, watchedYear, form, toast])
 
@@ -427,7 +222,7 @@ export default function DashboardBookingForm() {
           form.setValue('vehicleYear', profile.vehicle_year?.toString() || '')
           
           // Determine vehicle size based on make/model
-          const vehicleSize = determineVehicleSize(profile.vehicle_make, profile.vehicle_model)
+          const vehicleSize = determineVehicleSize(profile.vehicle_make + ' ' + profile.vehicle_model)
           form.setValue('vehicleSize', vehicleSize)
         }
         
@@ -481,19 +276,6 @@ export default function DashboardBookingForm() {
     
     const models = popularModels[makeLower] || popularModels[makeLower.replace('mercedes-benz', 'mercedes')]
     return models ? models.slice(0, 4).join(', ') : 'Focus, Golf, Corsa, Civic'
-  }
-
-  // Enhanced function to determine vehicle size using comprehensive database
-  const determineVehicleSize = (make: string, model: string): 's' | 'm' | 'l' | 'xl' => {
-    // First try the comprehensive vehicle database
-    const vehicleMatch = detectVehicle(make, model)
-    
-    if (vehicleMatch) {
-      return vehicleMatch.size
-    }
-    
-    // Fallback to pattern-based detection for unknown vehicles
-    return getFallbackSize(make, model)
   }
 
   const fetchTimeSlots = useCallback(async (dateString: string) => {

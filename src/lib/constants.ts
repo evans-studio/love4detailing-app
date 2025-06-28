@@ -82,4 +82,14 @@ export const API = {
     PUT: 'PUT',
     DELETE: 'DELETE',
   },
-} 
+}
+
+// Vehicle size categories and pricing
+export const vehicleSizes = {
+  s: { label: 'Small', description: 'Fiesta, Polo, Mini', price: 55 },
+  m: { label: 'Medium', description: 'Focus, Golf, Civic', price: 60 },
+  l: { label: 'Large', description: 'BMW 5 Series, SUV, Estate', price: 65 },
+  xl: { label: 'Extra Large', description: 'Van, Range Rover, 7-Seater', price: 70 },
+} as const
+
+export type VehicleSize = keyof typeof vehicleSizes 
