@@ -16,9 +16,14 @@ const LoadScript = dynamic(
 
 export function ClientProvider({ children }: ClientProviderProps) {
   const [isClient, setIsClient] = useState(false);
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    // Check if Google Maps is already loaded
+    if (window.google?.maps) {
+      setIsGoogleMapsLoaded(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -55,11 +60,11 @@ export function ClientProvider({ children }: ClientProviderProps) {
 
   return (
     <>
-      {/* Only render LoadScript on client side */}
-      {isClient && process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY && (
+      {/* Only load Google Maps script if not already loaded */}
+      {!isGoogleMapsLoaded && (
         <LoadScript
-          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
-          loadingElement={null}
+          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
+          onLoad={() => setIsGoogleMapsLoaded(true)}
           id="google-maps-script"
           libraries={['places']}
           language="en"

@@ -171,6 +171,26 @@ export const initSectionTransitions = () => {
             }
           }
         )
+      } else {
+        // Handle single line text
+        gsap.fromTo(element,
+          {
+            y: 20,
+            opacity: 0
+          },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            ease: easePresets.premium,
+            scrollTrigger: {
+              trigger: element,
+              start: "top 80%",
+              end: "bottom 20%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        )
       }
     })
   }
