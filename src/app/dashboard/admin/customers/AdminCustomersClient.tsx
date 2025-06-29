@@ -17,6 +17,7 @@ import { content } from '@/lib/content'
 import { motion } from "framer-motion"
 import { useProtectedRoute } from '@/lib/auth'
 import { useToast } from '@/hooks/use-toast'
+import { LoyaltyTier, CustomerStatus, PaymentStatus } from '@/lib/enums'
 
 type SortBy = 'name' | 'spent' | 'loyalty' | 'recent'
 
@@ -24,6 +25,7 @@ interface ProcessedCustomer extends Customer {
   total_spent: number
   total_bookings: number
   loyalty_points: number
+  loyalty_tier: LoyaltyTier
 }
 
 export default function AdminCustomersClient() {
@@ -69,6 +71,7 @@ export default function AdminCustomersClient() {
         total_spent: customer.total_spent || 0,
         total_bookings: bookingsData.filter((b: any) => b.user_id === customer.id).length,
         loyalty_points: rewardsData.find((r: any) => r.user_id === customer.id)?.points || 0,
+        loyalty_tier: rewardsData.find((r: any) => r.user_id === customer.id)?.loyalty_tier || LoyaltyTier.BRONZE,
         last_booking_date: bookingsData
           .filter((b: any) => b.user_id === customer.id)
           .sort((a: any, b: any) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())[0]?.booking_date || null,
@@ -151,7 +154,8 @@ export default function AdminCustomersClient() {
           booking_time: booking.booking_time,
           service: booking.service_type,
           total_price: booking.total_price,
-          status: booking.status
+          status: booking.status,
+          payment_status: booking.payment_status || PaymentStatus.PENDING
         }))
       }
 
@@ -173,7 +177,7 @@ export default function AdminCustomersClient() {
 
   const customerStats = {
     totalCustomers: customers.length,
-    activeCustomers: customers.filter(c => c.status === 'active').length,
+    activeCustomers: customers.filter(c => c.status === CustomerStatus.ACTIVE).length,
     totalRevenue: customers.reduce((sum, c) => sum + (c.total_spent || 0), 0),
     averageSpent: customers.length > 0 
       ? customers.reduce((sum, c) => sum + (c.total_spent || 0), 0) / customers.length 
