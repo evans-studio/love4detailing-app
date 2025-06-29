@@ -1,13 +1,15 @@
+import { VehicleSize, ServiceType } from '@/lib/enums'
+
 export const vehicleSizes = {
-  s: { label: 'Small', description: 'Fiesta, Polo, Mini', price: 55 },
-  m: { label: 'Medium', description: 'Focus, Golf, Civic', price: 60 },
-  l: { label: 'Large', description: 'BMW 5 Series, SUV, Estate', price: 65 },
-  xl: { label: 'Extra Large', description: 'Van, Range Rover, 7-Seater', price: 70 },
+  [VehicleSize.SMALL]: { label: 'Small', description: 'Fiesta, Polo, Mini', price: 55 },
+  [VehicleSize.MEDIUM]: { label: 'Medium', description: 'Focus, Golf, Civic', price: 60 },
+  [VehicleSize.LARGE]: { label: 'Large', description: 'BMW 5 Series, SUV, Estate', price: 65 },
+  [VehicleSize.XLARGE]: { label: 'Extra Large', description: 'Van, Range Rover, 7-Seater', price: 70 },
 } as const
 
 export const serviceTypes = [
   { 
-    id: 'basic', 
+    id: ServiceType.BASIC, 
     name: 'Car Detailing Service', 
     description: 'Professional exterior and interior car detailing',
     duration: '45min - 1hr',
@@ -24,8 +26,8 @@ export const addOns = [
   { id: 'headlightRestoration', label: 'Headlight Restoration', price: 18, description: 'Restore cloudy headlights' },
 ] as const
 
-export function calculateBasePrice(vehicleSize: keyof typeof vehicleSizes, serviceType: string) {
-  const basePrice = vehicleSizes[vehicleSize].price
+export function calculateBasePrice(vehicleSize: VehicleSize, serviceType: ServiceType) {
+  const basePrice = vehicleSizes[vehicleSize]?.price || 0
   const service = serviceTypes.find(s => s.id === serviceType)
   return basePrice * (service?.multiplier || 1)
 }
@@ -37,7 +39,7 @@ export function calculateAddOnsPrice(selectedAddOns: string[]) {
   }, 0)
 }
 
-export function calculateTotalPrice(vehicleSize: keyof typeof vehicleSizes, serviceType: string, selectedAddOns: string[]) {
+export function calculateTotalPrice(vehicleSize: VehicleSize, serviceType: ServiceType, selectedAddOns: string[]) {
   const basePrice = calculateBasePrice(vehicleSize, serviceType)
   const addOnsPrice = calculateAddOnsPrice(selectedAddOns)
   return basePrice + addOnsPrice

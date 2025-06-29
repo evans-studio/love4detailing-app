@@ -10,6 +10,7 @@ export enum VehicleSize {
 export enum BookingStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
+  IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled'
 }
@@ -17,7 +18,8 @@ export enum BookingStatus {
 // Payment Status Enums
 export enum PaymentStatus {
   PENDING = 'pending',
-  COMPLETED = 'completed',
+  PAID = 'paid',
+  REFUNDED = 'refunded',
   FAILED = 'failed'
 }
 

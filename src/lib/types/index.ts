@@ -17,6 +17,7 @@ export type ContactItem = {
 export type ServicePackage = 'essential' | 'premium' | 'ultimate'
 export type VehicleSize = 'small' | 'medium' | 'large' | 'extraLarge'
 export type AddOnService = 'interiorProtection' | 'engineClean' | 'headlightRestoration'
+export type ServiceType = 'essential' | 'premium' | 'ultimate'
 
 // Booking Types
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
@@ -131,4 +132,52 @@ export interface Booking {
   notes?: string
   createdAt: string
   updatedAt: string
-} 
+}
+
+export interface VehicleLookupData {
+  make?: string
+  model?: string
+  size?: VehicleSize
+  id?: string
+  year?: number
+  registration?: string
+  color?: string
+  notes?: string
+}
+
+export interface Vehicle {
+  id?: string
+  make: string
+  model: string
+  year?: number
+  registration?: string
+  color?: string
+  size: VehicleSize
+  notes?: string
+}
+
+export type BookingFormData = {
+  id?: string
+  user_id?: string
+  customer_name: string
+  email: string
+  phone?: string
+  postcode: string
+  vehicle_size: VehicleSize
+  service_type: ServiceType
+  booking_date: string
+  booking_time: string
+  add_ons: string[]
+  vehicle_images: string[]
+  special_requests?: string
+  total_price: number
+  travel_fee?: number
+  status?: BookingStatus
+  payment_status?: PaymentStatus
+  payment_method?: PaymentMethod
+  vehicle_lookup?: Vehicle
+  booking_reference?: string
+  notes?: string
+}
+
+export type BookingStep = 'vehicle' | 'service' | 'datetime' | 'contact' | 'confirmation' 

@@ -551,11 +551,10 @@ export const LABELS = {
     [BookingStatus.CANCELLED]: { label: 'Cancelled', color: 'error' },
   },
   paymentStatus: {
-    [PaymentStatus.UNPAID]: { label: 'Unpaid', color: 'warning' },
     [PaymentStatus.PENDING]: { label: 'Pending', color: 'info' },
     [PaymentStatus.PAID]: { label: 'Paid', color: 'success' },
-    [PaymentStatus.FAILED]: { label: 'Failed', color: 'error' },
     [PaymentStatus.REFUNDED]: { label: 'Refunded', color: 'info' },
+    [PaymentStatus.FAILED]: { label: 'Failed', color: 'error' },
   },
   paymentMethod: {
     [PaymentMethod.CASH]: {

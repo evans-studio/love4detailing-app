@@ -24,12 +24,11 @@ import {
   Booking,
   AdminRole,
   BookingStatus,
-  PaymentStatus,
   EditValues,
   bookingEditSchema,
   BookingStatusType,
-  PaymentStatusType
 } from '@/lib/types'
+import { PaymentStatus } from '@/lib/enums'
 
 interface BookingDetailsModalProps {
   booking: Booking
@@ -100,11 +99,11 @@ export const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
     }
   }
 
-  const getPaymentStatusColor = (status: PaymentStatusType) => {
+  const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case PaymentStatus.PAID:
         return 'bg-green-500 text-white'
-      case PaymentStatus.UNPAID:
+      case PaymentStatus.PENDING:
         return 'bg-yellow-500 text-white'
       case PaymentStatus.REFUNDED:
         return 'bg-blue-500 text-white'

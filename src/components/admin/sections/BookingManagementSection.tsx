@@ -14,11 +14,12 @@ import { Calendar } from '@/components/ui/calendar'
 import { Skeleton as _Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
 import { BookingDetailsModal } from '@/components/admin/modals/BookingDetailsModal'
-import { SERVICES as _SERVICES } from '@/lib/constants'
+import { SERVICES } from '@/lib/constants'
+import { formatCurrency } from '@/lib/utils/formatters'
+import { PaymentStatus } from '@/lib/enums'
 import {
   Booking,
   BookingStatus,
-  PaymentStatus,
   ApiResponse,
   SortOrder
 } from '@/lib/types'
@@ -183,7 +184,7 @@ export function BookingManagementSection({
     switch (status) {
       case PaymentStatus.PAID:
         return 'success'
-      case PaymentStatus.UNPAID:
+      case PaymentStatus.PENDING:
         return 'alert'
       case PaymentStatus.REFUNDED:
         return 'default'
@@ -191,6 +192,21 @@ export function BookingManagementSection({
         return 'alert'
       default:
         return 'secondary'
+    }
+  }
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case PaymentStatus.PAID:
+        return 'text-green-500'
+      case PaymentStatus.PENDING:
+        return 'text-yellow-500'
+      case PaymentStatus.REFUNDED:
+        return 'text-blue-500'
+      case PaymentStatus.FAILED:
+        return 'text-red-500'
+      default:
+        return 'text-gray-500'
     }
   }
 

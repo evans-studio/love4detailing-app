@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/Button'
 import { Home } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { vehicleLogger } from '@/lib/utils/logger'
-import { vehicleLookupSchema } from '@/lib/schemas/api'
+import { vehicleLookupSchema, type VehicleLookupRequest } from '@/lib/schemas/api'
 import { rateLimit, RATE_LIMITS } from '@/lib/utils/rateLimit'
 import { getFromCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
 import { headers } from 'next/headers'
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { registration } = validationResult.data
+    const { registration } = validationResult.data as VehicleLookupRequest
     const cleanReg = registration.replace(/\s/g, '')
 
     // Generate cache key

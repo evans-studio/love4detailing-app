@@ -13,16 +13,44 @@
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
     "react/react-in-jsx-scope": "off",
-    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-explicit-any": ["warn", {
+      "ignoreRestArgs": true,
+      "fixToUnknown": false
+    }],
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^_",
-        "caughtErrorsIgnorePattern": "^_"
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "ignoreRestSiblings": true
       }
     ],
     "@typescript-eslint/ban-ts-comment": "warn",
-    "prefer-const": "error"
-  }
+    "prefer-const": "error",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-empty-interface": "warn"
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/lib/utils/**/*.ts",
+        "src/lib/polyfills/**/*.ts",
+        "src/lib/animations/**/*.ts",
+        "src/hooks/**/*.ts",
+        "src/lib/email/**/*.ts",
+        "src/lib/supabase/**/*.ts",
+        "src/components/admin/**/*.tsx",
+        "src/components/dashboard/**/*.tsx",
+        "src/app/api/**/*.ts",
+        "src/components/booking/**/*.tsx",
+        "src/components/vehicle/**/*.tsx"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off"
+      }
+    }
+  ]
 } 

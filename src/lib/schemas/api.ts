@@ -21,7 +21,7 @@ export const vehicleLookupSchema = z.object({
   model: z.string().min(1, 'Model is required'),
   id: z.string().optional(),
   year: z.number().optional(),
-  registration: z.string().optional(),
+  registration: z.string().min(1, 'Registration number is required'),
   color: z.string().optional(),
   notes: z.string().optional(),
 })

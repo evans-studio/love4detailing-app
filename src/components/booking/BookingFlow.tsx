@@ -1,23 +1,16 @@
 'use client'
 
 import React, { useState, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { useForm, FormProvider } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { 
-  bookingSchema,
-  type BookingData,
-  type BookingFormData
-} from '@/lib/schemas'
-import {
-  BookingStatus,
-  PaymentStatus,
-  PaymentMethod,
-  ServiceType,
-  VehicleSize
-} from '@/lib/enums'
+import { useToast } from '@/hooks/use-toast'
+import { BookingFormData } from '@/lib/schemas'
+import { VehicleSize, ServiceType, BookingStatus, PaymentStatus, PaymentMethod } from '@/lib/enums'
+import { calculateBasePrice, calculateAddOnsPrice, calculateTotalPrice } from '@/lib/utils/pricing'
+import { generateBookingReference } from '@/lib/utils/index'
 import { content } from '@/lib/content'
-import { SERVICES, BOOKING } from '@/lib/constants'
-import { calculateBasePrice, calculateTotalPrice, generateBookingReference } from '@/lib/utils/index'
+import { SERVICES, BOOKING, ROUTES } from '@/lib/constants'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { StepHeader } from '@/components/ui/StepHeader'
@@ -28,25 +21,29 @@ import { DateTimeStep } from './steps/DateTimeStep'
 import { ContactDetailsStep } from './steps/ContactDetailsStep'
 import { ConfirmationStep } from './steps/ConfirmationStep'
 import { BookingSuccess } from './BookingSuccess'
-import { useToast } from '@/hooks/use-toast'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/use-auth'
+import { useBookingForm } from '@/hooks/useBookingForm'
+
+type BookingStep = 'vehicle' | 'service' | 'datetime' | 'contact' | 'confirmation'
 
 interface BookingFlowProps {
   isAuthenticated?: boolean
   userId?: string
-  onSubmit?: (data: BookingData) => Promise<void>
+  onSubmit?: (data: BookingFormData) => Promise<void>
   onCancel?: () => void
   defaultValues?: Partial<BookingFormData>
 }
-
-type BookingStep = 'vehicle' | 'service' | 'datetime' | 'contact' | 'confirmation'
 
 interface StepConfig {
   key: BookingStep
   title: string
   description: string
   component: React.ComponentType<any>
+}
+
+interface BookingSuccess {
+  date: string
+  time: string
+  reference: string
 }
 
 export const BookingFlow: React.FC<BookingFlowProps> = ({
@@ -58,23 +55,24 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [bookingSuccess, setBookingSuccess] = useState<{
-    date: string
-    time: string
-    reference: string
-  } | null>(null)
-  const _bookingReference = useRef<string>('')
+  const [bookingSuccess, setBookingSuccess] = useState<BookingSuccess | null>(null)
   const { toast } = useToast()
   const router = useRouter()
-  const { isAuthenticated: authIsAuthenticated } = useAuth()
   
   const form = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema),
     defaultValues: {
+      customer_name: '',
+      email: '',
+      phone: '',
+      postcode: '',
       vehicle_size: VehicleSize.MEDIUM,
-      service_type: ServiceType.PREMIUM,
+      service_type: ServiceType.BASIC,
+      booking_date: '',
+      booking_time: '',
       add_ons: [],
       vehicle_images: [],
+      total_price: 0,
+      travel_fee: 0,
       ...defaultValues,
     },
     mode: 'onChange',
@@ -127,17 +125,16 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       return { basePrice: 0, addOnsPrice: 0, subtotal: 0, discount: 0, total: 0 }
     }
     
-    const basePrice = calculateBasePrice(
-      watchedValues.service_type,
-      watchedValues.vehicle_size,
-      watchedValues.add_ons || []
-    )
+    const basePrice = calculateBasePrice(watchedValues.vehicle_size, watchedValues.service_type)
+    const addOnsPrice = calculateAddOnsPrice(watchedValues.add_ons || [])
+    const total = calculateTotalPrice(watchedValues.vehicle_size, watchedValues.service_type, watchedValues.add_ons || [])
+
     return { 
       basePrice,
-      addOnsPrice: 0, // TODO: Calculate add-ons price
-      subtotal: basePrice,
-      discount: 0, // TODO: Apply loyalty discount
-      total: calculateTotalPrice(basePrice, 0) // 0% discount for now
+      addOnsPrice,
+      subtotal: basePrice + addOnsPrice,
+      discount: 0, // No discounts for now
+      total
     }
   }, [watchedValues.vehicle_size, watchedValues.service_type, watchedValues.add_ons])
 
@@ -154,17 +151,16 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     }
   }, [currentStepIndex])
 
-  // Form submission
+  // Handle form submission
   const onFormSubmit = async (formData: BookingFormData) => {
     try {
       setIsSubmitting(true)
-      
+
       // Generate booking reference
       const reference = generateBookingReference()
-      _bookingReference.current = reference
-      
-      // Prepare booking data
-      const bookingData: BookingData = {
+
+      // Create booking object
+      const booking = {
         id: reference,
         user_id: userId,
         customer_name: formData.customer_name,
@@ -187,24 +183,24 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
         booking_reference: reference,
         notes: formData.notes
       }
-      
+
       // Submit booking
-      if (onSubmit) {
-        await onSubmit(bookingData)
-      }
-      
+      await onSubmit?.(booking)
+
       // Show success state
       setBookingSuccess({
         date: formData.booking_date,
         time: formData.booking_time,
         reference: reference
       })
-      
+
+      // Reset form
+      form.reset()
     } catch (error) {
-      console.error('Booking submission failed:', error)
+      console.error('Error submitting booking:', error)
       toast({
-        title: 'Booking Failed',
-        description: error instanceof Error ? error.message : 'Failed to submit booking. Please try again.',
+        title: 'Error',
+        description: 'Failed to submit booking. Please try again.',
         variant: 'destructive',
       })
     } finally {

@@ -258,8 +258,8 @@ export default function Navigation() {
 
       {/* Auth Modal */}
       <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        open={isAuthModalOpen}
+        onOpenChange={(open) => setIsAuthModalOpen(open)}
         defaultTab="sign-in"
       />
     </>

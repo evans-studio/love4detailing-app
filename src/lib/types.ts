@@ -1,5 +1,6 @@
 import { SERVICES } from './constants'
 import { z } from 'zod'
+import { PaymentStatus } from './enums'
 
 // Status Enums
 export const BookingStatus = {
@@ -8,15 +9,9 @@ export const BookingStatus = {
   CANCELLED: 'cancelled',
 } as const
 
-export const PaymentStatus = {
-  UNPAID: 'unpaid',
-  PAID: 'paid',
-  REFUNDED: 'refunded',
-  FAILED: 'failed',
-} as const
+export type PaymentStatusType = keyof typeof PaymentStatus
 
 export type BookingStatusType = typeof BookingStatus[keyof typeof BookingStatus]
-export type PaymentStatusType = typeof PaymentStatus[keyof typeof PaymentStatus]
 
 // Booking Interface
 export interface Booking {

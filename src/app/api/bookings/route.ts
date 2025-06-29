@@ -145,7 +145,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 }
 
 // GET - Fetch bookings
-export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<BookingFormData[]>>> {
+export async function GET(_request: NextRequest): Promise<NextResponse<ApiResponse<BookingFormData[]>>> {
   try {
     const supabase = createRouteHandlerClient({ cookies })
     const { data: { session } } = await supabase.auth.getSession()

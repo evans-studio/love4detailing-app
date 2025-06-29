@@ -53,10 +53,10 @@ export function PostBookingModal({
       </Dialog>
 
       <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => {
-          setShowAuthModal(false)
-          onClose()
+        open={showAuthModal}
+        onOpenChange={(open) => {
+          setShowAuthModal(open)
+          if (!open) onClose()
         }}
         defaultTab="sign-up"
         redirectPath="/dashboard"
