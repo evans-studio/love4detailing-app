@@ -4,6 +4,7 @@ import { vehicleLookupSchema, type VehicleLookupRequest } from '@/lib/schemas/ap
 import { rateLimit, RATE_LIMITS } from '@/lib/utils/rateLimit'
 import { getFromCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
 import { headers } from 'next/headers'
+import { z } from 'zod'
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic'
@@ -15,6 +16,64 @@ interface DVLAResponse {
   make: string
   model: string
   yearOfManufacture: string
+}
+
+// Validation schema for request
+const requestSchema = z.object({
+  registration: z.string().min(2).max(10)
+})
+
+export async function GET(request: Request) {
+  try {
+    // Get registration from query params
+    const { searchParams } = new URL(request.url)
+    const registration = searchParams.get('registration')
+
+    // Validate request
+    const validatedData = requestSchema.parse({ registration })
+
+    // Call DVLA API
+    const response = await fetch(`${process.env.DVLA_API_URL}/lookup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.DVLA_API_KEY || ''
+      },
+      body: JSON.stringify({
+        registrationNumber: validatedData.registration
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Vehicle lookup failed')
+    }
+
+    const data = await response.json()
+
+    // Transform DVLA response to our format
+    return NextResponse.json({
+      make: data.make,
+      model: data.model,
+      year: parseInt(data.yearOfManufacture),
+      color: data.colour,
+      registration: validatedData.registration
+    })
+
+  } catch (error) {
+    console.error('Vehicle lookup error:', error)
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid registration number' },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: 'Vehicle lookup failed' },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(request: NextRequest) {

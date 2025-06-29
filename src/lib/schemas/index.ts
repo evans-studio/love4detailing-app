@@ -167,6 +167,31 @@ const vehicleSizeEnum = z.nativeEnum(VehicleSize)
 const paymentMethodEnum = z.nativeEnum(PaymentMethodEnum)
 
 // Base booking schema
+export const bookingFormSchema = z.object({
+  id: z.string().uuid().optional(),
+  fullName: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email format'),
+  phone: z.string().optional(),
+  postcode: z.string().min(1, 'Postcode is required'),
+  address: z.string().min(1, 'Address is required'),
+  vehicleSize: vehicleSizeEnum,
+  serviceId: z.string().min(1, 'Service is required'),
+  date: z.string().min(1, 'Booking date is required'),
+  timeSlot: z.string().min(1, 'Booking time is required'),
+  addOnIds: z.array(z.string()).default([]),
+  vehicle_images: z.array(z.string()).default([]),
+  special_requests: z.string().optional(),
+  total_price: z.number().min(0),
+  travel_fee: z.number().min(0).default(0),
+  status: bookingStatusEnum.default(BookingStatus.PENDING),
+  payment_status: paymentStatusEnum.default(PaymentStatus.PENDING),
+  payment_method: paymentMethodEnum.optional(),
+  vehicle_lookup: vehicleSchema.optional(),
+  booking_reference: z.string().optional(),
+  notes: z.string().optional()
+})
+
+// API booking schema
 export const bookingSchema = z.object({
   id: z.string().uuid().optional(),
   user_id: z.string().uuid().optional(),
@@ -174,6 +199,7 @@ export const bookingSchema = z.object({
   email: z.string().email('Invalid email format'),
   phone: z.string().optional(),
   postcode: z.string().min(1, 'Postcode is required'),
+  address: z.string().min(1, 'Address is required'),
   vehicle_size: vehicleSizeEnum,
   service_type: serviceTypeEnum,
   booking_date: z.string().min(1, 'Booking date is required'),
@@ -193,7 +219,7 @@ export const bookingSchema = z.object({
 
 // Export types using the schema
 export type BookingData = z.infer<typeof bookingSchema>
-export type BookingFormData = BookingData
+export type BookingFormData = z.infer<typeof bookingFormSchema>
 
 // Re-export enums for convenience
 export {

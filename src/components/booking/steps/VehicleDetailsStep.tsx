@@ -9,8 +9,9 @@ import { InputGroup } from '@/components/ui/InputGroup'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { isValidRegistration } from '@/lib/utils/validation'
-
-type VehicleSize = 'small' | 'medium' | 'large' | 'extraLarge'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { VehicleSize } from '@/lib/enums'
+import type { BookingFormData } from '@/lib/schemas/types'
 
 interface VehicleDetailsStepProps {
   isAuthenticated?: boolean
@@ -21,25 +22,27 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
   isAuthenticated = false,
   userId,
 }) => {
-  const { setValue, watch, formState: { errors } } = useFormContext()
+  const { setValue, watch, formState: { errors } } = useFormContext<BookingFormData>()
   const [isLookingUp, setIsLookingUp] = useState(false)
   const [lookupError, setLookupError] = useState<string>()
   
-  const vehicleRegistration = watch('vehicleRegistration') || ''
-  const vehicleMake = watch('vehicleMake') || ''
-  const vehicleModel = watch('vehicleModel') || ''
-  const vehicleYear = watch('vehicleYear')
-  const vehicleColor = watch('vehicleColor') || ''
-  const selectedVehicleSize = watch('vehicleSize') || 'medium'
+  const registration = watch('registration') || ''
+  const vehicleLookup = watch('vehicle_lookup')
+  const vehicleImages = watch('vehicle_images') || []
+  const selectedVehicleSize = watch('vehicleSize') || VehicleSize.MEDIUM
 
   // Vehicle size selection handler
-  const handleVehicleSizeSelect = (sizeId: VehicleSize) => {
-    setValue('vehicleSize', sizeId, { shouldValidate: true })
+  const handleVehicleSizeSelect = (size: VehicleSize) => {
+    setValue('vehicleSize', size, { shouldValidate: true })
+    setValue('vehicle_lookup', {
+      ...vehicleLookup,
+      size: vehicleSizeToLookupSize[size]
+    }, { shouldValidate: true })
   }
 
-  // Vehicle lookup handler (placeholder for DVLA integration)
+  // Vehicle lookup handler (DVLA API integration)
   const handleVehicleLookup = async () => {
-    if (!vehicleRegistration || !isValidRegistration(vehicleRegistration)) {
+    if (!registration || !isValidRegistration(registration)) {
       setLookupError(content.pages.booking.steps.vehicleDetails.errors.registration)
       return
     }
@@ -48,22 +51,30 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
     setLookupError(undefined)
 
     try {
-      // TODO: Integrate with DVLA API or vehicle lookup service
-      // For now, this is a placeholder
-      await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate API call
-      
-      // Mock data - replace with actual API response
-      const mockVehicleData = {
-        make: 'BMW',
-        model: '320i',
-        year: 2020,
-        color: 'Black',
+      // Call DVLA API
+      const response = await fetch(`/api/vehicle-lookup?registration=${registration}`)
+      if (!response.ok) {
+        throw new Error('Vehicle lookup failed')
       }
       
-      setValue('vehicleMake', mockVehicleData.make, { shouldValidate: true })
-      setValue('vehicleModel', mockVehicleData.model, { shouldValidate: true })
-      setValue('vehicleYear', mockVehicleData.year, { shouldValidate: true })
-      setValue('vehicleColor', mockVehicleData.color, { shouldValidate: true })
+      const vehicleData = await response.json()
+      
+      // Update form with vehicle data
+      setValue('vehicle_lookup', {
+        make: vehicleData.make,
+        model: vehicleData.model,
+        registration: registration,
+        year: vehicleData.year,
+        color: vehicleData.color,
+        size: vehicleSizeToLookupSize[selectedVehicleSize],
+        notes: ''
+      }, { shouldValidate: true })
+      
+      // Auto-select vehicle size based on model data
+      const suggestedSize = getSuggestedVehicleSize(vehicleData)
+      if (suggestedSize) {
+        handleVehicleSizeSelect(suggestedSize)
+      }
       
     } catch (error) {
       setLookupError(content.pages.booking.steps.vehicleDetails.lookup.error)
@@ -72,8 +83,91 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
     }
   }
 
+  // Handle image upload
+  const handleImageUpload = async (files: File[]) => {
+    try {
+      // Upload images to Supabase storage
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData()
+        formData.append('file', file)
+        
+        const response = await fetch('/api/upload-vehicle-image', {
+          method: 'POST',
+          body: formData
+        })
+        
+        if (!response.ok) {
+          throw new Error('Image upload failed')
+        }
+        
+        const { url } = await response.json()
+        return url
+      })
+      
+      const uploadedUrls = await Promise.all(uploadPromises)
+      
+      // Update form with new image URLs
+      setValue('vehicle_images', [...vehicleImages, ...uploadedUrls], { shouldValidate: true })
+      
+    } catch (error) {
+      console.error('Image upload error:', error)
+      // Show error toast
+    }
+  }
+
+  // Map vehicle size to lookup size
+  const vehicleSizeToLookupSize: Record<VehicleSize, "small" | "medium" | "large" | "extraLarge"> = {
+    [VehicleSize.SMALL]: "small",
+    [VehicleSize.MEDIUM]: "medium",
+    [VehicleSize.LARGE]: "large",
+    [VehicleSize.XLARGE]: "extraLarge"
+  }
+
+  // Suggest vehicle size based on model data
+  const getSuggestedVehicleSize = (vehicleData: any): VehicleSize | null => {
+    // Add logic to determine vehicle size based on make/model
+    // This would be based on a database of vehicle dimensions
+    return null
+  }
+
   return (
     <div className="space-y-8">
+      {/* Vehicle Registration Lookup */}
+      <FormSection
+        title={content.pages.booking.steps.vehicleDetails.fields.registration}
+        description="Enter your registration for automatic vehicle details lookup"
+        variant="default"
+        required
+      >
+        <div className="space-y-4">
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <Input
+                label={content.pages.booking.steps.vehicleDetails.fields.registration}
+                placeholder="e.g. AB12 CDE"
+                value={registration}
+                onChange={(e) => setValue('registration', e.target.value.toUpperCase())}
+                error={lookupError}
+                helperText="UK registration format"
+                required
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleVehicleLookup}
+                disabled={!registration || isLookingUp}
+                loading={isLookingUp}
+                loadingText={content.pages.booking.steps.vehicleDetails.lookup.loading}
+              >
+                {content.pages.booking.steps.vehicleDetails.lookup.button}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </FormSection>
+
       {/* Vehicle Size Selection */}
       <FormSection
         title={content.pages.booking.steps.vehicleDetails.fields.size.title}
@@ -141,81 +235,56 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
         </div>
       </FormSection>
 
-      {/* Vehicle Registration Lookup */}
+      {/* Vehicle Photos */}
       <FormSection
-        title={content.pages.booking.steps.vehicleDetails.fields.registration}
-        description="Enter your registration for automatic vehicle details lookup"
+        title="Vehicle Photos"
+        description="Upload photos of your vehicle (optional, max 3 photos)"
         variant="default"
       >
-        <div className="space-y-4">
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <Input
-                label={content.pages.booking.steps.vehicleDetails.fields.registration}
-                placeholder="e.g. AB12 CDE"
-                value={vehicleRegistration}
-                onChange={(e) => setValue('vehicleRegistration', e.target.value.toUpperCase())}
-                error={lookupError}
-                helperText="UK registration format (optional)"
-              />
-            </div>
-            <div className="flex items-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleVehicleLookup}
-                disabled={!vehicleRegistration || isLookingUp}
-                loading={isLookingUp}
-                loadingText={content.pages.booking.steps.vehicleDetails.lookup.loading}
-              >
-                {content.pages.booking.steps.vehicleDetails.lookup.button}
-              </Button>
-            </div>
-          </div>
-        </div>
+        <ImageUpload
+          value={vehicleImages}
+          onChange={handleImageUpload}
+          maxFiles={3}
+          accept="image/*"
+          maxSize={5 * 1024 * 1024} // 5MB
+        />
       </FormSection>
 
-      {/* Manual Vehicle Details */}
-      <FormSection
-        title="Vehicle Details"
-        description="Enter your vehicle details manually"
-        variant="default"
-        required
-      >
-        <InputGroup layout="responsive" columns={2}>
-          <Input
-            label={content.pages.booking.steps.vehicleDetails.fields.make}
-            placeholder="e.g. BMW"
-            value={vehicleMake}
-            onChange={(e) => setValue('vehicleMake', e.target.value, { shouldValidate: true })}
-            error={errors.vehicleMake?.message as string}
-            required
-          />
-          <Input
-            label={content.pages.booking.steps.vehicleDetails.fields.model}
-            placeholder="e.g. 320i"
-            value={vehicleModel}
-            onChange={(e) => setValue('vehicleModel', e.target.value, { shouldValidate: true })}
-            error={errors.vehicleModel?.message as string}
-            required
-          />
-          <Input
-            label={content.pages.booking.steps.vehicleDetails.fields.year}
-            type="number"
-            placeholder="e.g. 2020"
-            value={vehicleYear}
-            onChange={(e) => setValue('vehicleYear', parseInt(e.target.value), { shouldValidate: true })}
-            error={errors.vehicleYear?.message as string}
-          />
-          <Input
-            label={content.pages.booking.steps.vehicleDetails.fields.color}
-            placeholder="e.g. Black"
-            value={vehicleColor}
-            onChange={(e) => setValue('vehicleColor', e.target.value, { shouldValidate: true })}
-            error={errors.vehicleColor?.message as string}
-          />
-        </InputGroup>
-      </FormSection>
+      {/* Vehicle Details Display */}
+      {vehicleLookup && (
+        <FormSection
+          title="Vehicle Details"
+          description="Details found from registration lookup"
+          variant="default"
+        >
+          <div className="bg-background/50 rounded-lg p-4 border">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text)] mb-1">Make & Model</p>
+                <p className="text-muted-foreground">
+                  {vehicleLookup.make} {vehicleLookup.model}
+                </p>
+              </div>
+              {vehicleLookup.year && (
+                <div>
+                  <p className="text-sm font-medium text-[var(--color-text)] mb-1">Year</p>
+                  <p className="text-muted-foreground">{vehicleLookup.year}</p>
+                </div>
+              )}
+              {vehicleLookup.color && (
+                <div>
+                  <p className="text-sm font-medium text-[var(--color-text)] mb-1">Color</p>
+                  <p className="text-muted-foreground">{vehicleLookup.color}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text)] mb-1">Registration</p>
+                <p className="text-muted-foreground">{vehicleLookup.registration}</p>
+              </div>
+            </div>
+          </div>
+        </FormSection>
+      )}
     </div>
   )
 } 
