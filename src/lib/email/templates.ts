@@ -59,52 +59,43 @@ export const generateBookingConfirmationEmail = (booking: BookingData) => {
         
         <div style="max-width: 600px; margin: 0 auto; padding: 32px 16px;">
           <p style="margin-bottom: 24px;">
-            Hi ${booking.customerName},
+            Hi ${booking.customer_name},
           </p>
           
           <p style="margin-bottom: 24px;">
-            Your car detailing service has been confirmed. Here are your booking details:
+            Your ${booking.service_type} service has been confirmed. Here are your booking details:
           </p>
           
-          <div style="background: ${BRAND.colors.offWhite}; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
-            <h2 style="margin: 0 0 16px 0; color: ${BRAND.colors.black}; font-size: 18px;">
-              Booking Summary
-            </h2>
-            
+          <div style="background-color: ${BRAND.colors.black}; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Service</p>
-              <p style="margin: 0; font-weight: 600;">${booking.serviceName}</p>
+              <p style="margin: 0; font-weight: 600;">${booking.service_type}</p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Date & Time</p>
-              <p style="margin: 0; font-weight: 600;">
-                ${formatDate(new Date(booking.date))} at ${booking.timeSlot}
-              </p>
+              <p style="margin: 0; font-weight: 600;">${booking.booking_date} at ${booking.booking_time}</p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Vehicle</p>
-              <p style="margin: 0; font-weight: 600;">${booking.vehicleInfo}</p>
+              <p style="margin: 0; font-weight: 600;">${booking.vehicle_lookup?.make} ${booking.vehicle_lookup?.model}</p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Location</p>
-              <p style="margin: 0; font-weight: 600;">${booking.address}, ${booking.postcode}</p>
-            </div>
-            
-            <div style="margin-bottom: 16px;">
-              <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Payment Method</p>
-              <p style="margin: 0; font-weight: 600;">Cash Payment (Due on Service Day)</p>
+              <p style="margin: 0; font-weight: 600;">${booking.postcode}</p>
             </div>
             
             <div>
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Total Amount</p>
-              <p style="margin: 0; font-weight: 600; color: ${BRAND.colors.primary};">
-                ${formatCurrency(booking.totalAmount)}
-              </p>
+              <p style="margin: 0; font-weight: 600;">£${booking.total_price}</p>
             </div>
           </div>
+          
+          <p style="margin-bottom: 24px;">
+            Your booking reference is: <strong>${booking.booking_reference}</strong>
+          </p>
           
           <p style="margin-bottom: 24px;">
             Please ensure someone is available at the service address during the scheduled time.
@@ -134,16 +125,17 @@ export const generateBookingConfirmationEmail = (booking: BookingData) => {
   `
   
   const text = `
-Hi ${booking.customerName},
+Hi ${booking.customer_name},
 
-Your car detailing service has been confirmed. Here are your booking details:
+Your ${booking.service_type} service has been confirmed. Here are your booking details:
 
-Service: ${booking.serviceName}
-Date & Time: ${formatDate(new Date(booking.date))} at ${booking.timeSlot}
-Vehicle: ${booking.vehicleInfo}
-Location: ${booking.address}, ${booking.postcode}
-Payment Method: Cash Payment (Due on Service Day)
-Total Amount: ${formatCurrency(booking.totalAmount)}
+Service: ${booking.service_type}
+Date & Time: ${booking.booking_date} at ${booking.booking_time}
+Vehicle: ${booking.vehicle_lookup?.make} ${booking.vehicle_lookup?.model}
+Location: ${booking.postcode}
+Total Amount: £${booking.total_price}
+
+Your booking reference is: ${booking.booking_reference}
 
 Please ensure someone is available at the service address during the scheduled time.
 Our team will arrive within a 30-minute window of your booking time.
@@ -184,7 +176,7 @@ export const generateBookingReminderEmail = (booking: BookingData) => {
         
         <div style="max-width: 600px; margin: 0 auto; padding: 32px 16px;">
           <p style="margin-bottom: 24px;">
-            Hi ${booking.customerName},
+            Hi ${booking.customer_name},
           </p>
           
           <p style="margin-bottom: 24px;">
@@ -195,25 +187,25 @@ export const generateBookingReminderEmail = (booking: BookingData) => {
           <div style="background: ${BRAND.colors.offWhite}; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Service</p>
-              <p style="margin: 0; font-weight: 600;">${booking.serviceName}</p>
+              <p style="margin: 0; font-weight: 600;">${booking.service_type}</p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Date & Time</p>
               <p style="margin: 0; font-weight: 600;">
-                ${formatDate(new Date(booking.date))} at ${booking.timeSlot}
+                ${formatDate(new Date(booking.booking_date))} at ${booking.booking_time}
               </p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Location</p>
-              <p style="margin: 0; font-weight: 600;">${booking.address}, ${booking.postcode}</p>
+              <p style="margin: 0; font-weight: 600;">${booking.postcode}</p>
             </div>
             
             <div>
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Payment</p>
               <p style="margin: 0; font-weight: 600;">
-                Cash Payment of ${formatCurrency(booking.totalAmount)} due tomorrow
+                Cash Payment of £${booking.total_price} due tomorrow
               </p>
             </div>
           </div>
@@ -249,15 +241,15 @@ export const generateBookingReminderEmail = (booking: BookingData) => {
   `
   
   const text = `
-Hi ${booking.customerName},
+Hi ${booking.customer_name},
 
 This is a friendly reminder that your car detailing service is scheduled for tomorrow.
 Here are your booking details:
 
-Service: ${booking.serviceName}
-Date & Time: ${formatDate(new Date(booking.date))} at ${booking.timeSlot}
-Location: ${booking.address}, ${booking.postcode}
-Payment: Cash Payment of ${formatCurrency(booking.totalAmount)} due tomorrow
+Service: ${booking.service_type}
+Date & Time: ${formatDate(new Date(booking.booking_date))} at ${booking.booking_time}
+Location: ${booking.postcode}
+Payment: Cash Payment of £${booking.total_price} due tomorrow
 
 Important Reminders:
 - Please ensure your vehicle is accessible
@@ -306,7 +298,7 @@ export const generateAdminAlertEmail = (booking: BookingData) => {
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Customer</p>
               <p style="margin: 0; font-weight: 600;">
-                ${booking.customerName}<br>
+                ${booking.customer_name}<br>
                 ${booking.email}<br>
                 ${booking.phone}
               </p>
@@ -314,30 +306,30 @@ export const generateAdminAlertEmail = (booking: BookingData) => {
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Service</p>
-              <p style="margin: 0; font-weight: 600;">${booking.serviceName}</p>
+              <p style="margin: 0; font-weight: 600;">${booking.service_type}</p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Date & Time</p>
               <p style="margin: 0; font-weight: 600;">
-                ${formatDate(new Date(booking.date))} at ${booking.timeSlot}
+                ${formatDate(new Date(booking.booking_date))} at ${booking.booking_time}
               </p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Vehicle</p>
-              <p style="margin: 0; font-weight: 600;">${booking.vehicleInfo}</p>
+              <p style="margin: 0; font-weight: 600;">${booking.vehicle_lookup?.make} ${booking.vehicle_lookup?.model}</p>
             </div>
             
             <div style="margin-bottom: 16px;">
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Location</p>
-              <p style="margin: 0; font-weight: 600;">${booking.address}, ${booking.postcode}</p>
+              <p style="margin: 0; font-weight: 600;">${booking.postcode}</p>
             </div>
             
             <div>
               <p style="margin: 0 0 4px 0; color: ${BRAND.colors.textMuted};">Payment</p>
               <p style="margin: 0; font-weight: 600;">
-                Cash Payment of ${formatCurrency(booking.totalAmount)}
+                Cash Payment of £${booking.total_price}
               </p>
             </div>
           </div>
@@ -359,15 +351,15 @@ export const generateAdminAlertEmail = (booking: BookingData) => {
 New Booking Alert
 
 Customer:
-${booking.customerName}
+${booking.customer_name}
 ${booking.email}
 ${booking.phone}
 
-Service: ${booking.serviceName}
-Date & Time: ${formatDate(new Date(booking.date))} at ${booking.timeSlot}
-Vehicle: ${booking.vehicleInfo}
-Location: ${booking.address}, ${booking.postcode}
-Payment: Cash Payment of ${formatCurrency(booking.totalAmount)}
+Service: ${booking.service_type}
+Date & Time: ${formatDate(new Date(booking.booking_date))} at ${booking.booking_time}
+Vehicle: ${booking.vehicle_lookup?.make} ${booking.vehicle_lookup?.model}
+Location: ${booking.postcode}
+Payment: Cash Payment of £${booking.total_price}
 
 View in admin dashboard: ${process.env.NEXT_PUBLIC_APP_URL}/admin/bookings/${booking.id}
 

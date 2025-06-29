@@ -17,6 +17,9 @@ module.exports = {
     },
     extend: {
       colors: {
+        border: 'var(--border-color)',
+        'primary-text': 'var(--color-text)',
+        'secondary-text': 'var(--color-text-muted)',
         primary: 'var(--color-primary)',
         secondary: 'var(--color-secondary)',
         accent: 'var(--color-accent)',

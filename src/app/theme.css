@@ -1,6 +1,7 @@
 /* Generated CSS Custom Properties */
 :root {
   /* Colors */
+  --border-color: rgba(151, 71, 255, 0.2);
   --color-primary: #8A2B85;
   --color-secondary: #141414;
   --color-accent: #F8F4EB;

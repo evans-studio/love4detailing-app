@@ -6,7 +6,24 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { SERVICES, BOOKING, REWARDS } from '@/lib/constants'
-import type { VehicleSize, ServicePackage, AddOnService, BookingStatus, RewardTier } from '@/lib/constants'
+import { VehicleSize, ServiceType, BookingStatus, LoyaltyTier } from '@/lib/enums'
+
+// Service type mapping
+const serviceTypeToPackageKey: Record<ServiceType, keyof typeof SERVICES.vehicleSizes['small']['pricing']> = {
+  [ServiceType.BASIC]: 'essential',
+  [ServiceType.PREMIUM]: 'premium',
+  [ServiceType.LUXURY]: 'ultimate',
+  [ServiceType.DELUXE]: 'ultimate',
+  [ServiceType.CUSTOM]: 'essential',
+}
+
+// Vehicle size mapping
+const vehicleSizeToKey: Record<VehicleSize, keyof typeof SERVICES.vehicleSizes> = {
+  [VehicleSize.SMALL]: 'small',
+  [VehicleSize.MEDIUM]: 'medium',
+  [VehicleSize.LARGE]: 'large',
+  [VehicleSize.XLARGE]: 'extraLarge',
+}
 
 // =================================================================
 // STYLING UTILITIES
@@ -24,16 +41,33 @@ export function cn(...inputs: ClassValue[]) {
 // =================================================================
 
 /**
- * Calculate base price for a service
+ * Calculates the base price for a service package based on vehicle size and add-ons
+ * @param packageType - The type of service package
+ * @param vehicleSize - The size of the vehicle
+ * @param addOns - Optional array of add-on services
+ * @returns The calculated base price
  */
 export function calculateBasePrice(
-  packageType: ServicePackage,
+  packageType: ServiceType,
   vehicleSize: VehicleSize,
-  addOns: AddOnService[] = []
+  addOns: string[] = []
 ): number {
-  const basePrice = SERVICES.vehicleSizes[vehicleSize].pricing[packageType]
-  const addOnTotal = addOns.reduce((total, addon) => total + SERVICES.addOns[addon].price, 0)
-  return basePrice + addOnTotal
+  // Get base price from vehicle size pricing
+  const sizeKey = vehicleSizeToKey[vehicleSize]
+  const serviceKey = serviceTypeToPackageKey[packageType]
+
+  const basePrice = sizeKey && serviceKey ? SERVICES.vehicleSizes[sizeKey].pricing[serviceKey] : 0
+
+  // Calculate add-ons total
+  const addOnsTotal = addOns.reduce((total, addOnId) => {
+    const addOnKey = Object.keys(SERVICES.addOns).find(
+      key => SERVICES.addOns[key as keyof typeof SERVICES.addOns].id === addOnId
+    ) as keyof typeof SERVICES.addOns | undefined
+
+    return total + (addOnKey ? SERVICES.addOns[addOnKey].price : 0)
+  }, 0)
+
+  return basePrice + addOnsTotal
 }
 
 /**
@@ -45,38 +79,47 @@ export function calculateTotalPrice(basePrice: number, discountPercentage: numbe
 }
 
 /**
- * Calculate deposit amount
+ * Calculates the deposit amount required for a booking
+ * @param totalAmount - The total booking amount
+ * @returns The calculated deposit amount
  */
-export function calculateDeposit(totalPrice: number): number {
-  return Math.round(totalPrice * (BOOKING.payment.depositPercentage / 100))
+export function calculateDeposit(totalAmount: number): number {
+  return totalAmount * 0.2 // 20% deposit
 }
 
 /**
- * Get user's reward tier
+ * Calculates the loyalty points earned for a booking
+ * @param amount - The booking amount
+ * @returns The calculated loyalty points
  */
-export function getUserTier(points: number): RewardTier {
+export function calculateLoyaltyPoints(amount: number): number {
+  return Math.floor(amount * REWARDS.pointsEarning.booking / 100)
+}
+
+/**
+ * Gets the discount percentage for a loyalty tier
+ * @param tier - The loyalty tier
+ * @returns The discount percentage
+ */
+export function getLoyaltyDiscount(tier: LoyaltyTier): number {
+  const tierKey = tier.toLowerCase() as keyof typeof REWARDS.tiers
+  return REWARDS.tiers[tierKey]?.discountPercentage || 0
+}
+
+/**
+ * Gets the user's loyalty tier based on points
+ * @param points - The user's loyalty points
+ * @returns The loyalty tier
+ */
+export function getUserTier(points: number): LoyaltyTier {
   const tiers = Object.entries(REWARDS.tiers)
   for (let i = tiers.length - 1; i >= 0; i--) {
     const [tier, { threshold }] = tiers[i]
     if (points >= threshold) {
-      return tier as RewardTier
+      return tier as LoyaltyTier
     }
   }
-  return 'bronze'
-}
-
-/**
- * Calculate points earned from booking
- */
-export function calculatePointsEarned(totalSpent: number): number {
-  return Math.floor(totalSpent * REWARDS.pointsEarning.booking / 100)
-}
-
-/**
- * Get loyalty discount percentage
- */
-export function getLoyaltyDiscount(tier: RewardTier): number {
-  return REWARDS.tiers[tier].discountPercentage
+  return LoyaltyTier.BRONZE
 }
 
 /**
@@ -101,17 +144,19 @@ export function generateBookingReference(): string {
 }
 
 /**
- * Get status color for UI
+ * Gets the status color for UI
+ * @param status - The booking status
+ * @returns The color class name
  */
 export function getStatusColor(status: BookingStatus): string {
   const colors: Record<BookingStatus, string> = {
-    pending: 'yellow',
-    confirmed: 'green',
-    completed: 'blue',
-    cancelled: 'red',
-    inProgress: 'blue'
+    [BookingStatus.PENDING]: 'yellow',
+    [BookingStatus.CONFIRMED]: 'green',
+    [BookingStatus.IN_PROGRESS]: 'blue',
+    [BookingStatus.COMPLETED]: 'blue',
+    [BookingStatus.CANCELLED]: 'red',
   }
-  return colors[status] || 'gray'
+  return colors[status]
 }
 
 /**
@@ -202,4 +247,13 @@ export function isNetworkError(error: unknown): boolean {
     ['NetworkError', 'Failed to fetch'].some(msg => 
       error.message.includes(msg)
     )
+}
+
+// Booking status mapping
+export const bookingStatusLabels: Record<BookingStatus, string> = {
+  [BookingStatus.PENDING]: 'Pending',
+  [BookingStatus.CONFIRMED]: 'Confirmed',
+  [BookingStatus.IN_PROGRESS]: 'In Progress',
+  [BookingStatus.COMPLETED]: 'Completed',
+  [BookingStatus.CANCELLED]: 'Cancelled',
 } 

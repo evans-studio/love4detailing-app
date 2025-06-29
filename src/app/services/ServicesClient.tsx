@@ -188,28 +188,24 @@ export function ServicesClient() {
                     </Badge>
                   </div>
                 )}
-                
-                <CardHeader className="pb-4">
+
+                <CardHeader>
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl",
-                        "bg-gradient-to-br from-[#9747FF]/20 to-[#9747FF]/10",
-                        "flex items-center justify-center",
-                        "transition-colors"
-                      )}>
-                        <Car className="h-6 w-6 text-[#9747FF]" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-[#F8F4EB]">{service.title}</h3>
-                        <p className="text-sm text-[#C7C7C7]">{service.description}</p>
-                      </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-[#F8F4EB]">
+                        {service.title}
+                      </h2>
+                      <p className="text-[#C7C7C7] mt-1">
+                        {service.description}
+                      </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-[#9747FF]">{service.price}</p>
-                      <div className="flex items-center text-xs text-[#C7C7C7]">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {service.duration}
+                      <p className="text-2xl font-bold text-[#9747FF]">
+                        {service.price}
+                      </p>
+                      <div className="flex items-center justify-end mt-1 text-[#C7C7C7]">
+                        <Clock className="w-4 h-4 mr-1" />
+                        <span className="text-sm">{service.duration}</span>
                       </div>
                     </div>
                   </div>
@@ -266,19 +262,17 @@ export function ServicesClient() {
                 </CardContent>
 
                 <CardFooter>
-                  <Button 
-                    asChild
+                  <Link 
+                    href="/dashboard/book-service"
                     className={cn(
-                      "w-full",
+                      "w-full inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-10",
                       service.popular 
                         ? "bg-[#9747FF] hover:bg-[#9747FF]/90 text-[#F8F4EB]"
-                        : "border-[#9747FF]/20 hover:bg-[#9747FF]/10"
+                        : "border border-[#9747FF]/20 hover:bg-[#9747FF]/10 text-[#F8F4EB]"
                     )}
                   >
-                    <Link href="/dashboard/book-service">
-                      Book This Service
-                    </Link>
-                  </Button>
+                    Book This Service
+                  </Link>
                 </CardFooter>
               </Card>
             </motion.div>
