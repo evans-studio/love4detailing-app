@@ -11,77 +11,125 @@
 
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { type Config } from 'tailwindcss'
 
 // Core theme configuration based on dev-guidelines.md
 export const theme = {
   colors: {
-    // Primary brand colors (dev-guidelines compliant)
-    primary: "#9747FF",      // Purple (Primary Accent) 
-    background: "#141414",   // True Black (Base)
-    text: "#F8F4EB",        // Canvas/Off-white (Text Contrast)
-    accent: "#DAD7CE",      // Support Accent (Stone Grey)
-    
-    // Extended palette for UI components
-    surface: "#1E1E1E",     // Sidebar/card backgrounds
-    textMuted: "#C7C7C7",   // Secondary text
-    textPrimary: "#F0F0F0", // Primary text (slightly warmer than canvas)
-    border: "rgba(138, 43, 133, 0.2)", // Purple with opacity
-    error: "#BA0C2F",       // Error/destructive actions
+    primary: '#8A2B85',
+    secondary: '#141414',
+    accent: '#F8F4EB',
+    muted: '#C7C7C7',
+    background: '#141414',
+    surface: '#262626',
+    text: '#F8F4EB',
+    textMuted: '#C7C7C7',
+    error: '#BA0C2F',
+    success: '#28C76F',
+    warning: '#FFA726',
+    info: '#29B6F6',
+    purple: {
+      50: 'rgba(151, 71, 255, 0.05)',
+      100: 'rgba(151, 71, 255, 0.1)',
+      200: 'rgba(151, 71, 255, 0.2)',
+      300: 'rgba(151, 71, 255, 0.3)',
+      400: 'rgba(151, 71, 255, 0.4)',
+      500: '#9747FF',
+      600: '#8532FF',
+      700: '#721DFF',
+      800: '#5F08FF',
+      900: '#4C00F2',
+    }
   },
   
   spacing: {
-    xs: "0.25rem",    // 4px
-    sm: "0.5rem",     // 8px
-    md: "1rem",       // 16px
-    lg: "1.5rem",     // 24px
-    xl: "2rem",       // 32px
-    "2xl": "3rem",    // 48px
-    "3xl": "4rem",    // 64px
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '2rem',
+    '2xl': '3rem',
+    '3xl': '4rem',
+    '4xl': '6rem',
+    '5xl': '8rem'
   },
   
   borderRadius: {
-    sm: "0.5rem",     // 8px
-    md: "0.75rem",    // 12px
-    lg: "1rem",       // 16px
-    xl: "1.25rem",    // 20px
+    none: '0',
+    sm: '0.75rem',
+    base: '1rem',
+    md: '1rem',
+    lg: '1rem',
+    xl: '1rem',
+    '2xl': '1.25rem',
+    full: '9999px'
   },
   
   typography: {
     fontFamily: {
-      body: "'Inter', 'Helvetica', 'Arial', sans-serif",
-      heading: "'Helvetica', 'Arial', sans-serif",
+      heading: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+      body: ['var(--font-sans)', 'system-ui', 'sans-serif'],
     },
     fontSize: {
-      xs: "0.75rem",    // 12px
-      sm: "0.875rem",   // 14px
-      base: "1rem",     // 16px
-      lg: "1.125rem",   // 18px
-      xl: "1.25rem",    // 20px
-      "2xl": "1.5rem",  // 24px
-      "3xl": "1.875rem", // 30px
-      "4xl": "2.25rem", // 36px
+      xs: '0.75rem',
+      sm: '0.875rem',
+      base: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
+    },
+    fontWeight: {
+      normal: '400',
+      medium: '500',
+      semibold: '600',
+      bold: '700',
     },
     lineHeight: {
-      tight: "1.25",
-      normal: "1.5",
-      relaxed: "1.75",
+      none: '1',
+      tight: '1.25',
+      snug: '1.375',
+      normal: '1.5',
+      relaxed: '1.625',
+      loose: '2',
     }
   },
   
   animation: {
     duration: {
-      fast: "150ms",
-      normal: "300ms",
-      slow: "500ms",
+      fast: '150ms',
+      normal: '300ms',
+      slow: '500ms',
+      slower: '750ms'
     },
     easing: {
-      default: "cubic-bezier(0.4, 0, 0.2, 1)",
-      in: "cubic-bezier(0.4, 0, 1, 1)",
-      out: "cubic-bezier(0, 0, 0.2, 1)",
-      inOut: "cubic-bezier(0.4, 0, 0.2, 1)",
+      default: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      in: 'cubic-bezier(0.4, 0, 1, 1)',
+      out: 'cubic-bezier(0, 0, 0.2, 1)',
+      inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      gsap: 'Power2.easeOut'
     }
+  },
+  
+  shadows: {
+    card: '0 4px 16px rgba(20, 20, 20, 0.4)',
+    button: '0 2px 8px rgba(138, 43, 133, 0.3)',
+    buttonHover: '0 4px 16px rgba(138, 43, 133, 0.5)',
+    purpleGlow: '0 0 20px rgba(138, 43, 133, 0.4)',
+    glass: '0 8px 32px rgba(20, 20, 20, 0.6)',
+    modal: '0 25px 50px -12px rgba(0, 0, 0, 0.8)'
+  },
+  
+  breakpoints: {
+    xs: '320px',
+    sm: '640px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+    '2xl': '1536px'
   }
-}
+} as const
 
 // Component style variants following dev-guidelines
 export const themeVariants = {
@@ -226,5 +274,99 @@ export const shadows = {
   glow: "shadow-xl shadow-deep-purple/40",
   modal: "shadow-2xl shadow-true-black/80",
 }
+
+// CSS Custom Properties Generator
+export const generateCSSCustomProperties = () => {
+  return `
+    :root {
+      /* Colors */
+      --color-primary: ${theme.colors.primary};
+      --color-secondary: ${theme.colors.secondary};
+      --color-accent: ${theme.colors.accent};
+      --color-muted: ${theme.colors.muted};
+      --color-background: ${theme.colors.background};
+      --color-surface: ${theme.colors.surface};
+      --color-text: ${theme.colors.text};
+      --color-text-muted: ${theme.colors.textMuted};
+      --color-error: ${theme.colors.error};
+      --color-success: ${theme.colors.success};
+      --color-warning: ${theme.colors.warning};
+      --color-info: ${theme.colors.info};
+      
+      /* Purple Scale */
+      --purple-50: ${theme.colors.purple[50]};
+      --purple-100: ${theme.colors.purple[100]};
+      --purple-200: ${theme.colors.purple[200]};
+      --purple-300: ${theme.colors.purple[300]};
+      --purple-400: ${theme.colors.purple[400]};
+      --purple-500: ${theme.colors.purple[500]};
+      --purple-600: ${theme.colors.purple[600]};
+      --purple-700: ${theme.colors.purple[700]};
+      --purple-800: ${theme.colors.purple[800]};
+      --purple-900: ${theme.colors.purple[900]};
+      
+      /* Typography */
+      --font-heading: ${theme.typography.fontFamily.heading.join(', ')};
+      --font-body: ${theme.typography.fontFamily.body.join(', ')};
+      
+      /* Spacing */
+      --spacing-xs: ${theme.spacing.xs};
+      --spacing-sm: ${theme.spacing.sm};
+      --spacing-md: ${theme.spacing.md};
+      --spacing-lg: ${theme.spacing.lg};
+      --spacing-xl: ${theme.spacing.xl};
+      --spacing-2xl: ${theme.spacing['2xl']};
+      --spacing-3xl: ${theme.spacing['3xl']};
+      --spacing-4xl: ${theme.spacing['4xl']};
+      --spacing-5xl: ${theme.spacing['5xl']};
+      
+      /* Border Radius */
+      --radius-none: ${theme.borderRadius.none};
+      --radius-sm: ${theme.borderRadius.sm};
+      --radius-base: ${theme.borderRadius.base};
+      --radius-md: ${theme.borderRadius.md};
+      --radius-lg: ${theme.borderRadius.lg};
+      --radius-xl: ${theme.borderRadius.xl};
+      --radius-2xl: ${theme.borderRadius['2xl']};
+      --radius-full: ${theme.borderRadius.full};
+      
+      /* Shadows */
+      --shadow-card: ${theme.shadows.card};
+      --shadow-button: ${theme.shadows.button};
+      --shadow-button-hover: ${theme.shadows.buttonHover};
+      --shadow-purple-glow: ${theme.shadows.purpleGlow};
+      --shadow-glass: ${theme.shadows.glass};
+      --shadow-modal: ${theme.shadows.modal};
+      
+      /* Animation */
+      --duration-fast: ${theme.animation.duration.fast};
+      --duration-normal: ${theme.animation.duration.normal};
+      --duration-slow: ${theme.animation.duration.slow};
+      --duration-slower: ${theme.animation.duration.slower};
+      
+      --ease-default: ${theme.animation.easing.default};
+      --ease-in: ${theme.animation.easing.in};
+      --ease-out: ${theme.animation.easing.out};
+      --ease-in-out: ${theme.animation.easing.inOut};
+      --ease-gsap: ${theme.animation.easing.gsap};
+      
+      /* Breakpoints */
+      --breakpoint-xs: ${theme.breakpoints.xs};
+      --breakpoint-sm: ${theme.breakpoints.sm};
+      --breakpoint-md: ${theme.breakpoints.md};
+      --breakpoint-lg: ${theme.breakpoints.lg};
+      --breakpoint-xl: ${theme.breakpoints.xl};
+      --breakpoint-2xl: ${theme.breakpoints['2xl']};
+    }
+  `
+}
+
+// Export types for TypeScript support
+export type Theme = typeof theme
+export type ThemeColors = keyof typeof theme.colors
+export type ThemeSpacing = keyof typeof theme.spacing
+export type ThemeBorderRadius = keyof typeof theme.borderRadius
+export type ThemeShadows = keyof typeof theme.shadows
+export type ThemeBreakpoints = keyof typeof theme.breakpoints
 
 export default theme 

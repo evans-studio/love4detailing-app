@@ -1,0 +1,81 @@
+/* Generated CSS Custom Properties */
+:root {
+  /* Colors */
+  --color-primary: #8A2B85;
+  --color-secondary: #141414;
+  --color-accent: #F8F4EB;
+  --color-muted: #C7C7C7;
+  --color-background: #141414;
+  --color-surface: #262626;
+  --color-text: #F8F4EB;
+  --color-text-muted: #C7C7C7;
+  --color-error: #BA0C2F;
+  --color-success: #28C76F;
+  --color-warning: #FFA726;
+  --color-info: #29B6F6;
+  
+  /* Purple Scale */
+  --purple-50: rgba(151, 71, 255, 0.05);
+  --purple-100: rgba(151, 71, 255, 0.1);
+  --purple-200: rgba(151, 71, 255, 0.2);
+  --purple-300: rgba(151, 71, 255, 0.3);
+  --purple-400: rgba(151, 71, 255, 0.4);
+  --purple-500: #9747FF;
+  --purple-600: #8532FF;
+  --purple-700: #721DFF;
+  --purple-800: #5F08FF;
+  --purple-900: #4C00F2;
+  
+  /* Typography */
+  --font-heading: var(--font-sans), system-ui, sans-serif;
+  --font-body: var(--font-sans), system-ui, sans-serif;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  --spacing-4xl: 6rem;
+  --spacing-5xl: 8rem;
+  
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 0.75rem;
+  --radius-base: 1rem;
+  --radius-md: 1rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-card: 0 4px 16px rgba(20, 20, 20, 0.4);
+  --shadow-button: 0 2px 8px rgba(138, 43, 133, 0.3);
+  --shadow-button-hover: 0 4px 16px rgba(138, 43, 133, 0.5);
+  --shadow-purple-glow: 0 0 20px rgba(138, 43, 133, 0.4);
+  --shadow-glass: 0 8px 32px rgba(20, 20, 20, 0.6);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  
+  /* Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 750ms;
+  
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-gsap: Power2.easeOut;
+  
+  /* Breakpoints */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+} 

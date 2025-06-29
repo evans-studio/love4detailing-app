@@ -94,6 +94,16 @@
 }
 
 @layer base {
+  :root {
+    /* Import theme CSS custom properties */
+    @import './theme.css';
+
+    /* Base styles */
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
   * {
     @apply border-border;
     box-sizing: border-box;
@@ -107,7 +117,6 @@
   
   body {
     @apply text-primary-text font-sans antialiased;
-    background: #141414;
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
@@ -229,19 +238,20 @@
   /* Scrollbar styling */
   ::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
   }
   
   ::-webkit-scrollbar-track {
-    background: #141414;
+    background: var(--color-surface);
   }
   
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #9747FF, #BA0C2F);
-    border-radius: 4px;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #BA0C2F, #9747FF);
+    background: var(--purple-600);
   }
 }
 
@@ -257,15 +267,13 @@
   
   /* Glass morphism effects */
   .glass-effect {
-    background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(151, 71, 255, 0.2);
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+    box-shadow: var(--shadow-glass);
   }
   
   /* Purple glow effects */
   .glow-purple {
-    box-shadow: 0 0 20px rgba(151, 71, 255, 0.3);
-    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-purple-glow);
   }
   
   .glow-purple:hover {
@@ -302,6 +310,20 @@
     top: 1rem;
     left: 1rem;
     z-index: var(--z-mobile-menu);
+  }
+
+  /* Gradient backgrounds */
+  .gradient-brand {
+    @apply bg-gradient-to-r from-[var(--purple-500)] to-[var(--purple-700)];
+  }
+
+  .gradient-brand-reverse {
+    @apply bg-gradient-to-l from-[var(--purple-500)] to-[var(--purple-700)];
+  }
+
+  /* Glow effects */
+  .glow-purple-strong {
+    box-shadow: 0 0 30px rgba(138, 43, 133, 0.6);
   }
 }
 
@@ -487,8 +509,7 @@
   
   /* Touch Target Accessibility - WCAG Compliant */
   .touch-target {
-    min-height: 44px;
-    min-width: 44px;
+    @apply min-h-[44px] min-w-[44px];
     display: flex;
     align-items: center;
     justify-content: center;
@@ -659,6 +680,35 @@
   
   .skip-link:focus {
     top: 6px;
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-default);
+  }
+
+  .animate-slide-up {
+    animation: slideUp var(--duration-normal) var(--ease-default);
+  }
+
+  .animate-scale {
+    animation: scale var(--duration-normal) var(--ease-default);
+  }
+
+  /* Keyframes */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes scale {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
 }
 
