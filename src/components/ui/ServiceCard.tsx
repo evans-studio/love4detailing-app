@@ -3,7 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils/index"
 import { formatCurrency } from "@/lib/utils/formatters"
 import { SERVICES } from "@/lib/constants"
-import type { ServicePackage, VehicleSize } from "@/lib/constants"
+import type { VehicleSize } from "@/lib/types/vehicle"
+import type { ServicePackage } from "@/lib/types/index"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 
@@ -144,26 +145,10 @@ const ServiceCard = React.forwardRef<HTMLDivElement, ServiceCardProps>(
                 What's included:
               </h4>
               <ul className="space-y-1">
-                {service.features.map((feature, index) => (
-                  <li 
-                    key={index}
-                    className="flex items-start text-sm text-muted-foreground"
-                  >
-                    <svg 
-                      className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-[var(--color-success)]" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M5 13l4 4L19 7" 
-                      />
-                    </svg>
-                    <span>{feature}</span>
+                {service.features.map((feature: string, index: number) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="text-[var(--color-primary)]">•</span>
+                    {feature}
                   </li>
                 ))}
               </ul>

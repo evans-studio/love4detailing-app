@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
-import { Camera, Upload, X, Plus, Loader2 } from 'lucide-react'
+import { Camera, Upload, X, Plus, Loader2, UploadCloud } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useToast } from '@/hooks/use-toast'
@@ -12,6 +12,9 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { GALLERY_CONFIG } from '@/lib/types/vehicle'
 import type { VehicleImage, UploadState, AllowedMimeType, UploadProgressEvent } from '@/lib/types/vehicle'
 import { supabase } from '@/lib/supabase/client'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 interface VehicleGalleryProps {
   vehicleId: string
@@ -53,7 +56,6 @@ export function VehicleGallery({
 
     try {
       // Create unique filename
-      const fileExt = file.name.split('.').pop()
       const fileName = `${vehicleId}/${Date.now()}-${file.name}`
 
       // Upload to Supabase Storage with progress tracking
