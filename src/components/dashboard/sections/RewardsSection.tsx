@@ -6,17 +6,24 @@ import { REWARDS } from '@/lib/constants'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Progress } from '@/components/ui/progress'
+import { Star, Gift, Award } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface RewardsSectionProps {
   userId: string
-  userProfile?: {
-    loyaltyPoints: number
-    tier: string
-  }
-  initialRewards?: {
-    points: number
-    tier: string
-    history: RewardTransaction[]
+  initialData: {
+    rewards?: {
+      points: number
+      tier: string
+      history: Array<{
+        id: string
+        type: 'earned' | 'redeemed'
+        points: number
+        description: string
+        created_at: string
+      }>
+    }
   }
 }
 
@@ -131,32 +138,19 @@ const TransactionItem: React.FC<{ transaction: RewardTransaction }> = ({ transac
   )
 }
 
-export const RewardsSection: React.FC<RewardsSectionProps> = ({
-  userId,
-  userProfile,
-  initialRewards,
-}) => {
+export function RewardsSection({ userId, initialData }: RewardsSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [rewardHistory, setRewardHistory] = useState<RewardTransaction[]>(
-    initialRewards?.history || []
-  )
+  const rewards = initialData.rewards || { points: 0, tier: 'Bronze', history: [] }
 
-  const currentPoints = userProfile?.loyaltyPoints || 0
-  const currentTier = userProfile?.tier || 'bronze'
-  
-  // Get current tier data
-  const currentTierData = REWARDS.tiers[currentTier as keyof typeof REWARDS.tiers] || REWARDS.tiers.bronze
-  
-  // Get next tier data
-  const tierKeys = Object.keys(REWARDS.tiers) as (keyof typeof REWARDS.tiers)[]
-  const currentTierIndex = tierKeys.indexOf(currentTier as keyof typeof REWARDS.tiers)
-  const nextTierKey = tierKeys[currentTierIndex + 1]
-  const nextTierData = nextTierKey ? REWARDS.tiers[nextTierKey] : null
-  
-  const loyaltyData = {
-    current: currentTierData,
-    next: nextTierData
+  const tiers = {
+    Bronze: { min: 0, max: 100, color: 'bg-bronze' },
+    Silver: { min: 100, max: 250, color: 'bg-silver' },
+    Gold: { min: 250, max: 500, color: 'bg-gold' },
+    Platinum: { min: 500, max: 1000, color: 'bg-platinum' }
   }
+
+  const currentTier = tiers[rewards.tier as keyof typeof tiers]
+  const progress = ((rewards.points - currentTier.min) / (currentTier.max - currentTier.min)) * 100
 
   const handleRedeemReward = async (reward: any) => {
     setIsLoading(true)
@@ -176,8 +170,18 @@ export const RewardsSection: React.FC<RewardsSectionProps> = ({
         date: new Date().toISOString(),
       }
       
-      setRewardHistory(prev => [newTransaction, ...prev])
+      // Update rewards history
+      const updatedHistory = [newTransaction, ...rewards.history]
       
+      // Update rewards state
+      const updatedRewards = {
+        ...rewards,
+        points: rewards.points - reward.pointsCost,
+        history: updatedHistory
+      }
+      
+      // Update rewards in state
+      // This is a placeholder and should be replaced with actual state management logic
     } catch (error) {
       console.error('Failed to redeem reward:', error)
     } finally {
@@ -187,144 +191,92 @@ export const RewardsSection: React.FC<RewardsSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-[var(--color-text)]">
-          {content.pages.dashboard.rewards.title}
-        </h2>
-        <p className="text-muted-foreground">
-          {content.pages.dashboard.rewards.subtitle}
-        </p>
-      </div>
-
-      {/* Points & Tier Overview */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* Current Points */}
-        <Card className="bg-gradient-to-r from-[var(--purple-50)] to-[var(--purple-100)] border-[var(--purple-200)]">
-          <CardHeader>
-            <CardTitle className="text-lg text-[var(--color-primary)] flex items-center gap-2">
-              ⭐ Your Points
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-[var(--color-primary)] mb-2">
-              {currentPoints.toLocaleString()}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Available for redemption
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Current Tier */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              🏆 {loyaltyData.current.name} Member
-            </CardTitle>
-          </CardHeader>
-                     <CardContent>
-             <p className="text-sm text-muted-foreground mb-3">
-               Enjoy exclusive benefits and discounts as a {loyaltyData.current.name} member
-             </p>
-             {loyaltyData.next && (
-               <ProgressBar
-                 current={currentPoints}
-                 next={loyaltyData.next.threshold}
-                 label={`Progress to ${loyaltyData.next.name}`}
-               />
-             )}
-           </CardContent>
-        </Card>
-      </div>
-
-      {/* Tier Benefits */}
+      {/* Points Overview */}
       <Card>
         <CardHeader>
-          <CardTitle>Your Benefits</CardTitle>
+          <CardTitle>Your Rewards</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {loyaltyData.current.benefits.map((benefit, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-[var(--purple-50)] rounded-lg">
-                <div className="w-8 h-8 bg-[var(--color-primary)] rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">✓</span>
-                </div>
-                <p className="text-sm font-medium text-[var(--color-text)]">{benefit}</p>
+          <div className="grid gap-6">
+            {/* Current Points */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
+                <Star className="w-6 h-6 text-[var(--color-primary)]" />
               </div>
-            ))}
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Available Points</p>
+                <p className="text-2xl font-bold text-[var(--color-primary)]">{rewards.points}</p>
+              </div>
+            </div>
+
+            {/* Tier Progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">{rewards.tier} Tier</span>
+                <span className="text-muted-foreground">{rewards.points} / {currentTier.max} points</span>
+              </div>
+              <Progress value={progress} className={currentTier.color} />
+              <p className="text-xs text-muted-foreground">
+                Earn {currentTier.max - rewards.points} more points to reach the next tier
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Available Rewards */}
+      {/* Points History */}
       <Card>
         <CardHeader>
-          <CardTitle>Available Rewards</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Redeem your points for these exclusive rewards
-          </p>
-        </CardHeader>
-                 <CardContent>
-           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-             {Object.values(REWARDS.redemptions).map((reward: any) => (
-               <RewardCard
-                 key={reward.id}
-                 reward={reward}
-                 userPoints={currentPoints}
-                 onRedeem={handleRedeemReward}
-               />
-             ))}
-           </div>
-         </CardContent>
-      </Card>
-
-      {/* Points History */}
-      {rewardHistory.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Points History</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Your recent earning and redemption activity
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {rewardHistory.slice(0, 10).map((transaction) => (
-                <TransactionItem key={transaction.id} transaction={transaction} />
-              ))}
-            </div>
-            {rewardHistory.length > 10 && (
-              <Button variant="ghost" className="w-full mt-4">
-                View All History
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Earn More Points */}
-      <Card className="bg-gradient-to-r from-[var(--color-info)]/5 to-[var(--color-success)]/5 border-[var(--color-info)]/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            💡 Earn More Points
-          </CardTitle>
+          <CardTitle>Points History</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="p-3 bg-background/50 rounded-lg">
-              <p className="font-medium text-[var(--color-text)] mb-1">Book Services</p>
-                             <p className="text-sm text-muted-foreground">
-                 Earn {REWARDS.pointsEarning.booking} points per £1 spent on services
-               </p>
-             </div>
-             <div className="p-3 bg-background/50 rounded-lg">
-               <p className="font-medium text-[var(--color-text)] mb-1">Refer Friends</p>
-               <p className="text-sm text-muted-foreground">
-                 Get {REWARDS.pointsEarning.referral} points for each successful referral
-               </p>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin w-6 h-6 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"></div>
+                <span className="text-muted-foreground">Loading...</span>
+              </div>
             </div>
-          </div>
+          ) : rewards.history.length > 0 ? (
+            <div className="space-y-4">
+              {rewards.history.map((item) => (
+                <div key={item.id} className="flex items-start gap-4 p-4 rounded-lg bg-muted/50">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    item.type === 'earned' ? 'bg-[var(--color-success)]/10' : 'bg-[var(--color-warning)]/10'
+                  }`}>
+                    {item.type === 'earned' ? (
+                      <Star className="w-5 h-5 text-[var(--color-success)]" />
+                    ) : (
+                      <Gift className="w-5 h-5 text-[var(--color-warning)]" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{item.description}</p>
+                      <span className={`font-medium ${
+                        item.type === 'earned' ? 'text-[var(--color-success)]' : 'text-[var(--color-warning)]'
+                      }`}>
+                        {item.type === 'earned' ? '+' : '-'}{item.points}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(item.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={Award}
+              title="No rewards history"
+              description="Start earning points by booking services"
+              action={{
+                label: "Book a Service",
+                onClick: () => window.location.href = '/booking'
+              }}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

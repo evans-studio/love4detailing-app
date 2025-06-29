@@ -196,4 +196,29 @@ export interface Notification {
   message: string
   read: boolean
   created_at: string
+}
+
+// Navigation and UI Types
+export type NavItem = {
+  href: string
+  label: string
+  icon: string
+  external?: boolean
+}
+
+export type ContactItem = {
+  icon: string
+  label: string
+  href: string | null
+  value: string
+}
+
+// Dashboard Types
+export type DashboardTab = 'overview' | 'bookings' | 'rewards' | 'vehicles' | 'profile'
+
+// Feature Types
+export type FeatureItem = {
+  icon: string
+  title: string
+  description: string
 } 

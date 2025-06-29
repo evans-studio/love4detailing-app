@@ -7,6 +7,8 @@ import { formatVehicleDescription } from '@/lib/utils/index'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Car } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface VehicleData {
   id: string
@@ -22,7 +24,18 @@ interface VehicleData {
 
 interface VehicleSectionProps {
   userId: string
-  initialVehicles?: VehicleData[]
+  initialData: {
+    vehicles?: Array<{
+      id: string
+      make: string
+      model: string
+      year: string
+      color: string
+      registration: string
+      size: string
+      created_at: string
+    }>
+  }
 }
 
 const VehicleCard: React.FC<{ 
@@ -184,150 +197,65 @@ const AddVehicleForm: React.FC<{
   )
 }
 
-export const VehicleSection: React.FC<VehicleSectionProps> = ({
-  userId,
-  initialVehicles = [],
-}) => {
-  const [vehicles, setVehicles] = useState<VehicleData[]>(initialVehicles)
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [editingVehicle, setEditingVehicle] = useState<VehicleData | undefined>()
+export function VehicleSection({ userId, initialData }: VehicleSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
-
-  const handleSaveVehicle = async (vehicleData: Partial<VehicleData>) => {
-    setIsLoading(true)
-    try {
-      // TODO: Implement actual API call
-      if (editingVehicle) {
-        // Update existing vehicle
-        const updatedVehicle = { ...editingVehicle, ...vehicleData }
-        setVehicles(prev => prev.map(v => v.id === editingVehicle.id ? updatedVehicle : v))
-      } else {
-        // Add new vehicle
-        const newVehicle: VehicleData = {
-          id: Date.now().toString(),
-          make: vehicleData.make || '',
-          model: vehicleData.model || '',
-          year: vehicleData.year,
-          color: vehicleData.color,
-          registration: vehicleData.registration,
-          size: vehicleData.size || 'medium',
-          isDefault: vehicles.length === 0, // First vehicle is default
-          createdAt: new Date().toISOString(),
-        }
-        setVehicles(prev => [...prev, newVehicle])
-      }
-      
-      setShowAddForm(false)
-      setEditingVehicle(undefined)
-    } catch (error) {
-      console.error('Failed to save vehicle:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleDeleteVehicle = async (vehicleId: string) => {
-    if (!confirm('Are you sure you want to delete this vehicle?')) return
-    
-    setIsLoading(true)
-    try {
-      // TODO: Implement actual API call
-      setVehicles(prev => prev.filter(v => v.id !== vehicleId))
-    } catch (error) {
-      console.error('Failed to delete vehicle:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSetDefault = async (vehicleId: string) => {
-    setIsLoading(true)
-    try {
-      // TODO: Implement actual API call
-      setVehicles(prev => prev.map(v => ({ ...v, isDefault: v.id === vehicleId })))
-    } catch (error) {
-      console.error('Failed to set default vehicle:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleEditVehicle = (vehicle: VehicleData) => {
-    setEditingVehicle(vehicle)
-    setShowAddForm(true)
-  }
-
-  const handleCancelForm = () => {
-    setShowAddForm(false)
-    setEditingVehicle(undefined)
-  }
+  const vehicles = initialData.vehicles || []
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-[var(--color-text)]">My Vehicles</h2>
-          <p className="text-muted-foreground">
-            {content.pages.dashboard.profile.sections.vehicles.description}
-          </p>
-        </div>
-        {!showAddForm && (
-          <Button onClick={() => setShowAddForm(true)}>
-            Add Vehicle
-          </Button>
-        )}
-      </div>
-
-      {/* Add/Edit Form */}
-      {showAddForm && (
-        <AddVehicleForm
-          onSave={handleSaveVehicle}
-          onCancel={handleCancelForm}
-          editingVehicle={editingVehicle}
-        />
-      )}
-
-      {/* Vehicles List */}
-      {isLoading && !showAddForm ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="flex items-center gap-3">
-            <div className="animate-spin w-6 h-6 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"></div>
-            <span className="text-muted-foreground">Loading vehicles...</span>
-          </div>
-        </div>
-      ) : vehicles.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-              <span className="text-2xl">🚗</span>
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Vehicles</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin w-6 h-6 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"></div>
+                <span className="text-muted-foreground">Loading...</span>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
-              No vehicles saved yet
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Add your vehicles to make booking faster and easier
-            </p>
-            {!showAddForm && (
-              <Button onClick={() => setShowAddForm(true)}>
-                Add Your First Vehicle
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {vehicles.map((vehicle) => (
-            <VehicleCard
-              key={vehicle.id}
-              vehicle={vehicle}
-              onEdit={handleEditVehicle}
-              onDelete={handleDeleteVehicle}
-              onSetDefault={handleSetDefault}
+          ) : vehicles.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {vehicles.map((vehicle) => (
+                <Card key={vehicle.id} className="hover:bg-muted/50 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center">
+                        <Car className="w-5 h-5 text-[var(--color-primary)]" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium">
+                          {vehicle.make} {vehicle.model}
+                        </h3>
+                        <div className="mt-1 space-y-1 text-sm text-muted-foreground">
+                          <p>Year: {vehicle.year}</p>
+                          <p>Color: {vehicle.color}</p>
+                          <p>Registration: {vehicle.registration}</p>
+                          <p>Size: {vehicle.size}</p>
+                        </div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Added on {new Date(vehicle.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={Car}
+              title="No vehicles found"
+              description="Add your first vehicle to get started"
+              action={{
+                label: "Add Vehicle",
+                onClick: () => window.location.href = '/dashboard/vehicles/new'
+              }}
             />
-          ))}
-        </div>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 } 

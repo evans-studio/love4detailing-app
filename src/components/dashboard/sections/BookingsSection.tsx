@@ -1,11 +1,15 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { content } from '@/lib/content'
 import { ROUTES } from '@/lib/constants'
 import { formatCurrency, formatDate } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/badge'
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { format } from 'date-fns'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface BookingData {
   id: string
@@ -24,7 +28,22 @@ interface BookingData {
 
 interface BookingsSectionProps {
   userId: string
-  initialBookings?: BookingData[]
+  initialData: {
+    bookings?: Array<{
+      id: string
+      booking_date: string
+      booking_time: string
+      service: string
+      total_price: number
+      status: string
+      vehicle_images: string[]
+      postcode: string
+      notes?: string
+      created_at: string
+      vehicle_make: string
+      vehicle_model: string
+    }>
+  }
 }
 
 const BookingCard: React.FC<{ booking: BookingData }> = ({ booking }) => {
@@ -144,111 +163,102 @@ const BookingCard: React.FC<{ booking: BookingData }> = ({ booking }) => {
   )
 }
 
-export const BookingsSection: React.FC<BookingsSectionProps> = ({
-  userId,
-  initialBookings = [],
-}) => {
-  const [bookings, setBookings] = useState<BookingData[]>(initialBookings)
-  const [filter, setFilter] = useState<'all' | BookingData['status']>('all')
+export function BookingsSection({ userId, initialData }: BookingsSectionProps) {
+  const [bookings, setBookings] = useState(initialData.bookings || [])
   const [isLoading, setIsLoading] = useState(false)
 
-  // Filter bookings based on status
-  const filteredBookings = filter === 'all' 
-    ? bookings 
-    : bookings.filter(booking => booking.status === filter)
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'bg-green-500'
+      case 'pending': return 'bg-platinum-silver'
+      case 'completed': return 'bg-blue-500'
+      case 'cancelled': return 'bg-red-500'
+      default: return 'bg-gray-500'
+    }
+  }
 
-  // Group bookings by status
-  const bookingCounts = bookings.reduce((acc, booking) => {
-    acc[booking.status] = (acc[booking.status] || 0) + 1
-    return acc
-  }, {} as Record<BookingData['status'], number>)
-
-  const filterOptions = [
-    { value: 'all' as const, label: 'All Bookings', count: bookings.length },
-    { value: 'upcoming' as const, label: 'Upcoming', count: bookingCounts.upcoming || 0 },
-    { value: 'completed' as const, label: 'Completed', count: bookingCounts.completed || 0 },
-    { value: 'pending' as const, label: 'Pending', count: bookingCounts.pending || 0 },
-    { value: 'cancelled' as const, label: 'Cancelled', count: bookingCounts.cancelled || 0 },
-  ]
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'confirmed': return <CheckCircle className="h-4 w-4" />
+      case 'pending': return <AlertCircle className="h-4 w-4" />
+      case 'completed': return <CheckCircle className="h-4 w-4" />
+      case 'cancelled': return <XCircle className="h-4 w-4" />
+      default: return <AlertCircle className="h-4 w-4" />
+    }
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-[var(--color-text)]">
-            {content.pages.dashboard.bookings.title}
-          </h2>
-          <p className="text-muted-foreground">
-            {content.pages.dashboard.bookings.subtitle}
-          </p>
-        </div>
-        <Button onClick={() => window.location.href = ROUTES.booking}>
-          Book New Service
-        </Button>
-      </div>
-
-      {/* Filter Tabs */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex gap-2 overflow-x-auto">
-            {filterOptions.map((option) => (
-              <Button
-                key={option.value}
-                variant={filter === option.value ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setFilter(option.value)}
-                className="flex-shrink-0"
-              >
-                {option.label}
-                {option.count > 0 && (
-                  <span className="ml-2 px-1.5 py-0.5 bg-background/20 rounded text-xs">
-                    {option.count}
-                  </span>
-                )}
-              </Button>
-            ))}
-          </div>
+        <CardHeader>
+          <CardTitle>Your Bookings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin w-6 h-6 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"></div>
+                <span className="text-muted-foreground">Loading...</span>
+              </div>
+            </div>
+          ) : bookings.length > 0 ? (
+            <div className="space-y-4">
+              {bookings.map((booking) => (
+                <Card key={booking.id} className="border-l-4 border-l-primary hover:bg-muted/50 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-medium capitalize text-sm sm:text-base truncate">{booking.service}</h3>
+                          <Badge variant="outline" className={getStatusColor(booking.status)}>
+                            {getStatusIcon(booking.status)}
+                            <span className="ml-1">{booking.status}</span>
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex flex-col space-y-1 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-muted-foreground">
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span>{booking.booking_time}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span>{booking.postcode}</span>
+                          </div>
+                        </div>
+                        
+                        {booking.notes && (
+                          <p className="text-xs sm:text-sm text-muted-foreground italic">
+                            Notes: {booking.notes}
+                          </p>
+                        )}
+                        
+                        <p className="text-xs text-muted-foreground">
+                          Booked on {format(new Date(booking.created_at), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={Calendar}
+              title="No bookings found"
+              description="You haven't made any bookings yet"
+              action={{
+                label: "Book a Service",
+                onClick: () => window.location.href = '/booking'
+              }}
+            />
+          )}
         </CardContent>
       </Card>
-
-      {/* Bookings List */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="flex items-center gap-3">
-            <div className="animate-spin w-6 h-6 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"></div>
-            <span className="text-muted-foreground">Loading bookings...</span>
-          </div>
-        </div>
-      ) : filteredBookings.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-              <span className="text-2xl">📅</span>
-            </div>
-            <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
-              {filter === 'all' ? 'No bookings yet' : `No ${filter} bookings`}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              {filter === 'all' 
-                ? "You haven't made any bookings yet. Ready to get your vehicle detailed?"
-                : `You don't have any ${filter} bookings at the moment.`
-              }
-            </p>
-            {filter === 'all' && (
-              <Button onClick={() => window.location.href = ROUTES.booking}>
-                Book Your First Service
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {filteredBookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} />
-          ))}
-        </div>
-      )}
     </div>
   )
 } 
