@@ -1,3 +1,17 @@
+/**
+ * Supabase Error Handler Utilities
+ * 
+ * Changelog:
+ * - 2024-04-03: Fixed build error (removed extra closing brace)
+ * - 2024-04-03: Refactored to avoid React hooks in utility functions
+ * - 2024-04-03: Added typed error responses and context support
+ * 
+ * This module provides utilities for handling Supabase errors in a consistent way:
+ * - getErrorMessage: Converts various error types to user-friendly messages
+ * - handleSupabaseError: Logs errors and returns formatted messages
+ * - wrapSupabaseOperation: HOF to standardize error handling in async operations
+ */
+
 import { PostgrestError } from '@supabase/supabase-js'
 
 export interface SupabaseErrorResponse {
@@ -59,5 +73,4 @@ export function wrapSupabaseOperation<T>(
     const message = handleSupabaseError(error, context)
     throw new Error(message)
   })
-} 
 } 
