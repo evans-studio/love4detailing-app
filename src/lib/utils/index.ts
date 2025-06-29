@@ -15,6 +15,7 @@ const serviceTypeToPackageKey: Record<ServiceType, keyof typeof SERVICES.vehicle
   [ServiceType.LUXURY]: 'ultimate',
   [ServiceType.DELUXE]: 'ultimate',
   [ServiceType.CUSTOM]: 'essential',
+  [ServiceType.ULTIMATE]: 'ultimate'
 }
 
 // Vehicle size mapping

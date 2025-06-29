@@ -22,10 +22,13 @@ interface ConfirmationStepProps {
 }
 
 // Map service types to package keys
-const serviceTypeToPackage: Partial<Record<ServiceType, keyof typeof SERVICES.packages>> = {
+const serviceTypeToPackage: Record<ServiceType, keyof typeof SERVICES.packages> = {
   [ServiceType.BASIC]: 'essential',
   [ServiceType.PREMIUM]: 'premium',
   [ServiceType.LUXURY]: 'ultimate',
+  [ServiceType.DELUXE]: 'ultimate',
+  [ServiceType.CUSTOM]: 'essential',
+  [ServiceType.ULTIMATE]: 'ultimate'
 }
 
 // Map vehicle sizes to size keys
