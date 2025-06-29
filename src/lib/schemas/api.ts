@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/enums'
 
 // Common schemas
 export const vehicleSchema = z.object({
@@ -15,9 +16,14 @@ export const addressSchema = z.object({
 
 // Vehicle lookup API
 export const vehicleLookupSchema = z.object({
-  registration: z.string()
-    .min(1, 'Registration is required')
-    .regex(/^[A-Z0-9 ]{1,8}$/, 'Invalid registration format')
+  size: z.enum(['small', 'medium', 'large', 'extraLarge']),
+  make: z.string().min(1, 'Make is required'),
+  model: z.string().min(1, 'Model is required'),
+  id: z.string().optional(),
+  year: z.number().optional(),
+  registration: z.string().optional(),
+  color: z.string().optional(),
+  notes: z.string().optional(),
 })
 
 export type VehicleLookupRequest = z.infer<typeof vehicleLookupSchema>
@@ -25,21 +31,27 @@ export type VehicleLookupRequest = z.infer<typeof vehicleLookupSchema>
 // Bookings API
 export const bookingSchema = z.object({
   user_id: z.string().uuid().optional(),
-  customer_name: z.string().min(1, 'Name is required'),
+  customer_name: z.string().min(2, 'Name is required'),
   email: z.string().email('Invalid email format'),
-  postcode: z.string().min(1, 'Postcode is required'),
-  vehicle_size: z.enum(['small', 'medium', 'large']),
-  service_type: z.string().min(1, 'Service type is required'),
+  phone: z.string().min(10, 'Phone number is required').optional(),
+  postcode: z.string().regex(/^[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2}$/i, 'Invalid UK postcode'),
+  address: z.string().min(5, 'Address is required'),
+  vehicle_size: z.nativeEnum(VehicleSize),
+  service_type: z.nativeEnum(ServiceType),
   booking_date: z.string().min(1, 'Booking date is required'),
   booking_time: z.string().min(1, 'Booking time is required'),
   add_ons: z.array(z.string()).default([]),
-  vehicle_images: z.array(z.string()).default([]),
-  special_requests: z.string().optional(),
+  vehicle_images: z.array(z.string()).max(3, 'Maximum 3 images allowed').default([]),
+  vehicle_lookup: vehicleLookupSchema,
   total_price: z.number().min(0),
   travel_fee: z.number().min(0).default(0),
-  status: z.enum(['pending', 'confirmed', 'completed', 'cancelled']).default('pending'),
-  payment_status: z.enum(['pending', 'completed', 'failed']).default('pending'),
-  vehicle_lookup: vehicleSchema.optional(),
+  status: z.nativeEnum(BookingStatus).default(BookingStatus.PENDING),
+  payment_status: z.nativeEnum(PaymentStatus).default(PaymentStatus.PENDING),
+  requires_manual_approval: z.boolean().optional(),
+  distance: z.object({
+    miles: z.number(),
+    text: z.string()
+  }).optional(),
   booking_reference: z.string().optional()
 })
 

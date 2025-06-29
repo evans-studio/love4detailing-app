@@ -10,18 +10,15 @@ export enum VehicleSize {
 export enum BookingStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
-  IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled'
 }
 
 // Payment Status Enums
 export enum PaymentStatus {
-  UNPAID = 'UNPAID',
   PENDING = 'pending',
-  PAID = 'PAID',
-  FAILED = 'failed',
-  REFUNDED = 'refunded'
+  COMPLETED = 'completed',
+  FAILED = 'failed'
 }
 
 // Payment Method Enums
@@ -52,6 +49,7 @@ export enum CustomerStatus {
 export enum ServiceType {
   BASIC = 'basic',
   PREMIUM = 'premium',
+  ULTIMATE = 'ultimate',
   LUXURY = 'luxury',
   DELUXE = 'DELUXE',
   CUSTOM = 'CUSTOM',

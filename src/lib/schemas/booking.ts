@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import { BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/enums';
 
 // =================================================================
 // Base Schema - Core fields shared across all booking forms
 // =================================================================
 export const baseBookingSchema = z.object({
   // We will get these from the main config later
-  vehicleSize: z.string({ required_error: 'Please select a vehicle size.' }),
+  vehicleSize: z.nativeEnum(VehicleSize, { required_error: 'Please select a vehicle size.' }),
   serviceId: z.string({ required_error: 'Please select a service.' }),
   addOnIds: z.array(z.string()).optional(),
   
@@ -48,13 +49,12 @@ export const dashboardBookingSchema = baseBookingSchema.extend({
 });
 export type DashboardBookingFormData = z.infer<typeof dashboardBookingSchema>;
 
-
 // =================================================================
 // Minimal Booking Form Schema (for quick/admin booking)
 // =================================================================
 export const minimalBookingSchema = z.object({
   vehicleDescription: z.string().min(3, 'Please provide a vehicle description.'),
   serviceId: z.string(),
-  vehicleSize: z.string(),
+  vehicleSize: z.nativeEnum(VehicleSize),
 });
 export type MinimalBookingFormData = z.infer<typeof minimalBookingSchema>; 

@@ -208,23 +208,23 @@ export default function LandingSidebar({ content }: { content: SidebarContent })
         </div>
 
         {/* Auth Buttons */}
-        {!isLoading && !user && !isCollapsed && (
+        {!isLoading && !user && (
           <div className="p-4 border-t border-[#8A2B85]/20">
-            <div className={responsiveClasses.flexCenter}>
+            <div className="space-y-2">
               <Button
                 variant="outline"
-                size="sm"
-                className="w-full"
+                className="w-full justify-start"
                 onClick={() => handleAuthClick('sign-in')}
               >
+                <LogIn className="w-4 h-4 mr-2" />
                 Sign In
               </Button>
               <Button
                 variant="default"
-                size="sm"
-                className="w-full"
+                className="w-full justify-start"
                 onClick={() => handleAuthClick('sign-up')}
               >
+                <User className="w-4 h-4 mr-2" />
                 Sign Up
               </Button>
             </div>
@@ -232,12 +232,10 @@ export default function LandingSidebar({ content }: { content: SidebarContent })
         )}
       </motion.aside>
 
-      {/* Auth Modal */}
       <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
         defaultTab={authTab}
-        redirectPath={pathname}
       />
     </>
   )

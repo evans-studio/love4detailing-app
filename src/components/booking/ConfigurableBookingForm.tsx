@@ -210,7 +210,7 @@ const StepContactDetails = () => {
           </FormItem>
         )}
       />
-       <FormField
+      <FormField
         control={control}
         name="address"
         render={({ field }) => (
@@ -218,6 +218,19 @@ const StepContactDetails = () => {
             <FormLabel>Full Address</FormLabel>
             <FormControl>
               <Input placeholder="Enter your full address" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="vehicleLookup"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Vehicle Details</FormLabel>
+            <FormControl>
+              <Input placeholder="Enter your vehicle registration or details" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

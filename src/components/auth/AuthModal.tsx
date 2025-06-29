@@ -14,16 +14,16 @@ import { SignUpSuccess } from './SignUpSuccess'
 import { useRouter } from 'next/navigation'
 
 interface AuthModalProps {
-  isOpen: boolean
-  onClose: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
   defaultTab?: 'sign-in' | 'sign-up'
   redirectPath?: string
   bookingEmail?: string
 }
 
 export function AuthModal({
-  isOpen,
-  onClose,
+  open,
+  onOpenChange,
   defaultTab = 'sign-in',
   redirectPath = '/',
   bookingEmail,
@@ -33,7 +33,7 @@ export function AuthModal({
   const router = useRouter()
 
   const handleSuccess = () => {
-    onClose()
+    onOpenChange(false)
     router.replace(redirectPath)
     router.refresh()
   }
@@ -51,7 +51,7 @@ export function AuthModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -79,7 +79,6 @@ export function AuthModal({
           />
         ) : (
           <SignUpForm
-            _onSuccess={handleSignUpSuccess}
             onSignUpSuccess={handleSignUpSuccess}
             bookingEmail={bookingEmail}
             switchToSignIn={handleSwitchToSignIn}

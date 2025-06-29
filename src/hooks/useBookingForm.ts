@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { ClientConfig } from '@/config/schema';
 import { FullBookingFormData } from '@/lib/schemas/booking';
 import { supabase } from '@/lib/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { generateBookingReference } from '@/lib/utils/index';
 
 export interface TimeSlot {
   time: string;
@@ -23,7 +25,7 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
   const [totalPrice, setTotalPrice] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
-  // ... other states like travelFee, availableTimeSlots, etc.
+  const { toast } = useToast();
 
   const form = useForm<FullBookingFormData>({
     resolver: zodResolver(schema),
@@ -31,10 +33,10 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
       ...defaultValues,
       addOnIds: defaultValues?.addOnIds || [],
     },
-    mode: 'onTouched',
+    mode: 'onChange',
   });
 
-  const { watch, getValues, handleSubmit } = form;
+  const { watch, getValues, handleSubmit, formState: { errors } } = form;
 
   const nextStep = () => setCurrentStep(prev => prev + 1);
   const prevStep = () => setCurrentStep(prev => prev - 1);
@@ -130,37 +132,72 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
   }, [serviceId, vehicleSize, addOnIds, calculateTotalPrice]);
 
   const onSubmit = async (data: FullBookingFormData) => {
+    console.log('Form submission started with data:', data);
     setIsLoading(true);
     try {
       const finalPrice = calculateTotalPrice();
-      // Map form data to your Supabase table structure
+      
+      // Map form data to match the API schema
       const bookingData = {
-        service_id: data.serviceId,
-        vehicle_size: data.vehicleSize,
-        add_on_ids: data.addOnIds,
-        service_date: data.date,
-        service_time: data.timeSlot,
-        full_name: data.fullName,
+        customer_name: data.fullName,
         email: data.email,
         phone: data.phone,
         postcode: data.postcode,
         address: data.address,
+        vehicle_size: data.vehicleSize,
+        service_type: data.serviceId,
+        booking_date: data.date,
+        booking_time: data.timeSlot,
+        add_ons: data.addOnIds || [],
+        vehicle_images: data.vehicleImages || [],
+        vehicle_lookup: {
+          size: data.vehicleSize,
+          make: data.vehicleLookup.split(' ')[0] || '',
+          model: data.vehicleLookup.split(' ').slice(1).join(' ') || '',
+          registration: data.vehicleLookup,
+        },
         total_price: finalPrice,
-        status: 'pending', // or 'confirmed' depending on your flow
+        travel_fee: 0, // Will be calculated server-side
+        status: 'pending',
+        payment_status: 'pending',
+        requires_manual_approval: false,
+        distance: data.distance
       };
 
-      const { error } = await supabase.from('bookings').insert(bookingData);
+      console.log('Submitting booking data to API:', bookingData);
 
-      if (error) {
-        throw error;
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API error response:', errorData);
+        throw new Error(errorData.error?.message || 'Failed to create booking');
       }
+
+      const result = await response.json();
+      console.log('Booking created successfully:', result);
       
+      toast({
+        title: 'Booking Submitted',
+        description: 'Your booking has been successfully created.',
+      });
+
       // On successful submission, go to the final step
       nextStep();
 
     } catch (error) {
       console.error('Booking submission failed:', error);
-      // Optionally, display an error message to the user
+      toast({
+        title: 'Booking Failed',
+        description: error instanceof Error ? error.message : 'Failed to submit booking. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }

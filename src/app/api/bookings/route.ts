@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { z } from 'zod'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { bookingSchema, BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/schemas'
-import { BOOKING } from '@/lib/constants'
+import { bookingSchema } from '@/lib/schemas/api'
+import { BookingStatus, PaymentStatus } from '@/lib/enums'
+import { BookingFormData } from '@/lib/schemas/types'
 import { emailService } from '@/lib/email/service'
-import type { BookingFormData } from '@/lib/schemas'
+import { ZodError } from 'zod'
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -29,22 +29,28 @@ type ApiResponse<T = any> = {
 // Helper function to format booking response
 function formatBookingResponse(booking: any): BookingFormData {
   return {
+    id: booking.id,
     customer_name: booking.customer_name,
-    email: booking.customer_email,
+    email: booking.email,
+    phone: booking.phone,
     postcode: booking.postcode,
-    service_type: booking.service_type as ServiceType,
-    vehicle_size: booking.vehicle_size as VehicleSize,
+    address: booking.address,
+    service_type: booking.service_type,
+    vehicle_size: booking.vehicle_size,
     add_ons: booking.add_ons || [],
     booking_date: booking.booking_date,
     booking_time: booking.booking_time,
-    total_price: booking.total_amount,
+    total_price: booking.total_price,
     status: booking.status || BookingStatus.PENDING,
     payment_status: booking.payment_status || PaymentStatus.PENDING,
     vehicle_lookup: booking.vehicle_lookup,
-    special_requests: booking.special_requests || '',
-    travel_fee: booking.travel_fee || 0,
     vehicle_images: booking.vehicle_images || [],
-    booking_reference: booking.booking_reference
+    travel_fee: booking.travel_fee || 0,
+    booking_reference: booking.booking_reference,
+    requires_manual_approval: booking.requires_manual_approval || false,
+    distance: booking.distance,
+    created_at: booking.created_at,
+    updated_at: booking.updated_at
   }
 }
 
@@ -52,7 +58,27 @@ function formatBookingResponse(booking: any): BookingFormData {
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
     const body = await request.json()
-    const validatedData = bookingSchema.parse(body)
+    console.log('Received booking request:', body)
+    
+    // Validate request body
+    let validatedData;
+    try {
+      validatedData = bookingSchema.parse(body)
+      console.log('Validated booking data:', validatedData)
+    } catch (error) {
+      if (error instanceof ZodError) {
+        console.error('Validation error:', error.errors)
+        return NextResponse.json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid booking data',
+            details: error.errors
+          }
+        }, { status: 400 })
+      }
+      throw error
+    }
     
     // Generate a unique booking reference
     const bookingReference = `BK${Date.now().toString().slice(-6)}`
@@ -71,6 +97,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       updated_at: new Date().toISOString()
     }
 
+    console.log('Creating booking with data:', bookingData)
+
     const { data: booking, error } = await supabase
       .from('bookings')
       .insert([bookingData])
@@ -82,15 +110,22 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       return NextResponse.json({
         success: false,
         error: {
-          code: 'DB_ERROR',
-          message: 'Failed to create booking',
+          code: error.code || 'DB_ERROR',
+          message: error.message || 'Failed to create booking',
           details: error
         }
-      })
+      }, { status: 500 })
     }
 
+    console.log('Booking created successfully:', booking)
+
     // Send confirmation email
-    await emailService.sendBookingConfirmation(formatBookingResponse(booking))
+    try {
+      await emailService.sendBookingConfirmation(formatBookingResponse(booking))
+    } catch (error) {
+      console.error('Failed to send confirmation email:', error)
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({
       success: true,
@@ -102,10 +137,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       success: false,
       error: {
         code: 'UNKNOWN_ERROR',
-        message: 'Failed to process booking request',
+        message: error instanceof Error ? error.message : 'Failed to process booking request',
         details: error
       }
-    })
+    }, { status: 500 })
   }
 }
 

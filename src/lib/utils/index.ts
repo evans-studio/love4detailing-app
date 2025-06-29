@@ -135,12 +135,9 @@ export function canCancelBooking(bookingDate: Date): boolean {
  * Generate booking reference
  */
 export function generateBookingReference(): string {
-  const date = new Date()
-  const year = date.getFullYear().toString().slice(-2)
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-  return `L4D${year}${month}${day}${random}`
+  const timestamp = Date.now().toString(36);
+  const randomStr = Math.random().toString(36).substring(2, 7).toUpperCase();
+  return `BK-${timestamp}-${randomStr}`;
 }
 
 /**
