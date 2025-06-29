@@ -17,11 +17,10 @@ export const addressSchema = z.object({
 // Vehicle lookup schema
 export const vehicleLookupSchema = z.object({
   size: z.enum(['small', 'medium', 'large', 'extraLarge']),
-  make: z.string(),
-  model: z.string(),
-  id: z.string().optional(),
+  make: z.string().min(1, 'Make is required'),
+  model: z.string().min(1, 'Model is required'),
+  registration: z.string().min(1, 'Registration is required'),
   year: z.number().optional(),
-  registration: z.string().optional(),
   color: z.string().optional(),
   notes: z.string().optional()
 })
@@ -75,7 +74,7 @@ export const bookingRequestSchema = z.object({
   travel_fee: z.number().min(0).default(0),
   status: z.nativeEnum(BookingStatus).default(BookingStatus.PENDING),
   payment_status: z.nativeEnum(PaymentStatus).default(PaymentStatus.PENDING),
-  payment_method: z.nativeEnum(PaymentMethod).optional(),
+  payment_method: z.nativeEnum(PaymentMethod).default(PaymentMethod.CARD),
   requires_manual_approval: z.boolean().optional(),
   distance: z.object({
     miles: z.number(),

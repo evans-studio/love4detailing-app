@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { bookingSchema } from '@/lib/schemas/api'
-import { BookingStatus, PaymentStatus } from '@/lib/enums'
-import { BookingFormData } from '@/lib/schemas/types'
+import { bookingRequestSchema } from '@/lib/schemas/api'
+import { BookingStatus, PaymentStatus, ServiceType, PaymentMethod } from '@/lib/enums'
+import { BookingFormData, BookingRequest } from '@/lib/schemas/types'
 import { emailService } from '@/lib/email/service'
 import { ZodError } from 'zod'
 
@@ -30,27 +30,37 @@ type ApiResponse<T = any> = {
 function formatBookingResponse(booking: any): BookingFormData {
   return {
     id: booking.id,
-    customer_name: booking.customer_name,
+    registration: booking.vehicle_lookup?.registration || '',
+    vehicle_lookup: {
+      size: booking.vehicle_lookup?.size || 'medium',
+      make: booking.vehicle_lookup?.make || 'Unknown Make',
+      model: booking.vehicle_lookup?.model || 'Unknown Model',
+      registration: booking.vehicle_lookup?.registration || 'UNKNOWN',
+      year: booking.vehicle_lookup?.year,
+      color: booking.vehicle_lookup?.color,
+      notes: booking.vehicle_lookup?.notes
+    },
+    vehicle_images: booking.vehicle_images || [],
+    vehicleSize: booking.vehicle_size,
+    fullName: booking.customer_name,
     email: booking.email,
     phone: booking.phone,
     postcode: booking.postcode,
     address: booking.address,
-    service_type: booking.service_type,
-    vehicle_size: booking.vehicle_size,
-    add_ons: booking.add_ons || [],
-    booking_date: booking.booking_date,
-    booking_time: booking.booking_time,
+    serviceId: booking.service_type,
+    addOnIds: booking.add_ons || [],
+    date: booking.booking_date,
+    timeSlot: booking.booking_time,
     total_price: booking.total_price,
+    travel_fee: booking.travel_fee || 0,
     status: booking.status || BookingStatus.PENDING,
     payment_status: booking.payment_status || PaymentStatus.PENDING,
-    vehicle_lookup: booking.vehicle_lookup,
-    vehicle_images: booking.vehicle_images || [],
-    travel_fee: booking.travel_fee || 0,
-    booking_reference: booking.booking_reference,
+    payment_method: booking.payment_method || PaymentMethod.CARD,
+    special_requests: booking.special_requests,
+    notes: booking.notes,
     requires_manual_approval: booking.requires_manual_approval || false,
     distance: booking.distance,
-    created_at: booking.created_at,
-    updated_at: booking.updated_at
+    booking_reference: booking.booking_reference
   }
 }
 
@@ -61,9 +71,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     console.log('Received booking request:', body)
     
     // Validate request body
-    let validatedData;
+    let validatedData: BookingRequest;
     try {
-      validatedData = bookingSchema.parse(body)
+      validatedData = bookingRequestSchema.parse({
+        ...body,
+        payment_method: body.payment_method || PaymentMethod.CARD
+      })
       console.log('Validated booking data:', validatedData)
     } catch (error) {
       if (error instanceof ZodError) {
@@ -87,14 +100,24 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const supabaseAuth = createRouteHandlerClient({ cookies })
     const { data: { session } } = await supabaseAuth.auth.getSession()
     
-    const bookingData = {
+    const bookingData: BookingRequest = {
       ...validatedData,
       booking_reference: bookingReference,
-      user_id: session?.user?.id || null, // Allow null user_id for unauthenticated bookings
+      user_id: session?.user?.id,
       status: BookingStatus.PENDING,
       payment_status: PaymentStatus.PENDING,
+      payment_method: validatedData.payment_method || PaymentMethod.CARD,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      vehicle_lookup: {
+        size: validatedData.vehicle_lookup?.size || 'medium',
+        make: validatedData.vehicle_lookup?.make || 'Unknown Make',
+        model: validatedData.vehicle_lookup?.model || 'Unknown Model',
+        registration: validatedData.vehicle_lookup?.registration || 'UNKNOWN',
+        year: validatedData.vehicle_lookup?.year,
+        color: validatedData.vehicle_lookup?.color,
+        notes: validatedData.vehicle_lookup?.notes
+      }
     }
 
     console.log('Creating booking with data:', bookingData)
@@ -121,7 +144,35 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     // Send confirmation email
     try {
-      await emailService.sendBookingConfirmation(formatBookingResponse(booking))
+      await emailService.sendBookingConfirmation({
+        customer_name: booking.customer_name,
+        email: booking.email,
+        postcode: booking.postcode,
+        address: booking.address,
+        vehicle_size: booking.vehicle_size,
+        service_type: booking.service_type,
+        booking_date: booking.booking_date,
+        booking_time: booking.booking_time,
+        add_ons: booking.add_ons || [],
+        vehicle_images: booking.vehicle_images || [],
+        vehicle_lookup: {
+          size: booking.vehicle_lookup?.size || 'medium',
+          make: booking.vehicle_lookup?.make || 'Unknown Make',
+          model: booking.vehicle_lookup?.model || 'Unknown Model',
+          registration: booking.vehicle_lookup?.registration || 'UNKNOWN',
+          year: booking.vehicle_lookup?.year,
+          color: booking.vehicle_lookup?.color,
+          notes: booking.vehicle_lookup?.notes
+        },
+        total_price: booking.total_price,
+        travel_fee: booking.travel_fee || 0,
+        status: booking.status || BookingStatus.PENDING,
+        payment_status: booking.payment_status || PaymentStatus.PENDING,
+        payment_method: booking.payment_method || PaymentMethod.CARD,
+        booking_reference: booking.booking_reference,
+        special_requests: booking.special_requests,
+        notes: booking.notes
+      })
     } catch (error) {
       console.error('Failed to send confirmation email:', error)
       // Don't fail the request if email fails
@@ -131,6 +182,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       success: true,
       data: formatBookingResponse(booking)
     })
+
   } catch (error) {
     console.error('Booking creation error:', error)
     return NextResponse.json({
@@ -215,7 +267,7 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const validatedData = bookingSchema.partial().parse(body)
+    const validatedData = bookingRequestSchema.partial().parse(body)
 
     // Verify booking ownership
     const { data: existingBooking } = await supabase
