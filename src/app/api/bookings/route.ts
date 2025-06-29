@@ -3,47 +3,16 @@ import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { baseBookingSchema } from '@/lib/schemas'
+import { bookingSchema, BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/schemas'
 import { BOOKING } from '@/lib/constants'
-import type { PaymentStatus } from '@/lib/schemas'
 import { emailService } from '@/lib/email/service'
-import type { Booking } from '@/lib/types'
+import type { BookingFormData } from '@/lib/schemas'
 
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
-
-// Simple validation schemas
-const bookingSchema = z.object({
-  servicePackage: z.string(),
-  vehicleSize: z.string(),
-  date: z.string(),
-  timeSlot: z.string(),
-  vehicleMake: z.string(),
-  vehicleModel: z.string(),
-  vehicleYear: z.number().optional(),
-  vehicleColor: z.string().optional(),
-  vehicleRegistration: z.string().optional(),
-  fullName: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  address: z.string(),
-  postcode: z.string(),
-  addOns: z.array(z.string()).optional(),
-  accessInstructions: z.string().optional(),
-  specialRequests: z.string().optional(),
-  notes: z.string().optional(),
-})
-
-const updateSchema = z.object({
-  id: z.string(),
-  status: z.enum(['confirmed', 'cancelled', 'rescheduled']).optional(),
-  date: z.string().optional(),
-  timeSlot: z.string().optional(),
-  notes: z.string().optional(),
-})
 
 // API Response type
 type ApiResponse<T = any> = {
@@ -57,184 +26,107 @@ type ApiResponse<T = any> = {
   message?: string
 }
 
-// Status and payment status values
-const BOOKING_STATUS = {
-  CONFIRMED: 'confirmed',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
-} as const
-
-const PAYMENT_STATUS = {
-  UNPAID: 'unpaid',
-  PAID: 'paid',
-  REFUNDED: 'refunded',
-  FAILED: 'failed',
-} as const
-
 // Helper function to format booking response
-function formatBookingResponse(booking: any): Booking {
+function formatBookingResponse(booking: any): BookingFormData {
   return {
-    id: booking.id,
-    customerName: booking.customer_name,
-    customerEmail: booking.customer_email,
-    customerPhone: booking.customer_phone,
-    service: booking.service_package,
-    vehicleSize: booking.vehicle_size,
-    addOns: booking.add_ons || [],
-    time: booking.booking_date,
-    price: booking.total_amount,
-    status: booking.status,
-    paymentStatus: booking.payment_status,
-    notes: booking.notes,
-    vehicleInfo: {
-      make: booking.vehicle_make,
-      model: booking.vehicle_model,
-      color: booking.vehicle_color,
-      year: booking.vehicle_year,
-    },
+    customer_name: booking.customer_name,
+    email: booking.customer_email,
+    postcode: booking.postcode,
+    service_type: booking.service_type as ServiceType,
+    vehicle_size: booking.vehicle_size as VehicleSize,
+    add_ons: booking.add_ons || [],
+    booking_date: booking.booking_date,
+    booking_time: booking.booking_time,
+    total_price: booking.total_amount,
+    status: booking.status || BookingStatus.PENDING,
+    payment_status: booking.payment_status || PaymentStatus.PENDING,
+    vehicle_lookup: booking.vehicle_lookup,
+    special_requests: booking.special_requests || '',
+    travel_fee: booking.travel_fee || 0,
+    vehicle_images: booking.vehicle_images || [],
+    booking_reference: booking.booking_reference
   }
 }
 
-// POST - Create new booking
+// POST - Create booking
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    const json = await request.json()
+    const body = await request.json()
+    const validatedData = bookingSchema.parse(body)
     
-    // Validate request data using our custom schema
-    const validatedData = bookingSchema.parse(json)
-    
-    // Map the validated data to database column names
-    const bookingData = {
-      email: validatedData.email,
-      customer_name: validatedData.fullName,
-      booking_date: validatedData.date,
-      booking_time: validatedData.timeSlot,
-      postcode: validatedData.postcode,
-      total_price: 80.00, // Calculate based on service and vehicle size
-      status: 'pending' as const,
-      notes: validatedData.notes || null,
-      service_id: validatedData.servicePackage,
-      vehicle_size: validatedData.vehicleSize,
-      add_ons: validatedData.addOns || [],
-      payment_status: 'pending',
-      user_id: null, // For guest bookings
-    }
-    
-    // Insert booking into database
     const { data: booking, error } = await supabase
       .from('bookings')
-      .insert(bookingData)
+      .insert([validatedData])
       .select()
       .single()
-    
+
     if (error) {
       console.error('Failed to create booking:', error)
-      return NextResponse.json<ApiResponse>({
+      return NextResponse.json({
         success: false,
         error: {
-          code: 'CREATE_FAILED',
+          code: 'DB_ERROR',
           message: 'Failed to create booking',
-          details: error,
-        },
-      }, { status: 500 })
-    }
-    
-    // Send confirmation email in mock mode
-    try {
-      await emailService.sendBookingConfirmation({
-        id: booking.id,
-        customerName: booking.customer_name,
-        email: booking.email,
-        phone: validatedData.phone,
-        serviceName: validatedData.servicePackage,
-        date: booking.booking_date,
-        timeSlot: booking.booking_time,
-        vehicleInfo: `${validatedData.vehicleMake} ${validatedData.vehicleModel}`,
-        address: validatedData.address,
-        postcode: booking.postcode,
-        totalAmount: booking.total_price,
-        status: booking.status,
-        paymentMethod: 'cash',
-        paymentStatus: 'unpaid',
+          details: error
+        }
       })
-    } catch (error) {
-      console.error('Failed to send confirmation email:', error)
-      // Don't fail the booking creation if email fails
     }
-    
-    return NextResponse.json<ApiResponse>({
+
+    // Send confirmation email
+    await emailService.sendBookingConfirmation(formatBookingResponse(booking))
+
+    return NextResponse.json({
       success: true,
-      data: booking,
-      message: 'Booking created successfully',
+      data: formatBookingResponse(booking)
     })
   } catch (error) {
     console.error('Booking creation error:', error)
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: false,
       error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Internal server error',
-        details: error,
-      },
-    }, { status: 500 })
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to process booking request',
+        details: error
+      }
+    })
   }
 }
 
 // GET - Fetch bookings
-export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Booking[]>>> {
+export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<BookingFormData[]>>> {
   try {
     const supabase = createRouteHandlerClient({ cookies })
-    const { searchParams } = new URL(request.url)
-    
-    // Get query parameters
-    const userId = searchParams.get('userId')
-    const status = searchParams.get('status')
-    const paymentStatus = searchParams.get('paymentStatus')
-    
-    // Build query
-    let query = supabase.from('bookings').select('*')
-    
-    if (userId) {
-      query = query.eq('user_id', userId)
-    }
-    
-    if (status && status !== 'all' && status in BOOKING_STATUS) {
-      query = query.eq('status', status)
-    }
-    
-    if (paymentStatus && paymentStatus !== 'all' && paymentStatus in PAYMENT_STATUS) {
-      query = query.eq('payment_status', paymentStatus)
-    }
-    
-    const { data: bookings, error } = await query
-    
+    const { data: bookings, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .order('created_at', { ascending: false })
+
     if (error) {
       console.error('Failed to fetch bookings:', error)
-      return NextResponse.json<ApiResponse<Booking[]>>({
+      return NextResponse.json({
         success: false,
         error: {
-          code: 'FETCH_FAILED',
+          code: 'DB_ERROR',
           message: 'Failed to fetch bookings',
-          details: error,
-        },
-      }, { status: 500 })
+          details: error
+        }
+      })
     }
-    
-    return NextResponse.json<ApiResponse<Booking[]>>({
+
+    return NextResponse.json({
       success: true,
-      data: bookings.map(formatBookingResponse),
+      data: bookings.map(formatBookingResponse)
     })
   } catch (error) {
     console.error('Booking fetch error:', error)
-    return NextResponse.json<ApiResponse<Booking[]>>({
+    return NextResponse.json({
       success: false,
       error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Internal server error',
-        details: error,
-      },
-    }, { status: 500 })
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to fetch bookings',
+        details: error
+      }
+    })
   }
 }
 
@@ -242,60 +134,44 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<Booking>>> {
+): Promise<NextResponse<ApiResponse<BookingFormData>>> {
   try {
     const supabase = createRouteHandlerClient({ cookies })
-    const json = await request.json()
-    
-    // Validate request data
-    const validatedData = updateSchema.parse(json)
-    
-    // Update booking in database
+    const body = await request.json()
+    const validatedData = bookingSchema.partial().parse(body)
+
     const { data: booking, error } = await supabase
       .from('bookings')
-      .update({
-        status: validatedData.status,
-        booking_date: validatedData.date,
-        notes: validatedData.notes,
-        updated_at: new Date().toISOString(),
-      })
+      .update(validatedData)
       .eq('id', params.id)
       .select()
       .single()
-    
+
     if (error) {
       console.error('Failed to update booking:', error)
-      return NextResponse.json<ApiResponse<Booking>>({
+      return NextResponse.json({
         success: false,
         error: {
-          code: 'UPDATE_FAILED',
+          code: 'DB_ERROR',
           message: 'Failed to update booking',
-          details: error,
-        },
-      }, { status: 500 })
+          details: error
+        }
+      })
     }
-    
-    // Send confirmation email
-    try {
-      await emailService.sendBookingConfirmation(booking)
-    } catch (error) {
-      console.error('Failed to send confirmation email:', error)
-      // Don't fail the booking update if email fails
-    }
-    
-    return NextResponse.json<ApiResponse<Booking>>({
+
+    return NextResponse.json({
       success: true,
-      data: formatBookingResponse(booking),
+      data: formatBookingResponse(booking)
     })
   } catch (error) {
     console.error('Booking update error:', error)
-    return NextResponse.json<ApiResponse<Booking>>({
+    return NextResponse.json({
       success: false,
       error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Internal server error',
-        details: error,
-      },
-    }, { status: 500 })
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to update booking',
+        details: error
+      }
+    })
   }
 } 

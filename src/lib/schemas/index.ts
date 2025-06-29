@@ -1,6 +1,12 @@
 import { z } from 'zod'
 import { SERVICES, BOOKING } from '@/lib/constants'
-import { BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/enums'
+import {
+  BookingStatus,
+  PaymentStatus,
+  ServiceType,
+  VehicleSize,
+  PaymentMethod as PaymentMethodEnum
+} from '@/lib/enums'
 
 // =================================================================
 // CORE SCHEMA DEFINITIONS - Following system-guide.md principles
@@ -159,11 +165,15 @@ const bookingStatusEnum = z.nativeEnum(BookingStatus)
 const paymentStatusEnum = z.nativeEnum(PaymentStatus)
 const serviceTypeEnum = z.nativeEnum(ServiceType)
 const vehicleSizeEnum = z.nativeEnum(VehicleSize)
+const paymentMethodEnum = z.nativeEnum(PaymentMethodEnum)
 
+// Base booking schema
 export const bookingSchema = z.object({
+  id: z.string().uuid().optional(),
   user_id: z.string().uuid().optional(),
   customer_name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email format'),
+  phone: z.string().optional(),
   postcode: z.string().min(1, 'Postcode is required'),
   vehicle_size: vehicleSizeEnum,
   service_type: serviceTypeEnum,
@@ -176,15 +186,24 @@ export const bookingSchema = z.object({
   travel_fee: z.number().min(0).default(0),
   status: bookingStatusEnum.default(BookingStatus.PENDING),
   payment_status: paymentStatusEnum.default(PaymentStatus.PENDING),
+  payment_method: paymentMethodEnum.optional(),
   vehicle_lookup: vehicleSchema.optional(),
-  booking_reference: z.string().optional()
+  booking_reference: z.string().optional(),
+  notes: z.string().optional()
 })
 
 // Export types using the schema
-export type BookingFormData = z.infer<typeof bookingSchema>
+export type BookingData = z.infer<typeof bookingSchema>
+export type BookingFormData = BookingData
 
 // Re-export enums for convenience
-export { BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/enums'
+export {
+  BookingStatus,
+  PaymentStatus,
+  ServiceType,
+  VehicleSize,
+  PaymentMethodEnum as PaymentMethod
+}
 
 // =================================================================
 // REWARDS & LOYALTY SCHEMAS
@@ -306,32 +325,4 @@ export const schemas = {
   apiResponse: apiResponseSchema,
   pagination: paginationSchema,
   searchQuery: searchQuerySchema,
-}
-
-// Payment method validation
-export const paymentMethodSchema = z.enum([
-  'cash', 'stripe', 'paypal'
-] as const, {
-  errorMap: () => ({ message: 'Invalid payment method.' })
-})
-
-// Export types
-export type PaymentMethod = z.infer<typeof paymentMethodSchema>
-
-// Booking data type
-export interface BookingData {
-  id: string
-  customerName: string
-  email: string
-  phone: string
-  serviceName: string
-  date: string
-  timeSlot: string
-  vehicleInfo: string
-  address: string
-  postcode: string
-  totalAmount: number
-  status: BookingStatus
-  paymentMethod: PaymentMethod
-  paymentStatus: PaymentStatus
 } 
