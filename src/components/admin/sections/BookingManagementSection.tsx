@@ -39,8 +39,8 @@ interface BookingManagementSectionProps {
 }
 
 export const BookingManagementSection: React.FC<BookingManagementSectionProps> = ({
-  adminId,
-  adminRole,
+  adminId: _adminId,
+  adminRole: _adminRole,
   bookings,
 }) => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
@@ -61,7 +61,7 @@ export const BookingManagementSection: React.FC<BookingManagementSectionProps> =
   })
 
   // Edit form
-  const editForm = useForm<EditValues>({
+  const _editForm = useForm<EditValues>({
     resolver: zodResolver(bookingEditSchema),
     defaultValues: {
       time: new Date(),
@@ -72,29 +72,36 @@ export const BookingManagementSection: React.FC<BookingManagementSectionProps> =
 
   // Filter and sort bookings
   const filteredAndSortedBookings = useMemo(() => {
-    let result = bookings.filter(booking => {
-      const searchMatch = !filterForm.watch('search') || 
-        booking.customerName.toLowerCase().includes(filterForm.watch('search')?.toLowerCase() || '') ||
-        booking.customerEmail.toLowerCase().includes(filterForm.watch('search')?.toLowerCase() || '') ||
-        booking.customerPhone.includes(filterForm.watch('search') || '')
+    // Extract watched values to avoid dependency array issues
+    const searchTerm = filterForm.watch('search')
+    const statusFilter = filterForm.watch('status')
+    const paymentStatusFilter = filterForm.watch('paymentStatus')
+    const serviceFilter = filterForm.watch('service')
+    const vehicleSizeFilter = filterForm.watch('vehicleSize')
+    const dateFromFilter = filterForm.watch('dateFrom')
+    const dateToFilter = filterForm.watch('dateTo')
 
-      const statusMatch = filterForm.watch('status') === 'all' || 
-        booking.status === filterForm.watch('status')
+    const result = bookings.filter(booking => {
+      const searchMatch = !searchTerm || 
+        booking.customerName.toLowerCase().includes(searchTerm?.toLowerCase() || '') ||
+        booking.customerEmail.toLowerCase().includes(searchTerm?.toLowerCase() || '') ||
+        booking.customerPhone.includes(searchTerm || '')
 
-      const paymentStatusMatch = filterForm.watch('paymentStatus') === 'all' ||
-        booking.paymentStatus === filterForm.watch('paymentStatus')
+      const statusMatch = statusFilter === 'all' || 
+        booking.status === statusFilter
 
-      const serviceMatch = filterForm.watch('service') === 'all' ||
-        booking.service === filterForm.watch('service')
+      const paymentStatusMatch = paymentStatusFilter === 'all' ||
+        booking.paymentStatus === paymentStatusFilter
 
-      const vehicleSizeMatch = filterForm.watch('vehicleSize') === 'all' ||
-        booking.vehicleSize === filterForm.watch('vehicleSize')
+      const serviceMatch = serviceFilter === 'all' ||
+        booking.service === serviceFilter
 
-      const dateFrom = filterForm.watch('dateFrom')
-      const dateTo = filterForm.watch('dateTo')
+      const vehicleSizeMatch = vehicleSizeFilter === 'all' ||
+        booking.vehicleSize === vehicleSizeFilter
+
       const bookingDate = new Date(booking.time)
-      const dateMatch = (!dateFrom || bookingDate >= dateFrom) && 
-        (!dateTo || bookingDate <= dateTo)
+      const dateMatch = (!dateFromFilter || bookingDate >= dateFromFilter) && 
+        (!dateToFilter || bookingDate <= dateToFilter)
 
       return searchMatch && statusMatch && paymentStatusMatch && 
         serviceMatch && vehicleSizeMatch && dateMatch
@@ -125,7 +132,12 @@ export const BookingManagementSection: React.FC<BookingManagementSectionProps> =
     })
 
     return result
-  }, [bookings, filterForm.watch(), sortField, sortOrder])
+  }, [
+    bookings,
+    filterForm,
+    sortField,
+    sortOrder
+  ])
 
   // Handle booking update
   const handleBookingUpdate = async (bookingId: string, data: EditValues) => {
@@ -412,7 +424,7 @@ export const BookingManagementSection: React.FC<BookingManagementSectionProps> =
           booking={selectedBooking}
           onUpdate={handleBookingUpdate}
           isLoading={isLoading}
-          adminRole={adminRole}
+          adminRole={_adminRole}
           onDismiss={() => setSelectedBooking(null)}
         />
       )}
