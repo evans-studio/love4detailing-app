@@ -1,6 +1,52 @@
 # Love4Detailing App
 
-A Next.js application for managing car detailing bookings and customer rewards.
+A modern, mobile-first booking platform for premium car detailing services.
+
+## Latest Updates
+
+- Implemented booking-first flow with optional authentication
+- Added RLS policies for secure data access
+- Improved booking success experience
+- Added auth state management
+
+## Features
+
+- Mobile-first responsive design
+- Secure authentication with Supabase
+- Real-time booking management
+- Reward points system
+- Vehicle gallery
+- Admin dashboard
+
+## Tech Stack
+
+- Next.js 14 (App Router)
+- Supabase
+- TailwindCSS
+- Radix UI
+- TypeScript
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## Deployment
+
+The app is automatically deployed via Vercel on push to main branch.
+
+Last deployment trigger: 2024-04-03
 
 ## Backend Architecture
 
