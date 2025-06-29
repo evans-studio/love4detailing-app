@@ -42,44 +42,8 @@ export function VehicleGallery({
     return null
   }
 
-  // Handle file selection
-  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    if (!files.length) return
-
-    // Check total file count
-    if (currentImages.length + files.length > maxImages) {
-      toast({
-        title: "Too many files",
-        description: GALLERY_CONFIG.errorMessages.tooMany,
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Validate and upload files
-    for (const file of files) {
-      const error = validateFile(file)
-      if (error) {
-        toast({
-          title: "Invalid file",
-          description: error,
-          variant: "destructive",
-        })
-        continue
-      }
-
-      await uploadFile(file)
-    }
-
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }, [currentImages.length, maxImages, toast])
-
   // Upload file to Supabase
-  const uploadFile = async (file: File) => {
+  const uploadFile = useCallback(async (file: File) => {
     const uploadId = Date.now().toString()
     
     setUploadStates(prev => ({
@@ -148,7 +112,43 @@ export function VehicleGallery({
         variant: "destructive",
       })
     }
-  }
+  }, [currentImages, onImagesUpdate, toast, vehicleId])
+
+  // Handle file selection
+  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (!files.length) return
+
+    // Check total file count
+    if (currentImages.length + files.length > maxImages) {
+      toast({
+        title: "Too many files",
+        description: GALLERY_CONFIG.errorMessages.tooMany,
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate and upload files
+    for (const file of files) {
+      const error = validateFile(file)
+      if (error) {
+        toast({
+          title: "Invalid file",
+          description: error,
+          variant: "destructive",
+        })
+        continue
+      }
+
+      await uploadFile(file)
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }, [currentImages.length, maxImages, toast, uploadFile])
 
   // Remove image
   const removeImage = async (image: VehicleImage) => {

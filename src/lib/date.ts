@@ -1,5 +1,5 @@
 import { format, parse, isValid, addDays, isBefore, isAfter, startOfDay, endOfDay, setHours, setMinutes } from 'date-fns'
-import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz'
+import { formatInTimeZone } from 'date-fns-tz'
 import { BOOKING } from '@/lib/constants'
 
 // Default timezone for the application (UK)
@@ -22,13 +22,22 @@ export const DATE_FORMATS = {
 // Convert UTC date to local timezone
 export function toLocalTime(date: Date | string): Date {
   const utcDate = typeof date === 'string' ? new Date(date) : date
-  return utcToZonedTime(utcDate, DEFAULT_TIMEZONE)
+  return new Date(formatInTimeZone(utcDate, DEFAULT_TIMEZONE, "yyyy-MM-dd'T'HH:mm:ssXXX"))
 }
 
 // Convert local time to UTC
 export function toUTC(date: Date | string): Date {
   const localDate = typeof date === 'string' ? new Date(date) : date
-  return zonedTimeToUtc(localDate, DEFAULT_TIMEZONE)
+  // Since we can't directly convert to UTC with date-fns-tz, we'll use the native Date methods
+  const utcDate = new Date(Date.UTC(
+    localDate.getFullYear(),
+    localDate.getMonth(),
+    localDate.getDate(),
+    localDate.getHours(),
+    localDate.getMinutes(),
+    localDate.getSeconds()
+  ))
+  return utcDate
 }
 
 // Format date for display
