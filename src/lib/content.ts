@@ -527,6 +527,68 @@ export const faq = {
   ],
 }
 
+export const services = {
+  heading: 'Our Services',
+  subheading: 'Professional detailing services for every need',
+  cards: [
+    {
+      id: 'essential',
+      title: 'Essential Clean',
+      description: 'A thorough interior and exterior clean to bring back the shine.',
+      duration: '2-3 hours',
+      price: 'From £55',
+      features: [
+        'Exterior wash & wax',
+        'Interior vacuum',
+        'Dashboard clean',
+        'Window clean',
+      ],
+    },
+    {
+      id: 'premium',
+      title: 'Premium Detail',
+      description: 'A comprehensive detail for a showroom-worthy finish.',
+      duration: '3-4 hours',
+      price: 'From £95',
+      features: [
+        'Everything in Essential Clean',
+        'Clay bar treatment',
+        'Paint sealant',
+        'Leather conditioning',
+        'Wheel deep clean',
+      ],
+    },
+    {
+      id: 'ultimate',
+      title: 'Ultimate Protection',
+      description: 'The ultimate in paint protection and interior care.',
+      duration: '4-6 hours',
+      price: 'From £195',
+      features: [
+        'Everything in Premium Detail',
+        'Ceramic coating',
+        'Paint correction',
+        'Interior sanitization',
+        'Engine bay detail',
+      ],
+      popular: true,
+    },
+    {
+      id: 'maintenance',
+      title: 'Maintenance Detail',
+      description: 'Regular maintenance to keep your vehicle in top condition.',
+      duration: '1-2 hours',
+      price: 'From £35',
+      features: [
+        'Quick exterior wash',
+        'Interior vacuum',
+        'Tire dressing',
+        'Glass cleaning',
+      ],
+    },
+  ],
+}
+
 export const content = {
   navigation,
   contact,
@@ -537,6 +599,7 @@ export const content = {
   brand,
   profile,
   faq,
+  services,
 } as const
 
 export type ContentConfig = typeof content 

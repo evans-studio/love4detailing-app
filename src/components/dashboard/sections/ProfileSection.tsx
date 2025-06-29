@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { content } from '@/lib/content'
+import { content, profile } from '@/lib/content'
 import { formatDate } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -80,10 +80,10 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-[var(--color-text)]">
-            {content.pages.dashboard.profile.title}
+            {profile.settings.title}
           </h2>
           <p className="text-muted-foreground">
-            {content.pages.dashboard.profile.subtitle}
+            {profile.settings.subtitle}
           </p>
         </div>
         {!isEditing && (

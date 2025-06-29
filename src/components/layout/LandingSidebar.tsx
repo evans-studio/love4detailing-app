@@ -12,7 +12,7 @@ import { useSidebarContext } from './SidebarContext'
 import { cn } from '@/lib/utils'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { breakpoints, responsiveClasses } from '@/lib/constants/breakpoints'
-import { SidebarContent, NavItem, ContactItem } from '@/lib/content'
+import type { SidebarContent, NavItem, ContactItem } from '@/lib/content/types'
 import { 
   Home, 
   Calendar, 

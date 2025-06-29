@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { content } from '@/lib/content'
 import { SERVICES } from '@/lib/constants'
-import { formatVehicleDescription } from '@/lib/utils/index'
+import { formatVehicleDescription } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'

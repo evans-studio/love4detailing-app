@@ -79,7 +79,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         router.push('/dashboard')
       }
     } catch (err) {
-      setError(content.common.errors.general)
+      setError('Something went wrong. Please try again.')
     }
   }
 
@@ -144,7 +144,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
             Creating account...
           </>
         ) : (
-          content.auth.signUp.button
+          content.auth.signUp.submitButton
         )}
       </Button>
 
@@ -154,7 +154,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           onClick={switchToSignIn}
           className="text-[#9747FF] hover:underline"
         >
-          {content.auth.signUp.switchMode}
+          {content.auth.signUp.signIn}
         </button>
       </p>
     </form>

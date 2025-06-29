@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { BackgroundOrbs } from '@/components/ui/BackgroundOrbs'
 import { Shield, Users, Calendar, Star, User, Home, LogOut, Menu } from 'lucide-react'
 import { responsiveClasses } from '@/lib/constants/breakpoints'
-import { SidebarContent } from '@/lib/content'
+import type { SidebarContent } from '@/lib/content/types'
 
 const dashboardItems = [
   { href: '/dashboard', label: 'Dashboard', icon: <Home className="w-5 h-5" /> },

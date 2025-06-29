@@ -4,18 +4,20 @@ import React, { useState, useCallback, useRef } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { 
-  guestBookingSchema, 
-  userBookingSchema, 
-  type GuestBookingData, 
-  type UserBookingData,
-  type BookingStatus,
-  type PaymentStatus,
-  type PaymentMethod,
-  type BookingData
+  bookingSchema,
+  type BookingData,
+  type BookingFormData
 } from '@/lib/schemas'
+import {
+  BookingStatus,
+  PaymentStatus,
+  PaymentMethod,
+  ServiceType,
+  VehicleSize
+} from '@/lib/enums'
 import { content } from '@/lib/content'
 import { SERVICES, BOOKING } from '@/lib/constants'
-import { calculateTotalPrice, generateBookingReference } from '@/lib/utils/index'
+import { calculateBasePrice, calculateTotalPrice, generateBookingReference } from '@/lib/utils/index'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { StepHeader } from '@/components/ui/StepHeader'
@@ -34,7 +36,7 @@ interface BookingFlowProps {
   userId?: string
   onSubmit?: (data: BookingData) => Promise<void>
   onCancel?: () => void
-  defaultValues?: Partial<GuestBookingData | UserBookingData>
+  defaultValues?: Partial<BookingFormData>
 }
 
 type BookingStep = 'vehicle' | 'service' | 'datetime' | 'contact' | 'confirmation'
@@ -59,17 +61,14 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   const { toast } = useToast()
   const router = useRouter()
   const { isAuthenticated: authIsAuthenticated } = useAuth()
-
-  // Choose schema based on authentication status
-  const schema = isAuthenticated ? userBookingSchema : guestBookingSchema
   
-  const form = useForm({
-    resolver: zodResolver(schema),
+  const form = useForm<BookingFormData>({
+    resolver: zodResolver(bookingSchema),
     defaultValues: {
-      vehicleSize: 'medium',
-      servicePackage: 'premium',
-      addOns: [],
-      vehicleImages: [],
+      vehicle_size: VehicleSize.MEDIUM,
+      service_type: ServiceType.PREMIUM,
+      add_ons: [],
+      vehicle_images: [],
       ...defaultValues,
     },
     mode: 'onChange',
@@ -118,17 +117,23 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
   // Calculate pricing in real-time
   const pricing = React.useMemo(() => {
-    if (!watchedValues.vehicleSize || !watchedValues.servicePackage) {
+    if (!watchedValues.vehicle_size || !watchedValues.service_type) {
       return { basePrice: 0, addOnsPrice: 0, subtotal: 0, discount: 0, total: 0 }
     }
     
-    return calculateTotalPrice(
-      watchedValues.vehicleSize,
-      watchedValues.servicePackage,
-      watchedValues.addOns || [],
-      0 // TODO: Apply loyalty discount for authenticated users
+    const basePrice = calculateBasePrice(
+      watchedValues.service_type,
+      watchedValues.vehicle_size,
+      watchedValues.add_ons || []
     )
-  }, [watchedValues.vehicleSize, watchedValues.servicePackage, watchedValues.addOns])
+    return { 
+      basePrice,
+      addOnsPrice: 0, // TODO: Calculate add-ons price
+      subtotal: basePrice,
+      discount: 0, // TODO: Apply loyalty discount
+      total: calculateTotalPrice(basePrice, 0) // 0% discount for now
+    }
+  }, [watchedValues.vehicle_size, watchedValues.service_type, watchedValues.add_ons])
 
   // Navigation handlers
   const goToNextStep = useCallback(() => {
@@ -144,7 +149,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   }, [currentStepIndex])
 
   // Form submission
-  const onFormSubmit = async (formData: GuestBookingData | UserBookingData) => {
+  const onFormSubmit = async (formData: BookingFormData) => {
     try {
       setIsSubmitting(true)
       
@@ -155,21 +160,26 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       // Prepare booking data
       const bookingData: BookingData = {
         id: reference,
-        customerName: isAuthenticated ? watchedValues.fullName : formData.fullName,
-        email: isAuthenticated ? watchedValues.email : formData.email,
-        phone: isAuthenticated ? watchedValues.phone : formData.phone,
-        serviceName: formData.servicePackage,
-        date: formData.date,
-        timeSlot: formData.timeSlot,
-        vehicleInfo: isAuthenticated 
-          ? `${formData.newVehicle?.make} ${formData.newVehicle?.model}`
-          : `${formData.vehicleMake} ${formData.vehicleModel}`,
-        address: isAuthenticated ? watchedValues.address : formData.address,
-        postcode: isAuthenticated ? watchedValues.postcode : formData.postcode,
-        totalAmount: pricing.total,
-        status: 'pending' as BookingStatus,
-        paymentMethod: BOOKING.payment.method as PaymentMethod,
-        paymentStatus: 'unpaid' as PaymentStatus,
+        user_id: userId,
+        customer_name: formData.customer_name,
+        email: formData.email,
+        phone: formData.phone,
+        postcode: formData.postcode,
+        vehicle_size: formData.vehicle_size,
+        service_type: formData.service_type,
+        booking_date: formData.booking_date,
+        booking_time: formData.booking_time,
+        add_ons: formData.add_ons || [],
+        vehicle_images: formData.vehicle_images || [],
+        special_requests: formData.special_requests,
+        total_price: pricing.total,
+        travel_fee: 0,
+        status: BookingStatus.PENDING,
+        payment_status: PaymentStatus.PENDING,
+        payment_method: PaymentMethod.CARD,
+        vehicle_lookup: formData.vehicle_lookup,
+        booking_reference: reference,
+        notes: formData.notes
       }
       
       // Submit booking
@@ -198,76 +208,56 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     }
   }
 
-  // Step validation
-  const validateCurrentStep = useCallback((): boolean => {
-    const stepFields: Record<BookingStep, Array<keyof (GuestBookingData & UserBookingData)>> = {
-      vehicle: ['vehicleSize', 'vehicleMake', 'vehicleModel'],
-      service: ['servicePackage'],
-      datetime: ['date', 'timeSlot'],
-      contact: ['fullName', 'email', 'phone', 'address', 'postcode'],
-      confirmation: [],
-    }
-    
-    const fieldsToValidate = stepFields[currentStep.key] || []
-    
-    return fieldsToValidate.every(field => {
-      const error = errors[field]
-      return !error
-    })
-  }, [currentStep.key, errors])
-
-  const canProceed = validateCurrentStep()
-
-  // Render current step component
-  const StepComponent = currentStep.component
-  
   return (
     <FormProvider {...form}>
-      <div className="max-w-4xl mx-auto p-4 sm:p-6">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>{currentStep.title}</CardTitle>
-            <StepHeader
-              currentStep={currentStepIndex + 1}
-              totalSteps={steps.length}
-              title={currentStep.title}
-              description={currentStep.description}
-            />
-          </CardHeader>
-          <CardContent>
-            <StepComponent />
+      <Card>
+        <CardHeader>
+          <CardTitle>{currentStep.title}</CardTitle>
+          <StepHeader
+            currentStep={currentStepIndex + 1}
+            totalSteps={steps.length}
+            title={currentStep.title}
+            description={currentStep.description}
+          />
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
+            {React.createElement(currentStep.component, {
+              isAuthenticated,
+              userId,
+              pricing,
+            })}
             
-            <div className="mt-6 flex justify-between">
+            <div className="flex justify-between space-x-4">
               {currentStepIndex > 0 && (
                 <Button
-                  onClick={goToPreviousStep}
+                  type="button"
                   variant="outline"
+                  onClick={goToPreviousStep}
                   disabled={isSubmitting}
                 >
-                  Previous
+                  {content.pages.booking.buttons.previous}
                 </Button>
               )}
               
-              {isLastStep ? (
-                <Button
-                  onClick={handleSubmit(onFormSubmit)}
-                  disabled={!isValid || isSubmitting}
-                  loading={isSubmitting}
-                >
-                  Submit Booking
-                </Button>
-              ) : (
-                <Button
-                  onClick={goToNextStep}
-                  disabled={!canProceed || isSubmitting}
-                >
-                  Next
-                </Button>
-              )}
+              <Button
+                type={isLastStep ? 'submit' : 'button'}
+                onClick={!isLastStep ? goToNextStep : undefined}
+                disabled={isSubmitting || !isValid}
+                className="ml-auto"
+              >
+                {isSubmitting ? (
+                  content.pages.booking.buttons.processing
+                ) : isLastStep ? (
+                  content.pages.booking.buttons.submit
+                ) : (
+                  content.pages.booking.buttons.next
+                )}
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </form>
+        </CardContent>
+      </Card>
     </FormProvider>
   )
 } 

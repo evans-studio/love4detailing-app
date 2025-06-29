@@ -79,7 +79,7 @@ export function AuthModal({
           />
         ) : (
           <SignUpForm
-            onSuccess={handleSignUpSuccess}
+            _onSuccess={handleSignUpSuccess}
             onSignUpSuccess={handleSignUpSuccess}
             bookingEmail={bookingEmail}
             switchToSignIn={handleSwitchToSignIn}

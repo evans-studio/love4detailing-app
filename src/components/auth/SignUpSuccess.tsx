@@ -12,10 +12,10 @@ export const SignUpSuccess = ({ onSignIn }: SignUpSuccessProps) => {
     <div className="space-y-6 py-4 text-center">
       <div className="space-y-2">
         <h3 className="text-2xl font-semibold text-[#F8F4EB]">
-          {content.auth.signUp.success.title}
+          Account Created Successfully!
         </h3>
         <p className="text-[#F8F4EB]/70">
-          {content.auth.signUp.success.message}
+          Your account has been created. Please sign in to continue.
         </p>
       </div>
       <Button
@@ -24,7 +24,7 @@ export const SignUpSuccess = ({ onSignIn }: SignUpSuccessProps) => {
         className="w-full"
         onClick={onSignIn}
       >
-        {content.auth.signIn.button}
+        {content.auth.signIn.submitButton}
       </Button>
     </div>
   )

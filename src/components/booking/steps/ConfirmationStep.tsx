@@ -5,8 +5,9 @@ import { useFormContext } from 'react-hook-form'
 import { SERVICES, BOOKING } from '@/lib/constants'
 import { content } from '@/lib/content'
 import { formatCurrency, formatDate, formatVehicleDescription } from '@/lib/utils/formatters'
-import type { ServicePackage, VehicleSize, AddOnService } from '@/lib/constants'
+import { ServiceType, VehicleSize, PaymentMethod } from '@/lib/enums'
 import { FormSection } from '@/components/ui/FormSection'
+import type { BookingFormData } from '@/lib/schemas'
 
 interface ConfirmationStepProps {
   isAuthenticated?: boolean
@@ -20,42 +21,53 @@ interface ConfirmationStepProps {
   }
 }
 
+// Map service types to package keys
+const serviceTypeToPackage: Partial<Record<ServiceType, keyof typeof SERVICES.packages>> = {
+  [ServiceType.BASIC]: 'essential',
+  [ServiceType.PREMIUM]: 'premium',
+  [ServiceType.LUXURY]: 'ultimate',
+}
+
+// Map vehicle sizes to size keys
+const vehicleSizeToKey: Record<VehicleSize, keyof typeof SERVICES.vehicleSizes> = {
+  [VehicleSize.SMALL]: 'small',
+  [VehicleSize.MEDIUM]: 'medium',
+  [VehicleSize.LARGE]: 'large',
+  [VehicleSize.XLARGE]: 'extraLarge',
+}
+
 export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   isAuthenticated = false,
   userId,
   pricing,
 }) => {
-  const { watch } = useFormContext()
+  const { watch } = useFormContext<BookingFormData>()
   
   // Get all form values
   const formData = watch()
   
   // Extract key data
-  const vehicleSize = formData.vehicleSize as VehicleSize
-  const servicePackage = formData.servicePackage as ServicePackage
-  const addOns = (formData.addOns || []) as AddOnService[]
-  const date = formData.date
-  const timeSlot = formData.timeSlot
-  const vehicleMake = formData.vehicleMake
-  const vehicleModel = formData.vehicleModel
-  const vehicleYear = formData.vehicleYear
-  const vehicleColor = formData.vehicleColor
-  const vehicleRegistration = formData.vehicleRegistration
-  const fullName = formData.fullName
+  const vehicleSize = formData.vehicle_size
+  const serviceType = formData.service_type
+  const addOns = formData.add_ons || []
+  const bookingDate = formData.booking_date
+  const bookingTime = formData.booking_time
+  const vehicleLookup = formData.vehicle_lookup
+  const customerName = formData.customer_name
   const email = formData.email
   const phone = formData.phone
-  const address = formData.address
   const postcode = formData.postcode
-  const notes = formData.notes
+  const specialRequests = formData.special_requests
 
   // Get service and vehicle data
-  const serviceData = SERVICES.packages[servicePackage]
-  const vehicleSizeData = SERVICES.vehicleSizes[vehicleSize]
-  const addOnData = addOns.map(addOnId => SERVICES.addOns[addOnId]).filter(Boolean)
-
-  // Get payment method info
-  const paymentMethod = BOOKING.payment.method
-  const paymentMethodInfo = BOOKING.payment.methods[paymentMethod]
+  const packageKey = serviceTypeToPackage[serviceType] || 'essential'
+  const sizeKey = vehicleSizeToKey[vehicleSize]
+  const serviceData = SERVICES.packages[packageKey]
+  const vehicleSizeData = SERVICES.vehicleSizes[sizeKey]
+  const addOnData = addOns.map(addOnId => {
+    const [category, id] = addOnId.split('.')
+    return id ? SERVICES.addOns[id as keyof typeof SERVICES.addOns] : null
+  }).filter(Boolean)
 
   return (
     <div className="space-y-8">
@@ -75,10 +87,10 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             </p>
             <div className="mt-4 p-3 bg-white/50 rounded-lg border">
               <p className="text-sm font-medium text-[var(--color-text)]">
-                {paymentMethodInfo.label}
+                Card Payment
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                {paymentMethodInfo.description}
+                Pay securely with your credit or debit card
               </p>
             </div>
           </div>
@@ -126,7 +138,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 {content.pages.booking.steps.confirmation.sections.service.addOns}
               </p>
               <div className="space-y-1">
-                {addOnData.map((addOn) => (
+                {addOnData.map((addOn) => addOn && (
                   <div key={addOn.id} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{addOn.name}</span>
                     <span className="text-muted-foreground">+{formatCurrency(addOn.price)}</span>
@@ -151,20 +163,20 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 {content.pages.booking.steps.confirmation.sections.vehicle.make}
               </p>
               <p className="text-muted-foreground">
-                {formatVehicleDescription(vehicleMake, vehicleModel, vehicleYear)}
+                {vehicleLookup ? formatVehicleDescription(vehicleLookup.make, vehicleLookup.model, vehicleLookup.year) : 'Not provided'}
               </p>
-              {vehicleColor && (
+              {vehicleLookup?.color && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  {content.pages.booking.steps.confirmation.sections.vehicle.color}: {vehicleColor}
+                  {content.pages.booking.steps.confirmation.sections.vehicle.color}: {vehicleLookup.color}
                 </p>
               )}
             </div>
-            {vehicleRegistration && (
+            {vehicleLookup?.registration && (
               <div>
                 <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                  {content.pages.booking.steps.confirmation.sections.vehicle.registration}
+                  Registration
                 </p>
-                <p className="text-muted-foreground">{vehicleRegistration}</p>
+                <p className="text-muted-foreground">{vehicleLookup.registration}</p>
               </div>
             )}
           </div>
@@ -184,35 +196,24 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 {content.pages.booking.steps.confirmation.sections.appointment.date}
               </p>
               <p className="text-muted-foreground">
-                {date ? formatDate(date, 'long') : 'Not selected'}
+                {bookingDate ? formatDate(bookingDate, 'long') : 'Not selected'}
               </p>
             </div>
             <div>
               <p className="text-sm font-medium text-[var(--color-text)] mb-1">
                 {content.pages.booking.steps.confirmation.sections.appointment.time}
               </p>
-              <p className="text-muted-foreground">{timeSlot || 'Not selected'}</p>
+              <p className="text-muted-foreground">{bookingTime || 'Not selected'}</p>
             </div>
-            {(address || postcode) && (
+            {postcode && (
               <div className="sm:col-span-2">
                 <p className="text-sm font-medium text-[var(--color-text)] mb-1">
                   {content.pages.booking.steps.contactDetails.fields.address.label}
                 </p>
-                <p className="text-muted-foreground">
-                  {address && postcode ? `${address}, ${postcode}` : address || postcode}
-                </p>
+                <p className="text-muted-foreground">{postcode}</p>
               </div>
             )}
           </div>
-          
-          {notes && (
-            <div className="mt-4 pt-4 border-t">
-              <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                {content.pages.booking.steps.contactDetails.fields.notes.label}
-              </p>
-              <p className="text-xs text-muted-foreground">{notes}</p>
-            </div>
-          )}
         </div>
       </FormSection>
 
@@ -228,7 +229,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
               <p className="text-sm font-medium text-[var(--color-text)] mb-1">
                 {content.pages.booking.steps.confirmation.sections.contact.name}
               </p>
-              <p className="text-muted-foreground">{fullName}</p>
+              <p className="text-muted-foreground">{customerName}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-[var(--color-text)] mb-1">
@@ -236,61 +237,30 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
               </p>
               <p className="text-muted-foreground">{email}</p>
             </div>
-            <div>
-              <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                {content.pages.booking.steps.confirmation.sections.contact.phone}
-              </p>
-              <p className="text-muted-foreground">{phone}</p>
-            </div>
+            {phone && (
+              <div>
+                <p className="text-sm font-medium text-[var(--color-text)] mb-1">
+                  {content.pages.booking.steps.confirmation.sections.contact.phone}
+                </p>
+                <p className="text-muted-foreground">{phone}</p>
+              </div>
+            )}
           </div>
         </div>
       </FormSection>
 
-      {/* Pricing Summary */}
-      <FormSection
-        title={content.pages.booking.steps.confirmation.sections.pricing.title}
-        description="Breakdown of your booking costs"
-        variant="glass"
-      >
-        <div className="bg-background/50 rounded-lg p-4 border">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
-                {content.pages.booking.steps.confirmation.sections.pricing.basePrice}
-              </span>
-              <span className="text-muted-foreground">{formatCurrency(pricing?.basePrice || 0)}</span>
-            </div>
-            {pricing?.addOnsPrice ? (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  {content.pages.booking.steps.confirmation.sections.pricing.addOns}
-                </span>
-                <span className="text-muted-foreground">{formatCurrency(pricing.addOnsPrice)}</span>
-              </div>
-            ) : null}
-            <div className="flex justify-between text-sm font-medium pt-2 border-t">
-              <span className="text-[var(--color-text)]">
-                {content.pages.booking.steps.confirmation.sections.pricing.subtotal}
-              </span>
-              <span className="text-[var(--color-text)]">{formatCurrency(pricing?.subtotal || 0)}</span>
-            </div>
-            {pricing?.discount ? (
-              <div className="flex justify-between text-sm text-[var(--color-success)]">
-                <span>
-                  {content.pages.booking.steps.confirmation.sections.pricing.discount}
-                </span>
-                <span>-{formatCurrency(pricing.discount)}</span>
-              </div>
-            ) : null}
-            <div className="flex justify-between text-base font-semibold pt-2 border-t">
-              <span className="text-[var(--color-text)]">
-                {content.pages.booking.steps.confirmation.sections.pricing.total}
-              </span>
-              <span className="text-[var(--color-primary)]">{formatCurrency(pricing?.total || 0)}</span>
-            </div>
+      {/* Special Requirements */}
+      {specialRequests && (
+        <FormSection
+          title="Special Requirements"
+          description="Additional notes or requests"
+          variant="default"
+        >
+          <div className="bg-background/50 rounded-lg p-4 border">
+            <p className="text-muted-foreground">{specialRequests}</p>
           </div>
-        </div>
-      </FormSection>
+        </FormSection>
+      )}
     </div>
   )
 } 
