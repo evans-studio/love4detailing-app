@@ -23,19 +23,19 @@ interface ConfirmationStepProps {
 
 // Map service IDs to service types
 const serviceIdToType: Record<string, ServiceType> = {
-  'essential': ServiceType.BASIC,
-  'premium': ServiceType.PREMIUM,
-  'ultimate': ServiceType.ULTIMATE
+  'essential-clean': ServiceType.BASIC,
+  'premium-detail': ServiceType.PREMIUM,
+  'ultimate-protection': ServiceType.ULTIMATE
 }
 
 // Map service types to package keys
 const serviceTypeToPackage: Record<ServiceType, keyof typeof SERVICES.packages> = {
-  [ServiceType.BASIC]: 'essential',
-  [ServiceType.PREMIUM]: 'premium',
-  [ServiceType.LUXURY]: 'ultimate',
-  [ServiceType.DELUXE]: 'ultimate',
-  [ServiceType.CUSTOM]: 'essential',
-  [ServiceType.ULTIMATE]: 'ultimate'
+  [ServiceType.BASIC]: 'essential-clean',
+  [ServiceType.PREMIUM]: 'premium-detail',
+  [ServiceType.LUXURY]: 'ultimate-protection',
+  [ServiceType.DELUXE]: 'ultimate-protection',
+  [ServiceType.CUSTOM]: 'essential-clean',
+  [ServiceType.ULTIMATE]: 'ultimate-protection'
 }
 
 // Map vehicle sizes to size keys
@@ -71,7 +71,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   const specialRequests = formData.special_requests
 
   // Get service and vehicle data
-  const packageKey = serviceTypeToPackage[serviceType] || 'essential'
+  const packageKey = serviceTypeToPackage[serviceType] || 'essential-clean'
   const sizeKey = vehicleSizeToKey[vehicleSize]
   const serviceData = SERVICES.packages[packageKey]
   const vehicleSizeData = SERVICES.vehicleSizes[sizeKey]

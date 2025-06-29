@@ -62,8 +62,8 @@ export const BRAND = {
 
 export const SERVICES = {
   packages: {
-    essential: {
-      id: 'essential',
+    'essential-clean': {
+      id: 'essential-clean',
       name: 'Essential Clean',
       description: 'Perfect for regular maintenance',
       duration: '2-3 hours',
@@ -75,8 +75,8 @@ export const SERVICES = {
         'Dashboard cleaning',
       ],
     },
-    premium: {
-      id: 'premium',
+    'premium-detail': {
+      id: 'premium-detail',
       name: 'Premium Detail',
       description: 'Enhanced detailing with protection',
       duration: '3-4 hours',
@@ -88,8 +88,8 @@ export const SERVICES = {
         'Paint protection',
       ],
     },
-    ultimate: {
-      id: 'ultimate', 
+    'ultimate-protection': {
+      id: 'ultimate-protection', 
       name: 'Ultimate Protection',
       description: 'Complete detailing with ceramic coating',
       duration: '4-6 hours',
@@ -110,9 +110,9 @@ export const SERVICES = {
       description: 'Fiesta, Polo, Mini',
       examples: ['Ford Fiesta', 'Volkswagen Polo', 'Mini Cooper'],
       pricing: {
-        essential: 55,
-        premium: 75,
-        ultimate: 95,
+        'essential-clean': 55,
+        'premium-detail': 75,
+        'ultimate-protection': 95,
       },
     },
     medium: {
@@ -121,9 +121,9 @@ export const SERVICES = {
       description: 'Focus, Golf, Civic',
       examples: ['Ford Focus', 'Volkswagen Golf', 'Honda Civic'],
       pricing: {
-        essential: 60,
-        premium: 80,
-        ultimate: 100,
+        'essential-clean': 60,
+        'premium-detail': 80,
+        'ultimate-protection': 100,
       },
     },
     large: {
@@ -132,9 +132,9 @@ export const SERVICES = {
       description: 'BMW 5 Series, SUV, Estate',
       examples: ['BMW 5 Series', 'Audi A6', 'Mercedes E-Class'],
       pricing: {
-        essential: 65,
-        premium: 85,
-        ultimate: 105,
+        'essential-clean': 65,
+        'premium-detail': 85,
+        'ultimate-protection': 105,
       },
     },
     extraLarge: {
@@ -143,9 +143,9 @@ export const SERVICES = {
       description: 'Van, Range Rover, 7-Seater',
       examples: ['Range Rover', 'Mercedes Sprinter', 'Ford Transit'],
       pricing: {
-        essential: 70,
-        premium: 90,
-        ultimate: 110,
+        'essential-clean': 70,
+        'premium-detail': 90,
+        'ultimate-protection': 110,
       },
     },
   },

@@ -10,12 +10,12 @@ import { VehicleSize, ServiceType, BookingStatus, LoyaltyTier } from '@/lib/enum
 
 // Service type mapping
 const serviceTypeToPackageKey: Record<ServiceType, keyof typeof SERVICES.vehicleSizes['small']['pricing']> = {
-  [ServiceType.BASIC]: 'essential',
-  [ServiceType.PREMIUM]: 'premium',
-  [ServiceType.LUXURY]: 'ultimate',
-  [ServiceType.DELUXE]: 'ultimate',
-  [ServiceType.CUSTOM]: 'essential',
-  [ServiceType.ULTIMATE]: 'ultimate'
+  [ServiceType.BASIC]: 'essential-clean',
+  [ServiceType.PREMIUM]: 'premium-detail',
+  [ServiceType.LUXURY]: 'ultimate-protection',
+  [ServiceType.DELUXE]: 'ultimate-protection',
+  [ServiceType.CUSTOM]: 'essential-clean',
+  [ServiceType.ULTIMATE]: 'ultimate-protection',
 }
 
 // Vehicle size mapping

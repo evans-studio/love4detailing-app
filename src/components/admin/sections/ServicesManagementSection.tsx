@@ -37,9 +37,9 @@ const vehicleSizeFormSchema = z.object({
   description: z.string().min(1, "Description is required"),
   examples: z.array(z.string()).min(1, "At least one example is required"),
   pricing: z.object({
-    essential: z.number().min(0),
-    premium: z.number().min(0),
-    ultimate: z.number().min(0),
+    'essential-clean': z.number().min(0),
+    'premium-detail': z.number().min(0),
+    'ultimate-protection': z.number().min(0),
   }),
 })
 
@@ -352,15 +352,15 @@ export function ServicesManagementSection({
                           <div className="grid grid-cols-3 gap-2 mt-4">
                             <div>
                               <p className="text-xs text-muted-foreground">Essential</p>
-                              <p className="font-medium">{formatCurrency(size.pricing.essential)}</p>
+                              <p className="font-medium">{formatCurrency(size.pricing['essential-clean'])}</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Premium</p>
-                              <p className="font-medium">{formatCurrency(size.pricing.premium)}</p>
+                              <p className="font-medium">{formatCurrency(size.pricing['premium-detail'])}</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Ultimate</p>
-                              <p className="font-medium">{formatCurrency(size.pricing.ultimate)}</p>
+                              <p className="font-medium">{formatCurrency(size.pricing['ultimate-protection'])}</p>
                             </div>
                           </div>
                         </div>
@@ -452,7 +452,7 @@ export function ServicesManagementSection({
                           <label className="text-xs text-muted-foreground">Essential</label>
                           <Input
                             type="number"
-                            {...vehicleSizeForm.register('pricing.essential', { valueAsNumber: true })}
+                            {...vehicleSizeForm.register('pricing.essential-clean', { valueAsNumber: true })}
                             placeholder="0"
                             className="mt-1"
                           />
@@ -461,7 +461,7 @@ export function ServicesManagementSection({
                           <label className="text-xs text-muted-foreground">Premium</label>
                           <Input
                             type="number"
-                            {...vehicleSizeForm.register('pricing.premium', { valueAsNumber: true })}
+                            {...vehicleSizeForm.register('pricing.premium-detail', { valueAsNumber: true })}
                             placeholder="0"
                             className="mt-1"
                           />
@@ -470,7 +470,7 @@ export function ServicesManagementSection({
                           <label className="text-xs text-muted-foreground">Ultimate</label>
                           <Input
                             type="number"
-                            {...vehicleSizeForm.register('pricing.ultimate', { valueAsNumber: true })}
+                            {...vehicleSizeForm.register('pricing.ultimate-protection', { valueAsNumber: true })}
                             placeholder="0"
                             className="mt-1"
                           />

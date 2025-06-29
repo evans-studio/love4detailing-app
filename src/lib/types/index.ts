@@ -14,10 +14,10 @@ export type ContactItem = {
 }
 
 // Service Types
-export type ServicePackage = 'essential' | 'premium' | 'ultimate'
+export type ServicePackage = 'essential-clean' | 'premium-detail' | 'ultimate-protection'
 export type VehicleSize = 'small' | 'medium' | 'large' | 'extraLarge'
 export type AddOnService = 'interiorProtection' | 'engineClean' | 'headlightRestoration'
-export type ServiceType = 'essential' | 'premium' | 'ultimate'
+export type ServiceType = 'essential-clean' | 'premium-detail' | 'ultimate-protection'
 
 // Booking Types
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'

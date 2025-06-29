@@ -6,10 +6,7 @@ import { SERVICES } from '@/lib/constants'
 import { content } from '@/lib/content'
 import { FormSection } from '@/components/ui/FormSection'
 import { ServiceCard } from '@/components/ui/ServiceCard'
-
-type ServicePackage = 'essential' | 'premium' | 'ultimate'
-type VehicleSize = 'small' | 'medium' | 'large' | 'extraLarge'
-type AddOnService = 'interiorProtection' | 'engineClean' | 'headlightRestoration'
+import type { ServicePackage, VehicleSize, AddOnService } from '@/lib/types/index'
 
 interface ServiceSelectionStepProps {
   isAuthenticated?: boolean
