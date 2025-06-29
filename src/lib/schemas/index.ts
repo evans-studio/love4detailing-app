@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { SERVICES, BOOKING } from '@/lib/constants'
+import { BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/enums'
 
 // =================================================================
 // CORE SCHEMA DEFINITIONS - Following system-guide.md principles
@@ -153,79 +154,37 @@ export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>
 // BOOKING SCHEMAS
 // =================================================================
 
-// Base booking schema with core fields
-export const baseBookingSchema = z.object({
-  vehicleSize: vehicleSizeSchema,
-  servicePackage: servicePackageSchema,
-  addOns: z.array(addOnServiceSchema).max(5, 'Maximum 5 add-ons allowed.').default([]),
-  date: dateSchema,
-  timeSlot: timeSlotSchema,
-  specialRequests: z.string().max(500, 'Special requests cannot exceed 500 characters.').optional(),
-  accessInstructions: z.string().max(500, 'Access instructions cannot exceed 500 characters.').optional(),
+// Convert enums to Zod enums
+const bookingStatusEnum = z.nativeEnum(BookingStatus)
+const paymentStatusEnum = z.nativeEnum(PaymentStatus)
+const serviceTypeEnum = z.nativeEnum(ServiceType)
+const vehicleSizeEnum = z.nativeEnum(VehicleSize)
+
+export const bookingSchema = z.object({
+  user_id: z.string().uuid().optional(),
+  customer_name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email format'),
+  postcode: z.string().min(1, 'Postcode is required'),
+  vehicle_size: vehicleSizeEnum,
+  service_type: serviceTypeEnum,
+  booking_date: z.string().min(1, 'Booking date is required'),
+  booking_time: z.string().min(1, 'Booking time is required'),
+  add_ons: z.array(z.string()).default([]),
+  vehicle_images: z.array(z.string()).default([]),
+  special_requests: z.string().optional(),
+  total_price: z.number().min(0),
+  travel_fee: z.number().min(0).default(0),
+  status: bookingStatusEnum.default(BookingStatus.PENDING),
+  payment_status: paymentStatusEnum.default(PaymentStatus.PENDING),
+  vehicle_lookup: vehicleSchema.optional(),
+  booking_reference: z.string().optional()
 })
 
-// Guest booking schema (includes contact details)
-export const guestBookingSchema = baseBookingSchema.extend({
-  fullName: nameSchema,
-  email: emailSchema,
-  phone: phoneSchema,
-  address: addressSchema,
-  postcode: postcodeSchema,
-  vehicleRegistration: registrationSchema.optional(),
-  vehicleMake: z.string().min(1, 'Vehicle make is required.').max(50, 'Make is too long.'),
-  vehicleModel: z.string().min(1, 'Vehicle model is required.').max(50, 'Model is too long.'),
-  vehicleYear: z.number()
-    .min(1900, 'Year must be after 1900.')
-    .max(new Date().getFullYear() + 1, 'Year cannot be in the future.')
-    .optional(),
-  vehicleColor: z.string().max(30, 'Color is too long.').optional(),
-  vehicleImages: z.array(z.string().url('Invalid image URL.'))
-    .max(BOOKING.constraints.maxPhotos, `Maximum ${BOOKING.constraints.maxPhotos} images allowed.`)
-    .default([]),
-})
+// Export types using the schema
+export type BookingFormData = z.infer<typeof bookingSchema>
 
-// Authenticated user booking schema (can reference saved vehicles)
-export const userBookingSchema = baseBookingSchema.extend({
-  vehicleId: z.string().uuid('Please select a valid vehicle.').optional(),
-  newVehicle: vehicleSchema.optional(),
-  vehicleImages: z.array(z.string().url('Invalid image URL.'))
-    .max(BOOKING.constraints.maxPhotos, `Maximum ${BOOKING.constraints.maxPhotos} images allowed.`)
-    .default([]),
-}).refine((data) => data.vehicleId || data.newVehicle, {
-  message: 'Please select an existing vehicle or provide new vehicle details.',
-  path: ['vehicleId'],
-})
-
-// Admin booking schema (minimal requirements for quick booking)
-export const adminBookingSchema = z.object({
-  customerId: z.string().uuid().optional(),
-  customerName: nameSchema,
-  customerEmail: emailSchema,
-  customerPhone: phoneSchema,
-  vehicleSize: vehicleSizeSchema,
-  servicePackage: servicePackageSchema,
-  date: dateSchema,
-  timeSlot: timeSlotSchema,
-  notes: z.string().max(1000, 'Notes cannot exceed 1000 characters.').optional(),
-})
-
-// Booking update schema
-export const bookingUpdateSchema = z.object({
-  id: z.string().uuid('Invalid booking ID.'),
-  status: bookingStatusSchema.optional(),
-  date: dateSchema.optional(),
-  timeSlot: timeSlotSchema.optional(),
-  servicePackage: servicePackageSchema.optional(),
-  addOns: z.array(addOnServiceSchema).max(5, 'Maximum 5 add-ons allowed.').optional(),
-  specialRequests: z.string().max(500, 'Special requests cannot exceed 500 characters.').optional(),
-  adminNotes: z.string().max(1000, 'Admin notes cannot exceed 1000 characters.').optional(),
-})
-
-export type BaseBookingData = z.infer<typeof baseBookingSchema>
-export type GuestBookingData = z.infer<typeof guestBookingSchema>
-export type UserBookingData = z.infer<typeof userBookingSchema>
-export type AdminBookingData = z.infer<typeof adminBookingSchema>
-export type BookingUpdateData = z.infer<typeof bookingUpdateSchema>
+// Re-export enums for convenience
+export { BookingStatus, PaymentStatus, ServiceType, VehicleSize } from '@/lib/enums'
 
 // =================================================================
 // REWARDS & LOYALTY SCHEMAS
@@ -330,11 +289,7 @@ export const schemas = {
   profileUpdate: profileUpdateSchema,
   
   // Booking
-  baseBooking: baseBookingSchema,
-  guestBooking: guestBookingSchema,
-  userBooking: userBookingSchema,
-  adminBooking: adminBookingSchema,
-  bookingUpdate: bookingUpdateSchema,
+  booking: bookingSchema,
   
   // Rewards
   rewardRedemption: rewardRedemptionSchema,
@@ -360,17 +315,8 @@ export const paymentMethodSchema = z.enum([
   errorMap: () => ({ message: 'Invalid payment method.' })
 })
 
-// Payment status validation
-export const paymentStatusSchema = z.enum([
-  'unpaid', 'paid', 'refunded', 'failed'
-] as const, {
-  errorMap: () => ({ message: 'Invalid payment status.' })
-})
-
 // Export types
-export type BookingStatus = z.infer<typeof bookingStatusSchema>
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>
-export type PaymentStatus = z.infer<typeof paymentStatusSchema>
 
 // Booking data type
 export interface BookingData {

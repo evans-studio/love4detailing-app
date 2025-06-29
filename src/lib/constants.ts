@@ -181,15 +181,15 @@ export const BOOKING = {
     cancellationHours: 24,
   },
   statuses: {
-    PENDING: 'pending',
-    CONFIRMED: 'confirmed',
-    COMPLETED: 'completed',
-    CANCELLED: 'cancelled',
+    PENDING: BookingStatus.PENDING,
+    CONFIRMED: BookingStatus.CONFIRMED,
+    COMPLETED: BookingStatus.COMPLETED,
+    CANCELLED: BookingStatus.CANCELLED,
   },
   payment: {
-    PENDING: 'pending',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
+    PENDING: PaymentStatus.PENDING,
+    PAID: PaymentStatus.PAID,
+    FAILED: PaymentStatus.FAILED,
   },
   workingHours: {
     monday: {

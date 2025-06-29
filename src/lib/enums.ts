@@ -1,56 +1,58 @@
 // Vehicle Size Enums
 export enum VehicleSize {
-  SMALL = 'SMALL',
-  MEDIUM = 'MEDIUM',
-  LARGE = 'LARGE',
+  SMALL = 'small',
+  MEDIUM = 'medium',
+  LARGE = 'large',
   XLARGE = 'XLARGE',
 }
 
 // Booking Status Enums
 export enum BookingStatus {
-  PENDING = 'PENDING',
-  CONFIRMED = 'CONFIRMED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled'
 }
 
 // Payment Status Enums
 export enum PaymentStatus {
   UNPAID = 'UNPAID',
-  PENDING = 'PENDING',
+  PENDING = 'pending',
   PAID = 'PAID',
-  FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED',
+  FAILED = 'failed',
+  REFUNDED = 'refunded'
 }
 
 // Payment Method Enums
 export enum PaymentMethod {
-  CASH = 'CASH',
-  CARD = 'CARD',
+  CASH = 'cash',
+  CARD = 'card',
   STRIPE = 'STRIPE',
   PAYPAL = 'PAYPAL',
+  TRANSFER = 'transfer'
 }
 
 // Loyalty Tier Enums
 export enum LoyaltyTier {
-  BRONZE = 'BRONZE',
-  SILVER = 'SILVER',
-  GOLD = 'GOLD',
-  PLATINUM = 'PLATINUM',
+  BRONZE = 'bronze',
+  SILVER = 'silver',
+  GOLD = 'gold',
+  PLATINUM = 'platinum'
 }
 
 // Customer Status Enums
 export enum CustomerStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
   BLOCKED = 'BLOCKED',
 }
 
 // Service Type Enums
 export enum ServiceType {
-  BASIC = 'BASIC',
-  PREMIUM = 'PREMIUM',
+  BASIC = 'basic',
+  PREMIUM = 'premium',
+  LUXURY = 'luxury',
   DELUXE = 'DELUXE',
   CUSTOM = 'CUSTOM',
 }
