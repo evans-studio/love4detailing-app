@@ -21,6 +21,13 @@ interface ConfirmationStepProps {
   }
 }
 
+// Map service IDs to service types
+const serviceIdToType: Record<string, ServiceType> = {
+  'essential': ServiceType.BASIC,
+  'premium': ServiceType.PREMIUM,
+  'ultimate': ServiceType.ULTIMATE
+}
+
 // Map service types to package keys
 const serviceTypeToPackage: Record<ServiceType, keyof typeof SERVICES.packages> = {
   [ServiceType.BASIC]: 'essential',
@@ -50,13 +57,14 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   const formData = watch()
   
   // Extract key data
-  const vehicleSize = formData.vehicle_size
-  const serviceType = formData.service_type
-  const addOns = formData.add_ons || []
-  const bookingDate = formData.booking_date
-  const bookingTime = formData.booking_time
+  const vehicleSize = formData.vehicleSize
+  const serviceId = formData.serviceId
+  const serviceType = serviceIdToType[serviceId] || ServiceType.BASIC
+  const addOns = formData.addOnIds || []
+  const bookingDate = formData.date
+  const bookingTime = formData.timeSlot
   const vehicleLookup = formData.vehicle_lookup
-  const customerName = formData.customer_name
+  const customerName = formData.fullName
   const email = formData.email
   const phone = formData.phone
   const postcode = formData.postcode

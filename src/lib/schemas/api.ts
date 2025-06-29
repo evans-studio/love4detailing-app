@@ -25,6 +25,8 @@ export const vehicleLookupSchema = z.object({
   notes: z.string().optional()
 })
 
+export type VehicleLookupRequest = z.infer<typeof vehicleLookupSchema>
+
 // Form data schema
 export const bookingFormSchema = z.object({
   id: z.string().uuid().optional(),
