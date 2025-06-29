@@ -27,6 +27,7 @@ import { ServiceSelectionStep } from './steps/ServiceSelectionStep'
 import { DateTimeStep } from './steps/DateTimeStep'
 import { ContactDetailsStep } from './steps/ContactDetailsStep'
 import { ConfirmationStep } from './steps/ConfirmationStep'
+import { BookingSuccess } from './BookingSuccess'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -57,6 +58,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [bookingSuccess, setBookingSuccess] = useState<{
+    date: string
+    time: string
+    reference: string
+  } | null>(null)
   const _bookingReference = useRef<string>('')
   const { toast } = useToast()
   const router = useRouter()
@@ -187,14 +193,12 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
         await onSubmit(bookingData)
       }
       
-      // Show success message
-      toast({
-        title: 'Booking Submitted',
-        description: 'Your booking has been successfully submitted.',
+      // Show success state
+      setBookingSuccess({
+        date: formData.booking_date,
+        time: formData.booking_time,
+        reference: reference
       })
-      
-      // Redirect to confirmation page
-      router.push(`/booking/confirmation/${reference}`)
       
     } catch (error) {
       console.error('Booking submission failed:', error)
@@ -206,6 +210,17 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Show success screen if booking is successful
+  if (bookingSuccess) {
+    return (
+      <BookingSuccess
+        bookingDate={bookingSuccess.date}
+        bookingTime={bookingSuccess.time}
+        bookingReference={bookingSuccess.reference}
+      />
+    )
   }
 
   return (

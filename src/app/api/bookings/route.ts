@@ -54,9 +54,26 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const body = await request.json()
     const validatedData = bookingSchema.parse(body)
     
+    // Generate a unique booking reference
+    const bookingReference = `BK${Date.now().toString().slice(-6)}`
+    
+    // Try to get the user's session
+    const supabaseAuth = createRouteHandlerClient({ cookies })
+    const { data: { session } } = await supabaseAuth.auth.getSession()
+    
+    const bookingData = {
+      ...validatedData,
+      booking_reference: bookingReference,
+      user_id: session?.user?.id || null, // Allow null user_id for unauthenticated bookings
+      status: BookingStatus.PENDING,
+      payment_status: PaymentStatus.PENDING,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
     const { data: booking, error } = await supabase
       .from('bookings')
-      .insert([validatedData])
+      .insert([bookingData])
       .select()
       .single()
 
@@ -96,9 +113,22 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<BookingFormData[]>>> {
   try {
     const supabase = createRouteHandlerClient({ cookies })
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'You must be logged in to view bookings'
+        }
+      }, { status: 401 })
+    }
+
     const { data: bookings, error } = await supabase
       .from('bookings')
       .select('*')
+      .eq('user_id', session.user.id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -137,12 +167,44 @@ export async function PATCH(
 ): Promise<NextResponse<ApiResponse<BookingFormData>>> {
   try {
     const supabase = createRouteHandlerClient({ cookies })
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'You must be logged in to update bookings'
+        }
+      }, { status: 401 })
+    }
+
     const body = await request.json()
     const validatedData = bookingSchema.partial().parse(body)
 
+    // Verify booking ownership
+    const { data: existingBooking } = await supabase
+      .from('bookings')
+      .select('user_id')
+      .eq('id', params.id)
+      .single()
+
+    if (!existingBooking || existingBooking.user_id !== session.user.id) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to update this booking'
+        }
+      }, { status: 403 })
+    }
+
     const { data: booking, error } = await supabase
       .from('bookings')
-      .update(validatedData)
+      .update({
+        ...validatedData,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', params.id)
       .select()
       .single()
