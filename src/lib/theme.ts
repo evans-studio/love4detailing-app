@@ -11,7 +11,6 @@
 
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { type Config } from 'tailwindcss'
 
 // Core theme configuration based on dev-guidelines.md
 export const theme = {
