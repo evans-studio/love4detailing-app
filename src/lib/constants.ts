@@ -1,3 +1,18 @@
+import { 
+  VehicleSize, 
+  BookingStatus, 
+  PaymentStatus, 
+  PaymentMethod,
+  LoyaltyTier,
+  CustomerStatus,
+  ServiceType,
+  NotificationType,
+  NotificationChannel,
+  RoleType,
+  ImageType,
+  DiscountType,
+} from './enums'
+
 export const BRAND = {
   name: 'Love4Detailing',
   description: 'Professional Car Detailing Services',
@@ -158,57 +173,56 @@ export const SERVICES = {
 } as const
 
 export const BOOKING = {
-  // Available time slots
-  timeSlots: [
-    '09:00', '10:30', '12:00', '13:30', '15:00', '16:30'
-  ],
-  
-  // Booking constraints  
+  timeSlots: ['09:00', '10:30', '12:00', '13:30', '15:00', '16:30'] as const,
   constraints: {
     maxPhotos: 5,
     maxBookingsPerDay: 8,
     advanceBookingDays: 30,
     cancellationHours: 24,
   },
-  
-  // Status definitions
   statuses: {
-    pending: { label: 'Pending', color: 'warning' },
-    confirmed: { label: 'Confirmed', color: 'info' },
-    inProgress: { label: 'In Progress', color: 'primary' },
-    completed: { label: 'Completed', color: 'success' },
-    cancelled: { label: 'Cancelled', color: 'error' },
+    PENDING: 'pending',
+    CONFIRMED: 'confirmed',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled',
   },
-  
-  // Payment configuration
   payment: {
-    currency: 'GBP',
-    depositPercentage: 20,
-    refundPolicy: 'Full refund if cancelled 24+ hours in advance',
-    method: 'cash' as const, // Options: 'cash' | 'stripe' | 'paypal'
-    methods: {
-      cash: {
-        enabled: true,
-        label: 'Cash Payment',
-        description: 'Pay in cash on the day of service',
-      },
-      stripe: {
-        enabled: false,
-        label: 'Card Payment',
-        description: 'Secure online payment via Stripe',
-      },
-      paypal: {
-        enabled: false,
-        label: 'PayPal',
-        description: 'Pay securely with PayPal',
-      },
+    PENDING: 'pending',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+  },
+  workingHours: {
+    monday: {
+      start: '09:00',
+      end: '17:00',
+      interval: 90, // minutes
     },
-    statuses: {
-      unpaid: { label: 'Unpaid', color: 'warning' },
-      paid: { label: 'Paid', color: 'success' },
-      refunded: { label: 'Refunded', color: 'info' },
-      failed: { label: 'Failed', color: 'error' },
+    tuesday: {
+      start: '09:00',
+      end: '17:00',
+      interval: 90,
     },
+    wednesday: {
+      start: '09:00',
+      end: '17:00',
+      interval: 90,
+    },
+    thursday: {
+      start: '09:00',
+      end: '17:00',
+      interval: 90,
+    },
+    friday: {
+      start: '09:00',
+      end: '17:00',
+      interval: 90,
+    },
+    saturday: {
+      start: '10:00',
+      end: '16:00',
+      interval: 90,
+    },
+    sunday: null, // Closed
   },
 } as const
 
@@ -397,13 +411,6 @@ export const API = {
   } as const,
 } as const
 
-// TYPE EXPORTS for TypeScript support
-export type VehicleSize = keyof typeof SERVICES.vehicleSizes
-export type ServicePackage = keyof typeof SERVICES.packages  
-export type BookingStatus = keyof typeof BOOKING.statuses
-export type RewardTier = keyof typeof REWARDS.tiers
-export type AddOnService = keyof typeof SERVICES.addOns 
-
 export const ANALYTICS = {
   revenue: {
     day: 1200,
@@ -526,5 +533,132 @@ export const ANALYTICS = {
       activeMembers: 2160,
       redemptionValue: 14400,
     },
+  },
+} as const 
+
+export const LABELS = {
+  vehicleSize: {
+    [VehicleSize.SMALL]: 'Small Vehicle',
+    [VehicleSize.MEDIUM]: 'Medium Vehicle',
+    [VehicleSize.LARGE]: 'Large Vehicle',
+    [VehicleSize.XLARGE]: 'Extra Large Vehicle',
+  },
+  bookingStatus: {
+    [BookingStatus.PENDING]: { label: 'Pending', color: 'warning' },
+    [BookingStatus.CONFIRMED]: { label: 'Confirmed', color: 'info' },
+    [BookingStatus.IN_PROGRESS]: { label: 'In Progress', color: 'primary' },
+    [BookingStatus.COMPLETED]: { label: 'Completed', color: 'success' },
+    [BookingStatus.CANCELLED]: { label: 'Cancelled', color: 'error' },
+  },
+  paymentStatus: {
+    [PaymentStatus.UNPAID]: { label: 'Unpaid', color: 'warning' },
+    [PaymentStatus.PENDING]: { label: 'Pending', color: 'info' },
+    [PaymentStatus.PAID]: { label: 'Paid', color: 'success' },
+    [PaymentStatus.FAILED]: { label: 'Failed', color: 'error' },
+    [PaymentStatus.REFUNDED]: { label: 'Refunded', color: 'info' },
+  },
+  paymentMethod: {
+    [PaymentMethod.CASH]: {
+      label: 'Cash Payment',
+      description: 'Pay in cash on the day of service',
+      icon: 'cash',
+    },
+    [PaymentMethod.CARD]: {
+      label: 'Card Payment',
+      description: 'Pay securely with your credit or debit card',
+      icon: 'card',
+    },
+    [PaymentMethod.STRIPE]: {
+      label: 'Online Payment',
+      description: 'Secure online payment via Stripe',
+      icon: 'stripe',
+    },
+    [PaymentMethod.PAYPAL]: {
+      label: 'PayPal',
+      description: 'Pay securely with PayPal',
+      icon: 'paypal',
+    },
+  },
+  loyaltyTier: {
+    [LoyaltyTier.BRONZE]: {
+      label: 'Bronze',
+      color: '#CD7F32',
+      minPoints: 0,
+      discount: 0,
+    },
+    [LoyaltyTier.SILVER]: {
+      label: 'Silver',
+      color: '#C0C0C0',
+      minPoints: 100,
+      discount: 5,
+    },
+    [LoyaltyTier.GOLD]: {
+      label: 'Gold',
+      color: '#FFD700',
+      minPoints: 500,
+      discount: 10,
+    },
+    [LoyaltyTier.PLATINUM]: {
+      label: 'Platinum',
+      color: '#E5E4E2',
+      minPoints: 1000,
+      discount: 15,
+    },
+  },
+  customerStatus: {
+    [CustomerStatus.ACTIVE]: { label: 'Active', color: 'success' },
+    [CustomerStatus.INACTIVE]: { label: 'Inactive', color: 'warning' },
+    [CustomerStatus.BLOCKED]: { label: 'Blocked', color: 'error' },
+  },
+  serviceType: {
+    [ServiceType.BASIC]: {
+      label: 'Basic Detail',
+      description: 'Essential cleaning service',
+      duration: 90,
+    },
+    [ServiceType.PREMIUM]: {
+      label: 'Premium Detail',
+      description: 'Comprehensive cleaning and protection',
+      duration: 180,
+    },
+    [ServiceType.DELUXE]: {
+      label: 'Deluxe Detail',
+      description: 'Ultimate detailing experience',
+      duration: 240,
+    },
+    [ServiceType.CUSTOM]: {
+      label: 'Custom Service',
+      description: 'Tailored to your needs',
+      duration: 120,
+    },
+  },
+  notificationType: {
+    [NotificationType.BOOKING_CONFIRMATION]: 'Booking Confirmed',
+    [NotificationType.BOOKING_REMINDER]: 'Booking Reminder',
+    [NotificationType.BOOKING_CANCELLED]: 'Booking Cancelled',
+    [NotificationType.PAYMENT_RECEIVED]: 'Payment Received',
+    [NotificationType.REWARD_EARNED]: 'Reward Points Earned',
+  },
+  notificationChannel: {
+    [NotificationChannel.EMAIL]: 'Email',
+    [NotificationChannel.SMS]: 'SMS',
+    [NotificationChannel.PUSH]: 'Push Notification',
+    [NotificationChannel.IN_APP]: 'In-App Notification',
+  },
+  roleType: {
+    [RoleType.ADMIN]: 'Administrator',
+    [RoleType.STAFF]: 'Staff Member',
+    [RoleType.CUSTOMER]: 'Customer',
+  },
+  imageType: {
+    [ImageType.VEHICLE]: 'Vehicle Photo',
+    [ImageType.PROFILE]: 'Profile Picture',
+    [ImageType.SERVICE]: 'Service Image',
+    [ImageType.GALLERY]: 'Gallery Image',
+  },
+  discountType: {
+    [DiscountType.PERCENTAGE]: 'Percentage Off',
+    [DiscountType.FIXED]: 'Fixed Amount Off',
+    [DiscountType.FREE_SERVICE]: 'Free Service',
   },
 } as const 

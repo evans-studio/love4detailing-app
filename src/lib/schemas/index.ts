@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SERVICES, BOOKING, REWARDS } from '@/lib/constants'
+import { SERVICES, BOOKING } from '@/lib/constants'
 
 // =================================================================
 // CORE SCHEMA DEFINITIONS - Following system-guide.md principles

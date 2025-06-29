@@ -6,13 +6,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { SERVICES, BOOKING, REWARDS } from '@/lib/constants'
-import type { 
-  VehicleSize, 
-  ServicePackage, 
-  AddOnService, 
-  BookingStatus,
-  RewardTier 
-} from '@/lib/constants'
+import type { VehicleSize, ServicePackage, AddOnService, BookingStatus, RewardTier } from '@/lib/constants'
 
 // =================================================================
 // STYLING UTILITIES

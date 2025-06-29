@@ -2,36 +2,24 @@
 
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { SERVICES, BRAND } from '@/lib/constants'
+import { SERVICES } from '@/lib/constants'
 import { content } from '@/lib/content'
-import type { VehicleSize } from '@/lib/constants'
 import { FormSection } from '@/components/ui/FormSection'
 import { InputGroup } from '@/components/ui/InputGroup'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { isValidRegistration } from '@/lib/utils/index'
+import { isValidRegistration } from '@/lib/utils/validation'
+
+type VehicleSize = 'small' | 'medium' | 'large' | 'extraLarge'
 
 interface VehicleDetailsStepProps {
   isAuthenticated?: boolean
   userId?: string
-  pricing?: {
-    basePrice: number
-    addOnsPrice: number
-    subtotal: number
-    discount: number
-    total: number
-  }
-  watchedValues?: {
-    vehicleSize?: VehicleSize
-    vehicleMake?: string
-    vehicleModel?: string
-    vehicleYear?: number
-  }
 }
 
 export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
-  isAuthenticated,
-  watchedValues,
+  isAuthenticated = false,
+  userId,
 }) => {
   const { setValue, watch, formState: { errors } } = useFormContext()
   const [isLookingUp, setIsLookingUp] = useState(false)
@@ -52,7 +40,7 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
   // Vehicle lookup handler (placeholder for DVLA integration)
   const handleVehicleLookup = async () => {
     if (!vehicleRegistration || !isValidRegistration(vehicleRegistration)) {
-      setLookupError('Please enter a valid UK registration number')
+      setLookupError(content.pages.booking.steps.vehicleDetails.errors.registration)
       return
     }
 
@@ -78,7 +66,7 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
       setValue('vehicleColor', mockVehicleData.color, { shouldValidate: true })
       
     } catch (error) {
-      setLookupError('Vehicle lookup failed. Please enter details manually.')
+      setLookupError(content.pages.booking.steps.vehicleDetails.lookup.error)
     } finally {
       setIsLookingUp(false)
     }
@@ -88,8 +76,8 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
     <div className="space-y-8">
       {/* Vehicle Size Selection */}
       <FormSection
-        title="Select Vehicle Size"
-        description="Choose your vehicle size category for accurate pricing"
+        title={content.pages.booking.steps.vehicleDetails.fields.size.title}
+        description={content.pages.booking.steps.vehicleDetails.fields.size.description}
         variant="card"
         required
       >
@@ -155,7 +143,7 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
 
       {/* Vehicle Registration Lookup */}
       <FormSection
-        title="Vehicle Registration (Optional)"
+        title={content.pages.booking.steps.vehicleDetails.fields.registration}
         description="Enter your registration for automatic vehicle details lookup"
         variant="default"
       >
@@ -163,7 +151,7 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
           <div className="flex gap-3">
             <div className="flex-1">
               <Input
-                label="Registration Number"
+                label={content.pages.booking.steps.vehicleDetails.fields.registration}
                 placeholder="e.g. AB12 CDE"
                 value={vehicleRegistration}
                 onChange={(e) => setValue('vehicleRegistration', e.target.value.toUpperCase())}
@@ -178,9 +166,9 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
                 onClick={handleVehicleLookup}
                 disabled={!vehicleRegistration || isLookingUp}
                 loading={isLookingUp}
-                loadingText="Looking up..."
+                loadingText={content.pages.booking.steps.vehicleDetails.lookup.loading}
               >
-                Lookup
+                {content.pages.booking.steps.vehicleDetails.lookup.button}
               </Button>
             </div>
           </div>
@@ -189,7 +177,7 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
 
       {/* Manual Vehicle Details */}
       <FormSection
-        title={content.pages.booking.steps.vehicleDetails.fields.make}
+        title="Vehicle Details"
         description="Enter your vehicle details manually"
         variant="default"
         required
@@ -203,7 +191,6 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
             error={errors.vehicleMake?.message as string}
             required
           />
-          
           <Input
             label={content.pages.booking.steps.vehicleDetails.fields.model}
             placeholder="e.g. 320i"
@@ -212,63 +199,23 @@ export const VehicleDetailsStep: React.FC<VehicleDetailsStepProps> = ({
             error={errors.vehicleModel?.message as string}
             required
           />
-        </InputGroup>
-
-        <InputGroup layout="responsive" columns={2}>
           <Input
-            type="number"
             label={content.pages.booking.steps.vehicleDetails.fields.year}
+            type="number"
             placeholder="e.g. 2020"
-            value={vehicleYear || ''}
-            onChange={(e) => setValue('vehicleYear', e.target.value ? parseInt(e.target.value) : undefined, { shouldValidate: true })}
+            value={vehicleYear}
+            onChange={(e) => setValue('vehicleYear', parseInt(e.target.value), { shouldValidate: true })}
             error={errors.vehicleYear?.message as string}
-            helperText="Optional"
           />
-          
           <Input
             label={content.pages.booking.steps.vehicleDetails.fields.color}
             placeholder="e.g. Black"
             value={vehicleColor}
             onChange={(e) => setValue('vehicleColor', e.target.value, { shouldValidate: true })}
             error={errors.vehicleColor?.message as string}
-            helperText="Optional"
           />
         </InputGroup>
       </FormSection>
-
-      {/* Vehicle Summary */}
-      {(vehicleMake || vehicleModel) && (
-        <FormSection
-          title="Vehicle Summary"
-          description="Please confirm your vehicle details"
-          variant="glass"
-        >
-          <div className="bg-background/50 rounded-lg p-4 border">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)]">Vehicle</p>
-                <p className="text-muted-foreground">
-                  {vehicleYear && `${vehicleYear} `}
-                  {vehicleMake} {vehicleModel}
-                  {vehicleColor && ` (${vehicleColor})`}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)]">Size Category</p>
-                <p className="text-muted-foreground">
-                  {SERVICES.vehicleSizes[selectedVehicleSize as VehicleSize]?.label}
-                </p>
-              </div>
-              {vehicleRegistration && (
-                <div>
-                  <p className="text-sm font-medium text-[var(--color-text)]">Registration</p>
-                  <p className="text-muted-foreground">{vehicleRegistration}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </FormSection>
-      )}
     </div>
   )
 } 

@@ -1,9 +1,18 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { guestBookingSchema, userBookingSchema, type GuestBookingData, type UserBookingData } from '@/lib/schemas'
+import { 
+  guestBookingSchema, 
+  userBookingSchema, 
+  type GuestBookingData, 
+  type UserBookingData,
+  type BookingStatus,
+  type PaymentStatus,
+  type PaymentMethod,
+  type BookingData
+} from '@/lib/schemas'
 import { content } from '@/lib/content'
 import { SERVICES, BOOKING } from '@/lib/constants'
 import { calculateTotalPrice, generateBookingReference } from '@/lib/utils/index'
@@ -16,11 +25,14 @@ import { ServiceSelectionStep } from './steps/ServiceSelectionStep'
 import { DateTimeStep } from './steps/DateTimeStep'
 import { ContactDetailsStep } from './steps/ContactDetailsStep'
 import { ConfirmationStep } from './steps/ConfirmationStep'
+import { useToast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 
 interface BookingFlowProps {
   isAuthenticated?: boolean
   userId?: string
-  onSubmit?: (data: GuestBookingData | UserBookingData) => Promise<void>
+  onSubmit?: (data: BookingData) => Promise<void>
   onCancel?: () => void
   defaultValues?: Partial<GuestBookingData | UserBookingData>
 }
@@ -43,7 +55,10 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [bookingReference, setBookingReference] = useState<string>()
+  const _bookingReference = useRef<string>('')
+  const { toast } = useToast()
+  const router = useRouter()
+  const { isAuthenticated: authIsAuthenticated } = useAuth()
 
   // Choose schema based on authentication status
   const schema = isAuthenticated ? userBookingSchema : guestBookingSchema
@@ -129,24 +144,32 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   }, [currentStepIndex])
 
   // Form submission
-  const onFormSubmit = async (data: GuestBookingData | UserBookingData) => {
+  const onFormSubmit = async (formData: GuestBookingData | UserBookingData) => {
     try {
       setIsSubmitting(true)
       
       // Generate booking reference
       const reference = generateBookingReference()
-      setBookingReference(reference)
+      _bookingReference.current = reference
       
       // Prepare booking data
-      const bookingData = {
-        ...data,
-        bookingReference: reference,
-        totalPrice: pricing.total,
-        status: 'pending' as const,
-        paymentMethod: BOOKING.payment.method,
-        paymentStatus: 'unpaid' as const,
-        createdAt: new Date().toISOString(),
-        ...(isAuthenticated && userId && { userId }),
+      const bookingData: BookingData = {
+        id: reference,
+        customerName: isAuthenticated ? watchedValues.fullName : formData.fullName,
+        email: isAuthenticated ? watchedValues.email : formData.email,
+        phone: isAuthenticated ? watchedValues.phone : formData.phone,
+        serviceName: formData.servicePackage,
+        date: formData.date,
+        timeSlot: formData.timeSlot,
+        vehicleInfo: isAuthenticated 
+          ? `${formData.newVehicle?.make} ${formData.newVehicle?.model}`
+          : `${formData.vehicleMake} ${formData.vehicleModel}`,
+        address: isAuthenticated ? watchedValues.address : formData.address,
+        postcode: isAuthenticated ? watchedValues.postcode : formData.postcode,
+        totalAmount: pricing.total,
+        status: 'pending' as BookingStatus,
+        paymentMethod: BOOKING.payment.method as PaymentMethod,
+        paymentStatus: 'unpaid' as PaymentStatus,
       }
       
       // Submit booking
@@ -154,12 +177,22 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
         await onSubmit(bookingData)
       }
       
-      // Move to success state (could be a separate component)
-      console.log('Booking submitted successfully:', bookingData)
+      // Show success message
+      toast({
+        title: 'Booking Submitted',
+        description: 'Your booking has been successfully submitted.',
+      })
+      
+      // Redirect to confirmation page
+      router.push(`/booking/confirmation/${reference}`)
       
     } catch (error) {
       console.error('Booking submission failed:', error)
-      // TODO: Show error message to user
+      toast({
+        title: 'Booking Failed',
+        description: error instanceof Error ? error.message : 'Failed to submit booking. Please try again.',
+        variant: 'destructive',
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -167,7 +200,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
   // Step validation
   const validateCurrentStep = useCallback((): boolean => {
-    const stepFields: Record<BookingStep, string[]> = {
+    const stepFields: Record<BookingStep, Array<keyof (GuestBookingData & UserBookingData)>> = {
       vehicle: ['vehicleSize', 'vehicleMake', 'vehicleModel'],
       service: ['servicePackage'],
       datetime: ['date', 'timeSlot'],
@@ -178,7 +211,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     const fieldsToValidate = stepFields[currentStep.key] || []
     
     return fieldsToValidate.every(field => {
-      const error = errors[field as keyof typeof errors]
+      const error = errors[field]
       return !error
     })
   }, [currentStep.key, errors])
@@ -192,91 +225,46 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     <FormProvider {...form}>
       <div className="max-w-4xl mx-auto p-4 sm:p-6">
         <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-[var(--purple-50)] to-[var(--purple-100)] border-b">
+          <CardHeader>
+            <CardTitle>{currentStep.title}</CardTitle>
             <StepHeader
-              title={currentStep.title}
-              description={currentStep.description}
               currentStep={currentStepIndex + 1}
               totalSteps={steps.length}
-              onBack={currentStepIndex > 0 ? goToPreviousStep : undefined}
-              backText={content.pages.booking.buttons.previous}
+              title={currentStep.title}
+              description={currentStep.description}
             />
-            
-            {/* Pricing summary - always visible */}
-            <div className="mt-4 p-4 bg-white/50 rounded-lg border">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  {watchedValues.servicePackage && watchedValues.vehicleSize && (
-                    <>
-                                             {SERVICES.packages[watchedValues.servicePackage as keyof typeof SERVICES.packages]?.name} • {' '}
-                       {SERVICES.vehicleSizes[watchedValues.vehicleSize as keyof typeof SERVICES.vehicleSizes]?.label}
-                    </>
-                  )}
-                </div>
-                <div className="font-bold text-lg text-[var(--color-primary)]">
-                  {formatCurrency(pricing.total)}
-                </div>
-              </div>
-            </div>
           </CardHeader>
-          
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
-              <StepComponent
-                isAuthenticated={isAuthenticated}
-                userId={userId}
-                pricing={pricing}
-                watchedValues={watchedValues}
-              />
+          <CardContent>
+            <StepComponent />
+            
+            <div className="mt-6 flex justify-between">
+              {currentStepIndex > 0 && (
+                <Button
+                  onClick={goToPreviousStep}
+                  variant="outline"
+                  disabled={isSubmitting}
+                >
+                  Previous
+                </Button>
+              )}
               
-              {/* Navigation buttons */}
-              <div className="flex items-center justify-between pt-6 border-t">
-                <div className="flex items-center gap-4">
-                  {currentStepIndex > 0 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={goToPreviousStep}
-                      disabled={isSubmitting}
-                    >
-                      {content.pages.booking.buttons.previous}
-                    </Button>
-                  )}
-                  
-                  {onCancel && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={onCancel}
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  {!isLastStep ? (
-                    <Button
-                      type="button"
-                      onClick={goToNextStep}
-                      disabled={!canProceed || isSubmitting}
-                    >
-                      {content.pages.booking.buttons.next}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="submit"
-                      loading={isSubmitting}
-                      loadingText={content.pages.booking.buttons.processing}
-                      disabled={!canProceed}
-                    >
-                      {content.pages.booking.buttons.submit}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </form>
+              {isLastStep ? (
+                <Button
+                  onClick={handleSubmit(onFormSubmit)}
+                  disabled={!isValid || isSubmitting}
+                  loading={isSubmitting}
+                >
+                  Submit Booking
+                </Button>
+              ) : (
+                <Button
+                  onClick={goToNextStep}
+                  disabled={!canProceed || isSubmitting}
+                >
+                  Next
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -20,16 +20,16 @@ interface Booking {
 }
 
 interface CalendarViewProps {
-  adminId: string
-  adminRole: 'admin' | 'staff' | 'manager'
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
   bookings: Booking[]
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({
-  adminId,
-  adminRole,
-  bookings,
-}) => {
+export function CalendarView({
+  _adminId,
+  _adminRole,
+  bookings = [],
+}: CalendarViewProps) {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
 

@@ -4,31 +4,26 @@ import React, { useState, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { BOOKING } from '@/lib/constants'
 import { content } from '@/lib/content'
-import { isDateAvailable, getAvailableTimeSlots } from '@/lib/utils/index'
-import { formatDate } from '@/lib/utils/formatters'
 import { FormSection } from '@/components/ui/FormSection'
-import { InputGroup } from '@/components/ui/InputGroup'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { Loader2 } from 'lucide-react'
+import { 
+  formatDate, 
+  getBookingWindow, 
+  isDateAvailable, 
+  getAvailableTimeSlots,
+  formatTime,
+} from '@/lib/date'
 
 interface DateTimeStepProps {
   isAuthenticated?: boolean
   userId?: string
-  pricing?: {
-    basePrice: number
-    addOnsPrice: number
-    subtotal: number
-    discount: number
-    total: number
-  }
-  watchedValues?: {
-    date?: string
-    timeSlot?: string
-  }
 }
 
 export const DateTimeStep: React.FC<DateTimeStepProps> = ({
-  watchedValues,
+  isAuthenticated = false,
+  userId,
 }) => {
   const { setValue, watch, formState: { errors } } = useFormContext()
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
@@ -37,16 +32,8 @@ export const DateTimeStep: React.FC<DateTimeStepProps> = ({
   const selectedDate = watch('date') || ''
   const selectedTimeSlot = watch('timeSlot') || ''
 
-  // Calculate date constraints
-  const today = new Date()
-  const minDate = new Date(today)
-  minDate.setDate(today.getDate() + 1) // Next day minimum
-  
-  const maxDate = new Date(today)
-  maxDate.setDate(today.getDate() + BOOKING.constraints.advanceBookingDays)
-
-  const minDateString = minDate.toISOString().split('T')[0]
-  const maxDateString = maxDate.toISOString().split('T')[0]
+  // Get booking window constraints
+  const { minDateString, maxDateString } = getBookingWindow()
 
   // Load booked slots when date changes
   useEffect(() => {
@@ -104,7 +91,7 @@ export const DateTimeStep: React.FC<DateTimeStepProps> = ({
         <div className="space-y-4">
           <Input
             type="date"
-            label="Select Date"
+            label={content.pages.booking.steps.dateTime.fields.date.label}
             value={selectedDate}
             onChange={handleDateChange}
             min={minDateString}
@@ -117,10 +104,10 @@ export const DateTimeStep: React.FC<DateTimeStepProps> = ({
           {selectedDate && (
             <div className="p-4 bg-[var(--purple-50)] rounded-lg border border-[var(--purple-200)]">
               <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                Selected Date
+                {content.pages.booking.steps.dateTime.messages.selectedDate}
               </p>
               <p className="text-[var(--color-primary)] font-semibold">
-                {formatDate(new Date(selectedDate), 'long')}
+                {formatDate(selectedDate, 'LONG')}
               </p>
             </div>
           )}
@@ -130,37 +117,37 @@ export const DateTimeStep: React.FC<DateTimeStepProps> = ({
       {/* Time Slot Selection */}
       {selectedDate && (
         <FormSection
-          title="Choose Time Slot"
-          description="Select your preferred appointment time"
+          title={content.pages.booking.steps.dateTime.fields.time.label}
+          description={content.pages.booking.steps.dateTime.fields.time.description}
           variant="default"
           required
         >
           {isLoadingSlots ? (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3">
-                <div className="animate-spin w-5 h-5 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"></div>
-                <span className="text-muted-foreground">Checking availability...</span>
+                <Loader2 className="w-5 h-5 animate-spin text-[var(--color-primary)]" />
+                <span className="text-muted-foreground">{content.pages.booking.steps.dateTime.messages.loading}</span>
               </div>
             </div>
           ) : availableSlots.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground mb-4">
-                {content.pages.booking.steps.dateTime.unavailableMessage}
+                {content.pages.booking.steps.dateTime.messages.unavailable}
               </p>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setValue('date', '', { shouldValidate: true })}
               >
-                Choose Different Date
+                {content.pages.booking.steps.dateTime.messages.chooseAnother}
               </Button>
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {BOOKING.timeSlots.map((timeSlot) => {
-                const isAvailable = availableSlots.includes(timeSlot)
+              {availableSlots.map((timeSlot) => {
                 const isSelected = selectedTimeSlot === timeSlot
                 const isBooked = bookedSlots.includes(timeSlot)
+                const isAvailable = !isBooked
                 
                 return (
                   <button
@@ -198,75 +185,21 @@ export const DateTimeStep: React.FC<DateTimeStepProps> = ({
                       </div>
                     )}
                     
-                    <div className={isSelected ? 'pr-8' : ''}>
-                      <p className={`font-medium ${
-                        isSelected 
-                          ? 'text-[var(--color-primary)]' 
-                          : isAvailable 
-                          ? 'text-[var(--color-text)]' 
-                          : 'text-muted-foreground'
-                      }`}>
-                        {timeSlot}
+                    <div className="pr-8">
+                      <p className="font-medium text-[var(--color-text)]">
+                        {formatTime(timeSlot)}
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {isBooked 
-                          ? 'Unavailable' 
-                          : isAvailable 
-                          ? 'Available' 
-                          : 'Booked'
-                        }
-                      </p>
+                      {isBooked && (
+                        <p className="text-sm text-[var(--color-error)]">
+                          {content.pages.booking.steps.dateTime.errors.unavailable}
+                        </p>
+                      )}
                     </div>
                   </button>
                 )
               })}
             </div>
           )}
-        </FormSection>
-      )}
-
-      {/* Booking Summary */}
-      {selectedDate && selectedTimeSlot && (
-        <FormSection
-          title="Appointment Summary"
-          description="Please confirm your selected date and time"
-          variant="glass"
-        >
-          <div className="bg-background/50 rounded-lg p-4 border">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                  Date
-                </p>
-                <p className="text-muted-foreground">
-                  {formatDate(new Date(selectedDate), 'long')}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                  Time
-                </p>
-                <p className="text-muted-foreground">
-                  {selectedTimeSlot}
-                </p>
-              </div>
-            </div>
-            
-            <div className="mt-4 p-3 bg-[var(--color-info)]/10 rounded-lg border border-[var(--color-info)]/20">
-              <p className="text-sm text-[var(--color-info)] font-medium mb-1">
-                Important Information
-              </p>
-              <p className="text-xs text-muted-foreground">
-                • Please ensure someone is available at the service address
-              </p>
-              <p className="text-xs text-muted-foreground">
-                • {BOOKING.payment.refundPolicy}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                • Our team will arrive within a 30-minute window of your selected time
-              </p>
-            </div>
-          </div>
         </FormSection>
       )}
     </div>

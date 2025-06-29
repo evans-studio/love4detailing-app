@@ -43,14 +43,14 @@ interface Analytics {
 }
 
 interface AnalyticsSectionProps {
-  adminId: string
-  adminRole: 'admin' | 'staff' | 'manager'
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
 }
 
-export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
-  adminId,
-  adminRole,
-}) => {
+export function AnalyticsSection({
+  _adminId,
+  _adminRole,
+}: AnalyticsSectionProps) {
   const [timeframe, setTimeframe] = useState<TimeframeKey>('month')
   const analytics = ANALYTICS as Analytics
 

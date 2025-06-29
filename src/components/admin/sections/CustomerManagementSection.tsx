@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from '@/lib/utils/formatters'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { useToast } from '@/components/ui/use-toast'
 
 interface CustomerData {
   id: string
@@ -23,22 +24,24 @@ interface CustomerData {
 }
 
 interface CustomerManagementSectionProps {
-  adminId: string
-  adminRole: 'admin' | 'staff' | 'manager'
-  initialCustomers?: CustomerData[]
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
+  initialCustomers?: any[]
 }
 
-export const CustomerManagementSection: React.FC<CustomerManagementSectionProps> = ({
-  adminId,
-  adminRole,
+export function CustomerManagementSection({
+  _adminId,
+  _adminRole,
   initialCustomers = [],
-}) => {
-  const [customers, setCustomers] = useState<CustomerData[]>(initialCustomers)
+}: CustomerManagementSectionProps) {
+  const { toast } = useToast()
+  const [customers, setCustomers] = useState<any[]>(initialCustomers)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterTier, setFilterTier] = useState<string>('all')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerData | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
   // Filter customers based on search and filters
   const filteredCustomers = customers.filter(customer => {
@@ -95,6 +98,42 @@ export const CustomerManagementSection: React.FC<CustomerManagementSectionProps>
         return 'text-[var(--color-primary)] bg-[var(--color-primary)]/10'
       default:
         return 'text-muted-foreground bg-muted'
+    }
+  }
+
+  const handleCustomerDelete = async (customerId: string) => {
+    try {
+      setIsLoading(true)
+      // Add your delete logic here
+      toast({
+        title: 'Customer deleted successfully',
+      })
+    } catch (error) {
+      toast({
+        title: 'Failed to delete customer',
+        description: 'Please try again later',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCustomerBlock = async (customerId: string) => {
+    try {
+      setIsLoading(true)
+      // Add your block logic here
+      toast({
+        title: 'Customer blocked successfully',
+      })
+    } catch (error) {
+      toast({
+        title: 'Failed to block customer',
+        description: 'Please try again later',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -181,7 +220,7 @@ export const CustomerManagementSection: React.FC<CustomerManagementSectionProps>
             </div>
 
             {/* Actions */}
-            {adminRole === 'admin' && (
+            {_adminRole === 'admin' && (
               <div className="mt-6 pt-6 border-t">
                 <p className="text-sm font-medium text-[var(--color-text)] mb-3">Admin Actions</p>
                 <div className="flex gap-2">

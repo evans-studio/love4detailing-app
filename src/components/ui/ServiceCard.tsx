@@ -1,12 +1,11 @@
-import * as React from "react"
+import React from 'react'
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils/index"
 import { formatCurrency } from "@/lib/utils/formatters"
-import { calculateBasePrice } from "@/lib/utils/index"
 import { SERVICES } from "@/lib/constants"
 import type { ServicePackage, VehicleSize } from "@/lib/constants"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./Card"
-import { Button } from "./Button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
+import { Button } from "@/components/ui/Button"
 
 const serviceCardVariants = cva(
   "relative overflow-hidden transition-all duration-300 hover:scale-[1.02]",

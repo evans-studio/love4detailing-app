@@ -4,14 +4,14 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 
 interface AdminOverviewSectionProps {
-  adminId: string
-  adminRole: 'admin' | 'staff' | 'manager'
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
 }
 
-export const AdminOverviewSection: React.FC<AdminOverviewSectionProps> = ({
-  adminId,
-  adminRole,
-}) => {
+export function AdminOverviewSection({
+  _adminId,
+  _adminRole,
+}: AdminOverviewSectionProps) {
   return (
     <div className="space-y-6">
       <div>

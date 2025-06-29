@@ -34,7 +34,7 @@ const deleteVehicleSchema = z.object({
   id: z.string(),
 })
 
-const setDefaultVehicleSchema = z.object({
+const _setDefaultVehicleSchema = z.object({
   id: z.string(),
 })
 

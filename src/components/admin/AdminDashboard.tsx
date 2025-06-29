@@ -1,14 +1,21 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { content } from '@/lib/content'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { AdminOverviewSection } from './sections/AdminOverviewSection'
-import { CustomerManagementSection } from './sections/CustomerManagementSection'
-import { BookingManagementSection } from './sections/BookingManagementSection'
-import { ServicesManagementSection } from './sections/ServicesManagementSection'
-import { RewardsManagementSection } from './sections/RewardsManagementSection'
+import {
+  AdminOverviewSection,
+  AnalyticsSection,
+  BookingManagementSection,
+  CalendarView,
+  CustomerManagementSection,
+  RewardsConfigSection,
+  RewardsManagementSection,
+  ServicesConfigSection,
+  ServicesManagementSection
+} from './sections'
+
+type AdminTab = 'overview' | 'customers' | 'bookings' | 'services' | 'rewards'
 
 interface AdminDashboardProps {
   userId: string
@@ -35,8 +42,6 @@ interface AdminDashboardProps {
   }
 }
 
-type AdminTab = 'overview' | 'customers' | 'bookings' | 'services' | 'rewards'
-
 // Permission definitions
 const PERMISSIONS = {
   admin: ['all'],
@@ -48,10 +53,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   userId,
   userRole,
   adminProfile,
-  initialData = {},
+  initialData,
 }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview')
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading] = useState(false)
 
   // Check if user has permission for a specific action
   const hasPermission = (permission: string): boolean => {
@@ -100,189 +105,55 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const renderOverview = () => (
     <div className="space-y-6">
-      {/* Welcome Header */}
-      <Card className="bg-gradient-to-r from-[var(--purple-50)] to-[var(--purple-100)] border-[var(--purple-200)]">
-        <CardHeader>
-          <CardTitle className="text-2xl text-[var(--color-primary)]">
-            Welcome back, {adminProfile?.fullName?.split(' ')[0] || 'Admin'}! 👋
-          </CardTitle>
-          <p className="text-muted-foreground">
-            Here's what's happening with your business today
-          </p>
-        </CardHeader>
-      </Card>
+      {/* Overview Section */}
+      <AdminOverviewSection 
+        _adminId={userId} 
+        _adminRole={userRole}
+      />
 
-      {/* Quick Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[var(--color-info)]/10 rounded-lg flex items-center justify-center">
-                📅
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)]">Today's Bookings</p>
-                <p className="text-2xl font-bold text-[var(--color-info)]">
-                  {initialData.stats?.todayBookings || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Analytics Section */}
+      <AnalyticsSection 
+        _adminId={userId} 
+        _adminRole={userRole}
+      />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[var(--color-success)]/10 rounded-lg flex items-center justify-center">
-                💰
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)]">Total Revenue</p>
-                <p className="text-2xl font-bold text-[var(--color-success)]">
-                  £{(initialData.stats?.totalRevenue || 0).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Calendar View */}
+      <CalendarView 
+        _adminId={userId} 
+        _adminRole={userRole}
+        bookings={initialData?.recentBookings || []}
+      />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[var(--color-primary)]/10 rounded-lg flex items-center justify-center">
-                👥
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)]">Total Customers</p>
-                <p className="text-2xl font-bold text-[var(--color-primary)]">
-                  {initialData.stats?.totalCustomers || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Customer Management */}
+      <CustomerManagementSection 
+        _adminId={userId} 
+        _adminRole={userRole}
+        initialCustomers={initialData?.customers} 
+      />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[var(--color-warning)]/10 rounded-lg flex items-center justify-center">
-                ⏳
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)]">Pending Bookings</p>
-                <p className="text-2xl font-bold text-[var(--color-warning)]">
-                  {initialData.stats?.pendingBookings || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Services Management */}
+      <ServicesManagementSection 
+        _adminId={userId} 
+        _adminRole={userRole}
+      />
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {hasPermission('manage_bookings') && (
-              <Button
-                variant="outline"
-                onClick={() => setActiveTab('bookings')}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <span className="text-2xl">📅</span>
-                <span className="font-medium">Manage Bookings</span>
-                <span className="text-xs text-muted-foreground">View & update appointments</span>
-              </Button>
-            )}
+      {/* Services Configuration */}
+      <ServicesConfigSection 
+        _adminId={userId} 
+        _adminRole={userRole}
+      />
 
-            {hasPermission('view_customers') && (
-              <Button
-                variant="outline"
-                onClick={() => setActiveTab('customers')}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <span className="text-2xl">👥</span>
-                <span className="font-medium">Customer Management</span>
-                <span className="text-xs text-muted-foreground">Search & manage accounts</span>
-              </Button>
-            )}
+      {/* Rewards Management */}
+      <RewardsManagementSection 
+        _adminId={userId} 
+        _adminRole={userRole}
+      />
 
-            {hasPermission('manage_services') && (
-              <Button
-                variant="outline"
-                onClick={() => setActiveTab('services')}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <span className="text-2xl">⚙️</span>
-                <span className="font-medium">Service Settings</span>
-                <span className="text-xs text-muted-foreground">Configure pricing & services</span>
-              </Button>
-            )}
-
-            {hasPermission('manage_rewards') && (
-              <Button
-                variant="outline"
-                onClick={() => setActiveTab('rewards')}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <span className="text-2xl">🎁</span>
-                <span className="font-medium">Rewards Program</span>
-                <span className="text-xs text-muted-foreground">Manage loyalty & points</span>
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Activity */}
-      {initialData.recentBookings && initialData.recentBookings.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Bookings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {initialData.recentBookings.slice(0, 5).map((booking: any) => (
-                <div 
-                  key={booking.id} 
-                  className="flex items-center justify-between p-3 bg-background/50 rounded-lg border"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[var(--purple-100)] rounded-full flex items-center justify-center">
-                      📅
-                    </div>
-                    <div>
-                      <p className="font-medium text-[var(--color-text)]">
-                        {booking.customer_name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {booking.service_name} • {booking.booking_date}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-[var(--color-primary)]">
-                      £{booking.total_amount}
-                    </p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      booking.status === 'confirmed' 
-                        ? 'bg-[var(--color-success)]/10 text-[var(--color-success)]'
-                        : booking.status === 'pending'
-                        ? 'bg-[var(--color-warning)]/10 text-[var(--color-warning)]'
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {booking.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Rewards Configuration */}
+      <RewardsConfigSection 
+        _adminId={userId} 
+        _adminRole={userRole}
+      />
     </div>
   )
 
@@ -293,31 +164,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       case 'customers':
         return (
           <CustomerManagementSection 
-            adminId={userId} 
-            adminRole={userRole}
-            initialCustomers={initialData.customers} 
+            _adminId={userId} 
+            _adminRole={userRole}
+            initialCustomers={initialData?.customers} 
           />
         )
       case 'bookings':
         return (
           <BookingManagementSection 
-            adminId={userId} 
-            adminRole={userRole}
-            initialBookings={initialData.recentBookings} 
+            _adminId={userId} 
+            _adminRole={userRole}
+            initialBookings={initialData?.recentBookings} 
           />
         )
       case 'services':
         return (
           <ServicesManagementSection 
-            adminId={userId} 
-            adminRole={userRole}
+            _adminId={userId} 
+            _adminRole={userRole}
           />
         )
       case 'rewards':
         return (
           <RewardsManagementSection 
-            adminId={userId} 
-            adminRole={userRole}
+            _adminId={userId} 
+            _adminRole={userRole}
           />
         )
       default:

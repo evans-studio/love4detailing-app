@@ -1,3 +1,17 @@
+import {
+  VehicleSize,
+  BookingStatus,
+  PaymentStatus,
+  PaymentMethod,
+  LoyaltyTier,
+  CustomerStatus,
+  ServiceType,
+  NotificationType,
+  NotificationChannel,
+  RoleType,
+  ImageType,
+} from '@/lib/enums'
+
 // Central type definitions for Love4Detailing app
 export interface User {
   id: string
@@ -6,6 +20,10 @@ export interface User {
   phone?: string
   created_at: string
   updated_at: string
+  role: RoleType
+  loyalty_tier: LoyaltyTier
+  loyalty_points: number
+  status: CustomerStatus
 }
 
 export interface UserProfile {
@@ -14,6 +32,7 @@ export interface UserProfile {
   full_name: string
   phone?: string
   profile_image_url?: string
+  image_type: ImageType
   created_at: string
   updated_at: string
 }
@@ -21,7 +40,7 @@ export interface UserProfile {
 export interface Booking {
   id: string
   user_id: string
-  service_type: string
+  service_type: ServiceType
   vehicle_size: VehicleSize
   vehicle: string
   vehicle_lookup?: string
@@ -35,7 +54,7 @@ export interface Booking {
   }
   date: string
   time: string
-  status: string
+  status: BookingStatus
   total_price: number
   travel_fee: number
   add_ons: string[]
@@ -45,16 +64,16 @@ export interface Booking {
   postcode: string
   notes?: string
   booking_reference?: string
-  payment_status?: string
+  payment_status: PaymentStatus
+  payment_method?: PaymentMethod
 }
-
-import type { VehicleSize } from '@/lib/constants'
 
 export interface VehicleData {
   registration: string
   make: string
   model: string
   yearOfManufacture: string
+  size: VehicleSize
 }
 
 export interface PaymentResult {
@@ -62,6 +81,8 @@ export interface PaymentResult {
   paymentId: string
   amount: number
   currency: string
+  status: PaymentStatus
+  method: PaymentMethod
   metadata?: Record<string, unknown>
 }
 
@@ -106,23 +127,24 @@ export interface BookingFormData {
   email: string
   postcode: string
   vehicleLookup: string
-  vehicleSize: 'small' | 'medium' | 'large' | 'extraLarge'
+  vehicleSize: VehicleSize
   date: string
   timeSlot: string
   addOns: string[]
   vehicleImages?: string[]
+  serviceType: ServiceType
+  paymentMethod: PaymentMethod
 }
 
 export interface DashboardBookingFormData extends BookingFormData {
-  serviceType: string
   notes?: string
   customerPhone?: string
 }
 
-import { ReactNode } from 'react';
+import { ReactNode } from 'react'
 
 export interface ClientProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export interface DashboardData {
@@ -131,6 +153,7 @@ export interface DashboardData {
   totalSpent: number
   rewardPoints: number
   nextRewardThreshold: number
+  loyaltyTier: LoyaltyTier
 }
 
 export interface Customer {
@@ -144,8 +167,9 @@ export interface Customer {
   total_spent?: number
   total_bookings?: number
   loyalty_points?: number
+  loyalty_tier: LoyaltyTier
   last_booking_date?: string | null
-  status?: 'active' | 'inactive'
+  status: CustomerStatus
   bookings?: CustomerBooking[]
 }
 
@@ -153,11 +177,23 @@ export interface CustomerBooking {
   id: string
   booking_date: string
   booking_time: string
-  service: string
+  service: ServiceType
   total_price: number
-  status: string
+  status: BookingStatus
+  payment_status: PaymentStatus
 }
 
 export interface CustomerProfile extends Customer {
   bookings: CustomerBooking[]
+}
+
+export interface Notification {
+  id: string
+  user_id: string
+  type: NotificationType
+  channel: NotificationChannel
+  title: string
+  message: string
+  read: boolean
+  created_at: string
 } 

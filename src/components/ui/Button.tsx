@@ -1,8 +1,8 @@
-import * as React from "react"
+import React from 'react'
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
-import { BRAND } from "@/lib/constants"
+import { Loader2 } from 'lucide-react'
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-all duration-300 touch-manipulation",

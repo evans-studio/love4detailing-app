@@ -4,30 +4,21 @@ import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { SERVICES } from '@/lib/constants'
 import { content } from '@/lib/content'
-import type { ServicePackage, VehicleSize, AddOnService } from '@/lib/constants'
 import { FormSection } from '@/components/ui/FormSection'
-import { InputGroup } from '@/components/ui/InputGroup'
 import { ServiceCard } from '@/components/ui/ServiceCard'
+
+type ServicePackage = 'essential' | 'premium' | 'ultimate'
+type VehicleSize = 'small' | 'medium' | 'large' | 'extraLarge'
+type AddOnService = 'interiorProtection' | 'engineClean' | 'headlightRestoration'
 
 interface ServiceSelectionStepProps {
   isAuthenticated?: boolean
   userId?: string
-  pricing?: {
-    basePrice: number
-    addOnsPrice: number
-    subtotal: number
-    discount: number
-    total: number
-  }
-  watchedValues?: {
-    vehicleSize?: VehicleSize
-    servicePackage?: ServicePackage
-    addOns?: AddOnService[]
-  }
 }
 
 export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
-  watchedValues,
+  isAuthenticated = false,
+  userId,
 }) => {
   const { setValue, watch } = useFormContext()
   
@@ -54,8 +45,8 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
     <div className="space-y-8">
       {/* Service Package Selection */}
       <FormSection
-        title="Choose Your Service Package"
-        description="Select the detailing package that best suits your needs"
+        title={content.pages.booking.steps.serviceSelection.title}
+        description={content.pages.booking.steps.serviceSelection.description}
         variant="card"
       >
         <div className="grid gap-4 md:grid-cols-3">
@@ -67,7 +58,7 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
               isSelected={selectedService === packageId}
               isPopular={packageId === 'premium'}
               onSelect={handleServiceSelect}
-              ctaText="Select"
+              ctaText={content.pages.booking.buttons.select}
               size="full"
             />
           ))}
@@ -77,8 +68,8 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
       {/* Add-on Services */}
       {selectedService && (
         <FormSection
-          title={content.pages.booking.steps.serviceSelection.addOnsTitle}
-          description={content.pages.booking.steps.serviceSelection.addOnsDescription}
+          title={content.pages.booking.steps.serviceSelection.addOns.title}
+          description={content.pages.booking.steps.serviceSelection.addOns.description}
           variant="default"
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -144,8 +135,8 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
       {/* Service Details */}
       {selectedService && (
         <FormSection
-          title="Service Details"
-          description="What's included in your selected package"
+          title={content.pages.booking.steps.serviceSelection.details.title}
+          description={content.pages.booking.steps.serviceSelection.details.description}
           variant="glass"
         >
           <div className="bg-background/50 rounded-lg p-4 border">
@@ -158,14 +149,14 @@ export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
                   {SERVICES.packages[selectedService as ServicePackage]?.description}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Duration: {SERVICES.packages[selectedService as ServicePackage]?.duration}
+                  {content.pages.booking.steps.serviceSelection.details.duration}: {SERVICES.packages[selectedService as ServicePackage]?.duration}
                 </p>
               </div>
             </div>
             
             <div>
               <h5 className="font-medium text-[var(--color-text)] mb-2">
-                What's included:
+                {content.pages.booking.steps.serviceSelection.details.included}:
               </h5>
               <ul className="space-y-1">
                 {SERVICES.packages[selectedService as ServicePackage]?.features.map((feature, index) => (

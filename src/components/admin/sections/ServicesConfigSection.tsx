@@ -37,14 +37,14 @@ const servicesConfigSchema = z.object({
 type ServicesConfigValues = z.infer<typeof servicesConfigSchema>
 
 interface ServicesConfigSectionProps {
-  adminId: string
-  adminRole: 'admin' | 'manager'
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
 }
 
-export const ServicesConfigSection: React.FC<ServicesConfigSectionProps> = ({
-  adminId,
-  adminRole,
-}) => {
+export function ServicesConfigSection({
+  _adminId,
+  _adminRole,
+}: ServicesConfigSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   // Transform SERVICES data to match the schema
@@ -109,6 +109,18 @@ export const ServicesConfigSection: React.FC<ServicesConfigSectionProps> = ({
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handlePackageDelete = (_pkg: string) => {
+    // ... function implementation ...
+  }
+
+  const handleSizeDelete = (_size: string) => {
+    // ... function implementation ...
+  }
+
+  const handleAddOnDelete = (_addOn: string) => {
+    // ... function implementation ...
   }
 
   return (

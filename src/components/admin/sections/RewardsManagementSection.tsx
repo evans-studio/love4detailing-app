@@ -59,16 +59,16 @@ const tierConfigSchema = z.object({
 type TierConfigValues = z.infer<typeof tierConfigSchema>
 
 interface RewardsManagementSectionProps {
-  adminId: string
-  adminRole: 'admin' | 'staff' | 'manager'
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
 }
 
-export const RewardsManagementSection: React.FC<RewardsManagementSectionProps> = ({
-  adminId,
-  adminRole,
-}) => {
+export function RewardsManagementSection({
+  _adminId,
+  _adminRole,
+}: RewardsManagementSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<string | null>(null)
+  const [selectedTier, _setSelectedTier] = useState<string | null>(null)
 
   // Rewards config form setup
   const rewardsForm = useForm<RewardsConfigValues>({
@@ -116,7 +116,7 @@ export const RewardsManagementSection: React.FC<RewardsManagementSectionProps> =
 
       // Reset form and selection
       tierForm.reset()
-      setSelectedTier(null)
+      _setSelectedTier(null)
     } catch (error) {
       console.error('Error updating tier:', error)
     } finally {
@@ -347,7 +347,7 @@ export const RewardsManagementSection: React.FC<RewardsManagementSectionProps> =
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          setSelectedTier(id)
+                          _setSelectedTier(id)
                           tierForm.reset({
                             id,
                             name: tier.name,
@@ -451,7 +451,7 @@ export const RewardsManagementSection: React.FC<RewardsManagementSectionProps> =
                             variant="outline"
                             onClick={() => {
                               tierForm.reset()
-                              setSelectedTier(null)
+                              _setSelectedTier(null)
                             }}
                           >
                             Cancel

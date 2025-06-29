@@ -3,16 +3,11 @@ import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { baseBookingSchema, type BookingStatus } from '@/lib/schemas'
+import { baseBookingSchema } from '@/lib/schemas'
 import { BOOKING } from '@/lib/constants'
-import type { PaymentMethod, PaymentStatus } from '@/lib/schemas'
+import type { PaymentStatus } from '@/lib/schemas'
 import { emailService } from '@/lib/email/service'
-import {
-  Booking,
-  BookingStatus as BookingStatusType,
-  PaymentStatus as PaymentStatusType,
-  bookingEditSchema,
-} from '@/lib/types'
+import type { Booking } from '@/lib/types'
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -21,7 +16,7 @@ const supabase = createClient(
 )
 
 // Simple validation schemas
-const createBookingSchema = z.object({
+const bookingSchema = z.object({
   servicePackage: z.string(),
   vehicleSize: z.string(),
   date: z.string(),
@@ -42,7 +37,7 @@ const createBookingSchema = z.object({
   notes: z.string().optional(),
 })
 
-const updateBookingSchema = z.object({
+const updateSchema = z.object({
   id: z.string(),
   status: z.enum(['confirmed', 'cancelled', 'rescheduled']).optional(),
   date: z.string().optional(),
@@ -75,54 +70,6 @@ const PAYMENT_STATUS = {
   REFUNDED: 'refunded',
   FAILED: 'failed',
 } as const
-
-// Helper function to get user from auth header
-async function getUserFromAuth(request: NextRequest): Promise<{ userId: string } | null> {
-  try {
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return null
-    }
-    
-    const token = authHeader.substring(7)
-    const { data: { user }, error } = await supabase.auth.getUser(token)
-    
-    if (error || !user) {
-      return null
-    }
-    
-    return { userId: user.id }
-  } catch (error) {
-    console.error('Auth validation error:', error)
-    return null
-  }
-}
-
-// Helper function to calculate pricing
-function calculateTotal(servicePackage: string, vehicleSize: string, addOns: string[] = []): number {
-  // Base pricing logic - in production this would use constants
-  const basePrices: Record<string, Record<string, number>> = {
-    essential: { small: 25, medium: 35, large: 45, extraLarge: 55 },
-    premium: { small: 40, medium: 50, large: 60, extraLarge: 70 },
-    ultimate: { small: 60, medium: 70, large: 80, extraLarge: 90 },
-  }
-  
-  const addOnPrices: Record<string, number> = {
-    interiorProtection: 15,
-    engineClean: 10,
-    headlightRestoration: 20,
-  }
-  
-  const basePrice = basePrices[servicePackage]?.[vehicleSize] || 35
-  const addOnPrice = addOns.reduce((sum, addOn) => sum + (addOnPrices[addOn] || 0), 0)
-  
-  return basePrice + addOnPrice
-}
-
-// Helper function to generate booking ID
-function generateBookingId(): string {
-  return `BK${Date.now().toString().slice(-8)}`
-}
 
 // Helper function to format booking response
 function formatBookingResponse(booking: any): Booking {
@@ -278,14 +225,14 @@ export async function PATCH(
     const json = await request.json()
     
     // Validate request data
-    const validatedData = bookingEditSchema.parse(json)
+    const validatedData = updateSchema.parse(json)
     
     // Update booking in database
     const { data: booking, error } = await supabase
       .from('bookings')
       .update({
         status: validatedData.status,
-        booking_date: validatedData.time.toISOString(),
+        booking_date: validatedData.date,
         notes: validatedData.notes,
         updated_at: new Date().toISOString(),
       })

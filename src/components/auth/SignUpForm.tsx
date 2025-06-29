@@ -25,20 +25,20 @@ const signUpSchema = z.object({
 type SignUpFormData = z.infer<typeof signUpSchema>
 
 interface SignUpFormProps {
-  onSuccess?: () => void
-  redirectPath?: string
+  _onSuccess?: () => void
+  _redirectPath?: string
   bookingEmail?: string
   switchToSignIn: () => void
   onSignUpSuccess: () => void
 }
 
-export const SignUpForm = ({
-  onSuccess,
-  redirectPath = '/',
+export const SignUpForm: React.FC<SignUpFormProps> = ({
+  _onSuccess: onSuccess,
+  _redirectPath: redirectPath,
   bookingEmail,
   switchToSignIn,
   onSignUpSuccess,
-}: SignUpFormProps) => {
+}) => {
   const { toast } = useToast()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)

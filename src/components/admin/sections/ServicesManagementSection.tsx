@@ -15,8 +15,8 @@ import { SERVICES } from '@/lib/constants'
 import { formatCurrency } from '@/lib/utils/formatters'
 
 interface ServicesManagementSectionProps {
-  adminId: string
-  adminRole: 'admin' | 'staff' | 'manager'
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
 }
 
 // Service form schema
@@ -55,13 +55,13 @@ const addOnFormSchema = z.object({
 
 type AddOnFormValues = z.infer<typeof addOnFormSchema>
 
-export const ServicesManagementSection: React.FC<ServicesManagementSectionProps> = ({
-  adminId,
-  adminRole,
-}) => {
-  const [selectedService, setSelectedService] = useState<string | null>(null)
-  const [selectedVehicleSize, setSelectedVehicleSize] = useState<string | null>(null)
-  const [selectedAddOn, setSelectedAddOn] = useState<string | null>(null)
+export function ServicesManagementSection({
+  _adminId,
+  _adminRole,
+}: ServicesManagementSectionProps) {
+  const [selectedService, _setSelectedService] = useState<string | null>(null)
+  const [selectedVehicleSize, _setSelectedVehicleSize] = useState<string | null>(null)
+  const [selectedAddOn, _setSelectedAddOn] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   // Service form
@@ -79,6 +79,30 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
     resolver: zodResolver(addOnFormSchema),
   })
 
+  const handleServiceSelect = (id: string) => {
+    _setSelectedService(id)
+  }
+
+  const handleVehicleSizeSelect = (id: string) => {
+    _setSelectedVehicleSize(id)
+  }
+
+  const handleAddOnSelect = (id: string) => {
+    _setSelectedAddOn(id)
+  }
+
+  const handleServiceReset = () => {
+    _setSelectedService(null)
+  }
+
+  const handleVehicleSizeReset = () => {
+    _setSelectedVehicleSize(null)
+  }
+
+  const handleAddOnReset = () => {
+    _setSelectedAddOn(null)
+  }
+
   // Handle service update
   const handleServiceUpdate = async (data: ServiceFormValues) => {
     try {
@@ -93,7 +117,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
 
       // Reset form and selection
       serviceForm.reset()
-      setSelectedService(null)
+      handleServiceReset()
     } catch (error) {
       console.error('Error updating service:', error)
     } finally {
@@ -115,7 +139,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
 
       // Reset form and selection
       vehicleSizeForm.reset()
-      setSelectedVehicleSize(null)
+      handleVehicleSizeReset()
     } catch (error) {
       console.error('Error updating vehicle size:', error)
     } finally {
@@ -137,7 +161,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
 
       // Reset form and selection
       addOnForm.reset()
-      setSelectedAddOn(null)
+      handleAddOnReset()
     } catch (error) {
       console.error('Error updating add-on:', error)
     } finally {
@@ -189,7 +213,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            setSelectedService(id)
+                            handleServiceSelect(id)
                             serviceForm.reset({
                               id,
                               name: service.name,
@@ -281,7 +305,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
                         variant="outline"
                         onClick={() => {
                           serviceForm.reset()
-                          setSelectedService(null)
+                          handleServiceReset()
                         }}
                       >
                         Cancel
@@ -344,7 +368,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            setSelectedVehicleSize(id)
+                            handleVehicleSizeSelect(id)
                             vehicleSizeForm.reset({
                               id,
                               label: size.label,
@@ -460,7 +484,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
                         variant="outline"
                         onClick={() => {
                           vehicleSizeForm.reset()
-                          setSelectedVehicleSize(null)
+                          handleVehicleSizeReset()
                         }}
                       >
                         Cancel
@@ -505,7 +529,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            setSelectedAddOn(id)
+                            handleAddOnSelect(id)
                             addOnForm.reset({
                               id,
                               name: addOn.name,
@@ -559,7 +583,7 @@ export const ServicesManagementSection: React.FC<ServicesManagementSectionProps>
                         variant="outline"
                         onClick={() => {
                           addOnForm.reset()
-                          setSelectedAddOn(null)
+                          handleAddOnReset()
                         }}
                       >
                         Cancel

@@ -35,14 +35,14 @@ const rewardsConfigSchema = z.object({
 type RewardsConfigValues = z.infer<typeof rewardsConfigSchema>
 
 interface RewardsConfigSectionProps {
-  adminId: string
-  adminRole: 'admin' | 'manager'
+  _adminId: string
+  _adminRole: 'admin' | 'staff' | 'manager'
 }
 
-export const RewardsConfigSection: React.FC<RewardsConfigSectionProps> = ({
-  adminId,
-  adminRole,
-}) => {
+export function RewardsConfigSection({
+  _adminId,
+  _adminRole,
+}: RewardsConfigSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   // Config form
@@ -74,6 +74,14 @@ export const RewardsConfigSection: React.FC<RewardsConfigSectionProps> = ({
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleTierDelete = (_tier: string) => {
+    // ... function implementation ...
+  }
+
+  const handleRewardDelete = (_reward: string) => {
+    // ... function implementation ...
   }
 
   return (
