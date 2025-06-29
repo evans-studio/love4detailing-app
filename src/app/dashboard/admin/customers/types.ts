@@ -1,4 +1,5 @@
 import type { Customer as GlobalCustomer } from '@/types'
+import { ServiceType, BookingStatus, PaymentStatus } from '@/lib/enums'
 
 export type Customer = GlobalCustomer
 
@@ -20,9 +21,10 @@ export interface CustomerProfile extends Customer {
     id: string
     booking_date: string
     booking_time: string
-    service: string
+    service: ServiceType
     total_price: number
-    status: string
+    status: BookingStatus
+    payment_status: PaymentStatus
   }[]
 }
 

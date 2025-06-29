@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
+import { BookingStatus, ServiceType } from '@/lib/enums'
 
 export type AuthUser = {
   id: string
@@ -26,10 +27,10 @@ interface PendingBooking {
   time: string
   postcode: string
   total: number
-  status?: string
+  status?: BookingStatus
   notes?: string
   customer: string
-  service: string
+  service: ServiceType
   addOns?: string[]
   created_at?: string
 }

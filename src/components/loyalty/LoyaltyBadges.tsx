@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/auth'
 import { Trophy, Star, Crown, Award, Target } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { BookingStatus } from '@/lib/enums'
 
 interface BadgeRequirements {
   bookings?: number
@@ -46,7 +47,7 @@ interface DatabaseUserBadge {
 
 interface Booking {
   total_price: number
-  status: string
+  status: BookingStatus
 }
 
 interface Rewards {
@@ -121,7 +122,9 @@ export default function LoyaltyBadges({ showProgress = true, compact = false }: 
       const available = (allBadges || []).map((b: unknown) => b as DatabaseBadge)
         .filter(b => !earnedIds.includes(b.id))
 
-      const totalBookings = (bookings as Booking[] || []).filter(b => b.status === 'completed').length
+      const totalBookings = (bookings as Booking[] || [])
+        .filter(b => b.status === BookingStatus.COMPLETED)
+        .length
       const totalSpent = (bookings as Booking[] || []).reduce((sum, b) => sum + (b.total_price || 0), 0)
       const currentPoints = (rewards as Rewards)?.points || 0
 

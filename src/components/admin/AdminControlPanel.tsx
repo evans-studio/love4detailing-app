@@ -14,6 +14,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/Button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { format } from 'date-fns'
+import { Search, User } from 'lucide-react'
+import { BookingStatus } from '@/lib/enums'
 
 type NumericSetting = 
   | 'max_daily_bookings'
@@ -59,7 +64,7 @@ interface BusinessStats {
 
 interface Booking {
   total_price: number
-  status: string
+  status: BookingStatus
   created_at: string
   user_id: string
 }

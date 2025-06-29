@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { supabase } from '@/lib/supabase/client'
 import Image from 'next/image'
+import { ServiceType, BookingStatus, PaymentStatus } from '@/lib/enums'
 
 interface Customer {
   id: string
@@ -28,9 +29,10 @@ interface Customer {
     id: string
     booking_date: string
     booking_time: string
-    service: string
+    service: ServiceType
     total_price: number
-    status: string
+    status: BookingStatus
+    payment_status: PaymentStatus
     vehicle_images?: string[]
   }[]
 }
@@ -210,7 +212,7 @@ export function CustomersClient() {
                             </p>
                           </div>
                           <div className="flex items-center space-x-4">
-                            <Badge variant={booking.status === 'completed' ? 'default' : 'secondary'}>
+                            <Badge variant={booking.status === BookingStatus.COMPLETED ? 'default' : 'secondary'}>
                               {booking.status}
                             </Badge>
                             <p className="font-medium">£{booking.total_price.toFixed(2)}</p>
