@@ -45,13 +45,14 @@ export const DateTimeStep: React.FC<DateTimeStepProps> = ({
   const loadBookedSlots = async (date: string) => {
     setIsLoadingSlots(true)
     try {
-      // TODO: Replace with actual API call to get booked slots
-      // For now, simulate some booked slots
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const response = await fetch(`/api/available-slots?date=${date}`)
+      const data = await response.json()
       
-      // Mock booked slots - replace with real data
-      const mockBookedSlots = ['10:30', '15:00'] // Example booked times
-      setBookedSlots(mockBookedSlots)
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to load booked slots')
+      }
+      
+      setBookedSlots(data.data.bookedSlots)
       
     } catch (error) {
       console.error('Failed to load booked slots:', error)

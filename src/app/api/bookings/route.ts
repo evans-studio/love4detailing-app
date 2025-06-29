@@ -64,19 +64,39 @@ function formatBookingResponse(booking: any): BookingFormData {
   }
 }
 
+// Map service IDs to ServiceType enum values
+function mapServiceIdToType(serviceId: string): ServiceType {
+  // If it's already a valid ServiceType enum value, return it
+  if (Object.values(ServiceType).includes(serviceId as ServiceType)) {
+    return serviceId as ServiceType;
+  }
+
+  // Otherwise, map from the service ID to the enum value
+  const mapping: Record<string, ServiceType> = {
+    'essential-clean': ServiceType.BASIC,
+    'premium-detail': ServiceType.PREMIUM,
+    'ultimate-protection': ServiceType.ULTIMATE
+  }
+  return mapping[serviceId] || ServiceType.BASIC;
+}
+
 // POST - Create booking
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
     const body = await request.json()
     console.log('Received booking request:', body)
     
+    // Map service_type from form ID to enum value
+    const mappedBody = {
+      ...body,
+      service_type: mapServiceIdToType(body.service_type),
+      payment_method: body.payment_method || PaymentMethod.CARD
+    }
+    
     // Validate request body
     let validatedData: BookingRequest;
     try {
-      validatedData = bookingRequestSchema.parse({
-        ...body,
-        payment_method: body.payment_method || PaymentMethod.CARD
-      })
+      validatedData = bookingRequestSchema.parse(mappedBody)
       console.log('Validated booking data:', validatedData)
     } catch (error) {
       if (error instanceof ZodError) {

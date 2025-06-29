@@ -1,5 +1,3 @@
-import type { LoadScriptProps } from '@react-google-maps/api';
-
 // GSAP and ScrollTrigger types
 type GSAPInstance = any;
 type ScrollTriggerInstance = any;
@@ -69,16 +67,12 @@ export const initGSAP = async () => {
 };
 
 // Google Maps configuration
-export const mapsConfig: LoadScriptProps = {
-  id: 'google-maps-script',
-  googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+export const mapsConfig = {
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   libraries: ['places'],
   language: 'en',
   region: 'GB',
-  version: 'weekly',
-  preventGoogleFontsLoading: true,
-  onLoad: () => console.log('Google Maps script loaded'),
-  onError: (error) => console.error('Error loading Google Maps script:', error),
+  version: 'weekly'
 };
 
 // Utility to check if code is running in browser
