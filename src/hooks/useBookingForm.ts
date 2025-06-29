@@ -79,11 +79,11 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
         const dateString = date.split('T')[0];
         const { data: bookings } = await supabase
             .from('bookings')
-            .select('service_time')
-            .eq('service_date', dateString)
+            .select('booking_time')
+            .eq('booking_date', dateString)
             .eq('status', 'confirmed');
 
-        const bookedTimes = bookings?.map((b: any) => b.service_time) || [];
+        const bookedTimes = bookings?.map((b: any) => b.booking_time) || [];
 
         const slotsWithAvailability = defaultSlots.map(slot => ({
           ...slot,
