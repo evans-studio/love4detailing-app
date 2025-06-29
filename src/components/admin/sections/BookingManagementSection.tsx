@@ -26,6 +26,7 @@ import { Label as UILabel } from '@/components/ui/label'
 import { EmptyState } from '@/components/ui/empty-state'
 import { BookingSkeleton } from '@/components/ui/skeletons'
 import { z } from 'zod'
+import { Calendar as CalendarIcon } from 'lucide-react'
 
 type AdminRole = 'admin' | 'staff' | 'manager'
 type SortableFields = 'time' | 'customerName' | 'status'
@@ -319,7 +320,7 @@ export function BookingManagementSection({
           ))
         ) : (
           <EmptyState
-            icon="📅"
+            icon={CalendarIcon}
             title="No bookings found"
             description="Try adjusting your filters or search term"
           />
