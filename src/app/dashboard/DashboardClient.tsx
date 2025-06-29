@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { formatCurrency, formatDate } from '@/lib/utils/formatters'
 import { Calendar, Car, CreditCard, Star } from 'lucide-react'
+import { LoyaltyTier, BookingStatus } from '@/lib/enums'
 
 interface UserMetadata {
   avatar_url?: string
@@ -24,7 +25,8 @@ export function DashboardClient() {
     totalBookings: 0,
     totalSpent: 0,
     rewardPoints: 0,
-    nextRewardThreshold: 1000
+    nextRewardThreshold: 1000,
+    loyaltyTier: LoyaltyTier.BRONZE
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -45,7 +47,7 @@ export function DashboardClient() {
       // Fetch rewards
       const { data: rewards, error: rewardsError } = await supabase
         .from('rewards')
-        .select('points')
+        .select('points, loyalty_tier')
         .eq('user_id', user.id)
         .single()
 
@@ -60,7 +62,8 @@ export function DashboardClient() {
         totalBookings: bookings?.length || 0,
         totalSpent,
         rewardPoints,
-        nextRewardThreshold: Math.ceil((rewardPoints + 1) / 1000) * 1000
+        nextRewardThreshold: Math.ceil((rewardPoints + 1) / 1000) * 1000,
+        loyaltyTier: rewards?.loyalty_tier || LoyaltyTier.BRONZE
       })
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -199,7 +202,7 @@ export function DashboardClient() {
                       <p className="font-medium">{booking.service_type}</p>
                       <p className="text-sm text-muted-foreground">{booking.vehicle}</p>
                     </div>
-                    <Badge variant={booking.status === 'completed' ? 'default' : 'secondary'}>
+                    <Badge variant={booking.status === BookingStatus.COMPLETED ? 'default' : 'secondary'}>
                       {booking.status}
                     </Badge>
                   </div>
