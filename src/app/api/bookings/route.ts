@@ -101,22 +101,30 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const supabase = createRouteHandlerClient({ cookies })
     const json = await request.json()
     
-    // Validate request data
-    const validatedData = baseBookingSchema.parse(json)
+    // Validate request data using our custom schema
+    const validatedData = bookingSchema.parse(json)
     
-    // Get payment method and status from config
-    const paymentMethod = BOOKING.payment.method
-    const paymentStatus: PaymentStatus = 'unpaid'
+    // Map the validated data to database column names
+    const bookingData = {
+      email: validatedData.email,
+      customer_name: validatedData.fullName,
+      booking_date: validatedData.date,
+      booking_time: validatedData.timeSlot,
+      postcode: validatedData.postcode,
+      total_price: 80.00, // Calculate based on service and vehicle size
+      status: 'pending' as const,
+      notes: validatedData.notes || null,
+      service_id: validatedData.servicePackage,
+      vehicle_size: validatedData.vehicleSize,
+      add_ons: validatedData.addOns || [],
+      payment_status: 'pending',
+      user_id: null, // For guest bookings
+    }
     
     // Insert booking into database
     const { data: booking, error } = await supabase
       .from('bookings')
-      .insert({
-        ...validatedData,
-        paymentMethod,
-        paymentStatus,
-        reminderSent: false,
-      })
+      .insert(bookingData)
       .select()
       .single()
     
@@ -132,9 +140,24 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       }, { status: 500 })
     }
     
-    // Send confirmation email
+    // Send confirmation email in mock mode
     try {
-      await emailService.sendBookingConfirmation(booking)
+      await emailService.sendBookingConfirmation({
+        id: booking.id,
+        customerName: booking.customer_name,
+        email: booking.email,
+        phone: validatedData.phone,
+        serviceName: validatedData.servicePackage,
+        date: booking.booking_date,
+        timeSlot: booking.booking_time,
+        vehicleInfo: `${validatedData.vehicleMake} ${validatedData.vehicleModel}`,
+        address: validatedData.address,
+        postcode: booking.postcode,
+        totalAmount: booking.total_price,
+        status: booking.status,
+        paymentMethod: 'cash',
+        paymentStatus: 'unpaid',
+      })
     } catch (error) {
       console.error('Failed to send confirmation email:', error)
       // Don't fail the booking creation if email fails

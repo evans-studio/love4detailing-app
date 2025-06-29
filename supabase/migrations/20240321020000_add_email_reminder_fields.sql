@@ -85,10 +85,21 @@ BEGIN
   IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Staff can view all bookings') THEN
     ALTER POLICY "Staff can view all bookings"
     ON bookings
-    USING (auth.uid() IN (SELECT user_id FROM user_roles WHERE role = 'staff'));
+    USING (auth.uid() IN (SELECT id FROM profiles WHERE role = 'staff'));
   ELSE
     CREATE POLICY "Staff can view all bookings"
     ON bookings FOR SELECT
-    USING (auth.uid() IN (SELECT user_id FROM user_roles WHERE role = 'staff'));
+    USING (auth.uid() IN (SELECT id FROM profiles WHERE role = 'staff'));
+  END IF;
+
+  -- Update or create the staff update policy
+  IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Staff can update all bookings') THEN
+    ALTER POLICY "Staff can update all bookings"
+    ON bookings
+    USING (auth.uid() IN (SELECT id FROM profiles WHERE role = 'staff'));
+  ELSE
+    CREATE POLICY "Staff can update all bookings"
+    ON bookings FOR UPDATE
+    USING (auth.uid() IN (SELECT id FROM profiles WHERE role = 'staff'));
   END IF;
 END$$; 

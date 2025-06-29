@@ -10,9 +10,19 @@ import {
 
 // Initialize email client based on provider
 const getEmailClient = () => {
+  const apiKey = process.env.RESEND_API_KEY
+  
+  if (!apiKey) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ RESEND_API_KEY not found. Email service will run in mock mode.')
+      return null
+    }
+    throw new Error('Missing RESEND_API_KEY. Please add it to your environment variables.')
+  }
+
   switch (EMAIL.provider.type) {
     case 'resend':
-      return new Resend(process.env.RESEND_API_KEY)
+      return new Resend(apiKey)
     // Add other providers here when needed
     default:
       throw new Error(`Unsupported email provider: ${EMAIL.provider.type}`)
@@ -21,10 +31,21 @@ const getEmailClient = () => {
 
 // Email service class
 export class EmailService {
-  private client: Resend
+  private client: Resend | null
+  private isMockMode: boolean
   
   constructor() {
     this.client = getEmailClient()
+    this.isMockMode = !this.client
+  }
+
+  private async mockEmailSend(emailData: any) {
+    console.log('📧 [MOCK EMAIL] Would send email:', {
+      to: emailData.to,
+      subject: emailData.subject,
+      from: emailData.from,
+    })
+    return { id: 'mock-email-id' }
   }
   
   /**
@@ -34,14 +55,20 @@ export class EmailService {
     try {
       const email = generateBookingConfirmationEmail(booking)
       
-      await this.client.emails.send({
+      const emailData = {
         from: `${EMAIL.provider.fromName} <${EMAIL.provider.fromEmail}>`,
         replyTo: EMAIL.provider.replyTo,
         to: booking.email,
         subject: email.subject,
         html: email.html,
         text: email.text,
-      })
+      }
+
+      if (this.isMockMode) {
+        await this.mockEmailSend(emailData)
+      } else {
+        await this.client!.emails.send(emailData)
+      }
       
       // Send admin alert if enabled
       if (EMAIL.adminNotifications.enabled) {
@@ -49,7 +76,9 @@ export class EmailService {
       }
     } catch (error) {
       console.error('Failed to send booking confirmation email:', error)
-      throw error
+      if (!this.isMockMode) {
+        throw error
+      }
     }
   }
   
@@ -60,17 +89,25 @@ export class EmailService {
     try {
       const email = generateBookingReminderEmail(booking)
       
-      await this.client.emails.send({
+      const emailData = {
         from: `${EMAIL.provider.fromName} <${EMAIL.provider.fromEmail}>`,
         replyTo: EMAIL.provider.replyTo,
         to: booking.email,
         subject: email.subject,
         html: email.html,
         text: email.text,
-      })
+      }
+
+      if (this.isMockMode) {
+        await this.mockEmailSend(emailData)
+      } else {
+        await this.client!.emails.send(emailData)
+      }
     } catch (error) {
       console.error('Failed to send booking reminder email:', error)
-      throw error
+      if (!this.isMockMode) {
+        throw error
+      }
     }
   }
   
@@ -81,14 +118,20 @@ export class EmailService {
     try {
       const email = generateAdminAlertEmail(booking)
       
-      await this.client.emails.send({
+      const emailData = {
         from: `${EMAIL.provider.fromName} <${EMAIL.provider.fromEmail}>`,
         replyTo: EMAIL.provider.replyTo,
         to: [...EMAIL.adminNotifications.recipients],
         subject: email.subject,
         html: email.html,
         text: email.text,
-      })
+      }
+
+      if (this.isMockMode) {
+        await this.mockEmailSend(emailData)
+      } else {
+        await this.client!.emails.send(emailData)
+      }
     } catch (error) {
       console.error('Failed to send admin alert email:', error)
       // Don't throw error for admin alerts
@@ -109,17 +152,25 @@ export class EmailService {
     try {
       const email = generateLoyaltyRedemptionEmail(data)
       
-      await this.client.emails.send({
+      const emailData = {
         from: `${EMAIL.provider.fromName} <${EMAIL.provider.fromEmail}>`,
         replyTo: EMAIL.provider.replyTo,
         to: data.email,
         subject: email.subject,
         html: email.html,
         text: email.text,
-      })
+      }
+
+      if (this.isMockMode) {
+        await this.mockEmailSend(emailData)
+      } else {
+        await this.client!.emails.send(emailData)
+      }
     } catch (error) {
       console.error('Failed to send loyalty redemption email:', error)
-      throw error
+      if (!this.isMockMode) {
+        throw error
+      }
     }
   }
 }
