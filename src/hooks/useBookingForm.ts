@@ -136,6 +136,7 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
     setIsLoading(true);
     try {
       const finalPrice = calculateTotalPrice();
+      const bookingReference = generateBookingReference();
       
       // Map form data to match the API schema
       const bookingData = {
@@ -149,6 +150,7 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
         booking_date: data.date,
         booking_time: data.timeSlot,
         add_ons: data.addOnIds || [],
+        add_ons_price: 0,
         vehicle_images: data.vehicleImages || [],
         vehicle_lookup: {
           size: data.vehicleSize,
@@ -157,11 +159,14 @@ export const useBookingForm = ({ config, schema, defaultValues }: UseBookingForm
           registration: data.vehicleLookup,
         },
         total_price: finalPrice,
-        travel_fee: 0, // Will be calculated server-side
+        travel_fee: 0,
         status: 'pending',
         payment_status: 'pending',
         requires_manual_approval: false,
-        distance: data.distance
+        distance: data.distance,
+        booking_reference: bookingReference,
+        special_requests: data.special_requests,
+        notes: data.notes
       };
 
       console.log('Submitting booking data to API:', bookingData);

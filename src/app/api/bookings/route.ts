@@ -90,14 +90,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     
     // Map service_type from form ID to enum value
     const mappedBody = {
-      service_type: mapServiceIdToType(body.serviceId),
+      service_type: body.service_type,
       payment_method: body.payment_method || PaymentMethod.CARD,
       add_ons_price: body.add_ons_price || 0,
-      customer_name: body.fullName,
-      booking_date: body.date,
-      booking_time: body.timeSlot,
-      add_ons: body.addOnIds || [],
-      vehicle_size: body.vehicleSize,
+      customer_name: body.customer_name,
+      booking_date: body.booking_date,
+      booking_time: body.booking_time,
+      add_ons: body.add_ons || [],
+      vehicle_size: body.vehicle_size,
       phone: body.phone || '0000000000',
       email: body.email,
       postcode: body.postcode,
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         make: body.vehicle_lookup?.make || 'Unknown Make',
         model: body.vehicle_lookup?.model || 'Unknown Model',
         registration: body.vehicle_lookup?.registration || 'UNKNOWN',
-        year: body.vehicle_lookup?.year ? parseInt(body.vehicle_lookup.year) : undefined,
+        year: body.vehicle_lookup?.year ? parseInt(body.vehicle_lookup.year.toString()) : undefined,
         color: body.vehicle_lookup?.color,
         notes: body.vehicle_lookup?.notes
       },
@@ -126,36 +126,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     // Validate request body
     let validatedData: BookingRequest;
     try {
-      // Create a new object with all required fields
-      const dataToValidate = {
-        service_type: mappedBody.service_type,
-        payment_method: mappedBody.payment_method,
-        add_ons_price: mappedBody.add_ons_price,
-        customer_name: mappedBody.customer_name,
-        booking_date: mappedBody.booking_date,
-        booking_time: mappedBody.booking_time,
-        add_ons: mappedBody.add_ons || [],
-        vehicle_size: mappedBody.vehicle_size,
-        phone: mappedBody.phone,
-        email: mappedBody.email,
-        postcode: mappedBody.postcode,
-        address: mappedBody.address,
-        vehicle_lookup: {
-          ...mappedBody.vehicle_lookup,
-          year: mappedBody.vehicle_lookup.year ? parseInt(mappedBody.vehicle_lookup.year.toString()) : undefined
-        },
-        vehicle_images: mappedBody.vehicle_images,
-        total_price: mappedBody.total_price,
-        travel_fee: mappedBody.travel_fee,
-        status: mappedBody.status,
-        payment_status: mappedBody.payment_status,
-        requires_manual_approval: mappedBody.requires_manual_approval,
-        distance: mappedBody.distance,
-        special_requests: mappedBody.special_requests,
-        notes: mappedBody.notes,
-        booking_reference: mappedBody.booking_reference
-      }
-      validatedData = bookingRequestSchema.parse(dataToValidate)
+      validatedData = bookingRequestSchema.parse(mappedBody)
       console.log('Validated booking data:', validatedData)
     } catch (error) {
       if (error instanceof ZodError) {
@@ -172,39 +143,31 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       throw error
     }
     
-    // Generate a unique booking reference
-    const bookingReference = `BK${Date.now().toString().slice(-6)}`
-    
-    // Try to get the user's session
-    const supabaseAuth = createRouteHandlerClient({ cookies })
-    const { data: { session } } = await supabaseAuth.auth.getSession()
-    
-    const bookingData: BookingRequest = {
-      ...validatedData,
-      booking_reference: bookingReference,
-      user_id: session?.user?.id,
-      status: BookingStatus.PENDING,
-      payment_status: PaymentStatus.PENDING,
-      payment_method: validatedData.payment_method || PaymentMethod.CARD,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      vehicle_lookup: {
-        size: validatedData.vehicle_lookup?.size || 'medium',
-        make: validatedData.vehicle_lookup?.make || 'Unknown Make',
-        model: validatedData.vehicle_lookup?.model || 'Unknown Model',
-        registration: validatedData.vehicle_lookup?.registration || 'UNKNOWN',
-        year: validatedData.vehicle_lookup?.year ? parseInt(validatedData.vehicle_lookup.year.toString()) : undefined,
-        color: validatedData.vehicle_lookup?.color,
-        notes: validatedData.vehicle_lookup?.notes
-      },
-      add_ons_price: validatedData.add_ons_price || 0
+    // Check if time slot is available
+    const { data: existingBookings } = await supabase
+      .from('bookings')
+      .select('booking_time')
+      .eq('booking_date', validatedData.booking_date)
+      .eq('status', BookingStatus.CONFIRMED)
+
+    const isTimeSlotTaken = existingBookings?.some(
+      booking => booking.booking_time === validatedData.booking_time
+    )
+
+    if (isTimeSlotTaken) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'TIME_SLOT_TAKEN',
+          message: 'This time slot is no longer available'
+        }
+      }, { status: 400 })
     }
 
-    console.log('Creating booking with data:', bookingData)
-
+    // Create booking
     const { data: booking, error } = await supabase
       .from('bookings')
-      .insert([bookingData])
+      .insert([validatedData])
       .select()
       .single()
 
@@ -235,15 +198,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         booking_time: booking.booking_time,
         add_ons: booking.add_ons || [],
         vehicle_images: booking.vehicle_images || [],
-        vehicle_lookup: {
-          size: booking.vehicle_lookup?.size || 'medium',
-          make: booking.vehicle_lookup?.make || 'Unknown Make',
-          model: booking.vehicle_lookup?.model || 'Unknown Model',
-          registration: booking.vehicle_lookup?.registration || 'UNKNOWN',
-          year: booking.vehicle_lookup?.year ? parseInt(booking.vehicle_lookup.year.toString()) : undefined,
-          color: booking.vehicle_lookup?.color,
-          notes: booking.vehicle_lookup?.notes
-        },
+        vehicle_lookup: booking.vehicle_lookup,
         total_price: booking.total_price,
         travel_fee: booking.travel_fee || 0,
         add_ons_price: booking.add_ons_price || 0,
@@ -261,7 +216,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     return NextResponse.json({
       success: true,
-      data: formatBookingResponse(booking)
+      data: booking
     })
 
   } catch (error) {

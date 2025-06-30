@@ -89,7 +89,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     if (updateError) {
       paymentLogger.error('Failed to update booking with payment intent', updateError)
       if (stripe) {
-        await stripe.paymentIntents.cancel(paymentIntent.id)
+      await stripe.paymentIntents.cancel(paymentIntent.id)
       }
       return NextResponse.json(
         { success: false, error: 'Failed to update booking' },

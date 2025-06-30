@@ -204,6 +204,6 @@ const config = {
   features: FEATURES,
   rateLimits: RATE_LIMITS,
   cache: CACHE_CONFIG
-}
+} 
 
 export default config

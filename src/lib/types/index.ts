@@ -186,4 +186,4 @@ export type BookingFormData = {
   notes?: string
 }
 
-export type BookingStep = 'vehicle' | 'service' | 'datetime' | 'contact' | 'confirmation' 
+export type BookingStep = 'vehicle' | 'service' | 'datetime' | 'contact' | 'confirmation'

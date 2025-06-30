@@ -35,6 +35,10 @@ export const fullBookingSchema = baseBookingSchema.extend({
     miles: z.number(),
     text: z.string(),
   }).optional(),
+  
+  // Additional fields
+  special_requests: z.string().optional(),
+  notes: z.string().optional()
 });
 export type FullBookingFormData = z.infer<typeof fullBookingSchema>;
 
