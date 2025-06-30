@@ -19,7 +19,7 @@ ADD COLUMN IF NOT EXISTS add_ons JSONB DEFAULT '[]'::jsonb;
 
 -- Add vehicle_images column if it doesn't exist
 ALTER TABLE public.bookings
-ADD COLUMN IF NOT EXISTS vehicle_images JSONB DEFAULT '[]'::jsonb;
+ADD COLUMN IF NOT EXISTS vehicle_images TEXT[] DEFAULT '{}';
 
 -- Add customer_name column if it doesn't exist
 ALTER TABLE public.bookings

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { Map, AdvancedMarker, Pin, APIProvider, Circle } from '@vis.gl/react-google-maps'
+import { Map, AdvancedMarker, Pin, APIProvider } from '@vis.gl/react-google-maps'
 
 // Center point of service area (South West London)
 const SERVICE_CENTER = {
@@ -52,20 +52,18 @@ export default function ServiceAreaMap() {
               glyphColor="#FFFFFF"
             />
           </AdvancedMarker>
-          <Circle
-            center={SERVICE_CENTER}
-            options={{
-              strokeColor: '#8A2B85',
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-              fillColor: '#8A2B85',
-              fillOpacity: 0.1,
-              clickable: false,
-              draggable: false,
-              editable: false,
-              visible: true,
-              radius: 20000,
-              zIndex: 1
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(138, 43, 133, 0.1)',
+              border: '2px solid rgba(138, 43, 133, 0.8)',
+              transform: 'translate(-50%, -50%)',
+              pointerEvents: 'none'
             }}
           />
         </Map>

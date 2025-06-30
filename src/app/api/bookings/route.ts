@@ -7,6 +7,7 @@ import { BookingStatus, PaymentStatus, ServiceType, PaymentMethod } from '@/lib/
 import { BookingFormData, BookingRequest } from '@/lib/schemas/types'
 import { emailService } from '@/lib/email/service'
 import { ZodError } from 'zod'
+import { generateBookingReference } from '@/lib/utils/index'
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -53,6 +54,7 @@ function formatBookingResponse(booking: any): BookingFormData {
     timeSlot: booking.booking_time,
     total_price: booking.total_price,
     travel_fee: booking.travel_fee || 0,
+    add_ons_price: booking.add_ons_price || 0,
     status: booking.status || BookingStatus.PENDING,
     payment_status: booking.payment_status || PaymentStatus.PENDING,
     payment_method: booking.payment_method || PaymentMethod.CARD,
@@ -73,11 +75,11 @@ function mapServiceIdToType(serviceId: string): ServiceType {
 
   // Otherwise, map from the service ID to the enum value
   const mapping: Record<string, ServiceType> = {
-    'essential-clean': ServiceType.BASIC,
-    'premium-detail': ServiceType.PREMIUM,
-    'ultimate-protection': ServiceType.ULTIMATE
+    'basic-wash': ServiceType.BASIC_WASH,
+    'full-valet': ServiceType.FULL_VALET,
+    'premium-detail': ServiceType.PREMIUM_DETAIL
   }
-  return mapping[serviceId] || ServiceType.BASIC;
+  return mapping[serviceId] || ServiceType.BASIC_WASH;
 }
 
 // POST - Create booking
@@ -88,15 +90,72 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     
     // Map service_type from form ID to enum value
     const mappedBody = {
-      ...body,
-      service_type: mapServiceIdToType(body.service_type),
-      payment_method: body.payment_method || PaymentMethod.CARD
+      service_type: mapServiceIdToType(body.serviceId),
+      payment_method: body.payment_method || PaymentMethod.CARD,
+      add_ons_price: body.add_ons_price || 0,
+      customer_name: body.fullName,
+      booking_date: body.date,
+      booking_time: body.timeSlot,
+      add_ons: body.addOnIds || [],
+      vehicle_size: body.vehicleSize,
+      phone: body.phone || '0000000000',
+      email: body.email,
+      postcode: body.postcode,
+      address: body.address,
+      vehicle_lookup: {
+        size: body.vehicle_lookup?.size || 'medium',
+        make: body.vehicle_lookup?.make || 'Unknown Make',
+        model: body.vehicle_lookup?.model || 'Unknown Model',
+        registration: body.vehicle_lookup?.registration || 'UNKNOWN',
+        year: body.vehicle_lookup?.year ? parseInt(body.vehicle_lookup.year) : undefined,
+        color: body.vehicle_lookup?.color,
+        notes: body.vehicle_lookup?.notes
+      },
+      vehicle_images: body.vehicle_images || [],
+      total_price: body.total_price,
+      travel_fee: body.travel_fee || 0,
+      status: body.status || BookingStatus.PENDING,
+      payment_status: body.payment_status || PaymentStatus.PENDING,
+      requires_manual_approval: body.requires_manual_approval || false,
+      distance: body.distance,
+      special_requests: body.special_requests,
+      notes: body.notes,
+      booking_reference: body.booking_reference || generateBookingReference()
     }
     
     // Validate request body
     let validatedData: BookingRequest;
     try {
-      validatedData = bookingRequestSchema.parse(mappedBody)
+      // Create a new object with all required fields
+      const dataToValidate = {
+        service_type: mappedBody.service_type,
+        payment_method: mappedBody.payment_method,
+        add_ons_price: mappedBody.add_ons_price,
+        customer_name: mappedBody.customer_name,
+        booking_date: mappedBody.booking_date,
+        booking_time: mappedBody.booking_time,
+        add_ons: mappedBody.add_ons || [],
+        vehicle_size: mappedBody.vehicle_size,
+        phone: mappedBody.phone,
+        email: mappedBody.email,
+        postcode: mappedBody.postcode,
+        address: mappedBody.address,
+        vehicle_lookup: {
+          ...mappedBody.vehicle_lookup,
+          year: mappedBody.vehicle_lookup.year ? parseInt(mappedBody.vehicle_lookup.year.toString()) : undefined
+        },
+        vehicle_images: mappedBody.vehicle_images,
+        total_price: mappedBody.total_price,
+        travel_fee: mappedBody.travel_fee,
+        status: mappedBody.status,
+        payment_status: mappedBody.payment_status,
+        requires_manual_approval: mappedBody.requires_manual_approval,
+        distance: mappedBody.distance,
+        special_requests: mappedBody.special_requests,
+        notes: mappedBody.notes,
+        booking_reference: mappedBody.booking_reference
+      }
+      validatedData = bookingRequestSchema.parse(dataToValidate)
       console.log('Validated booking data:', validatedData)
     } catch (error) {
       if (error instanceof ZodError) {
@@ -134,10 +193,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         make: validatedData.vehicle_lookup?.make || 'Unknown Make',
         model: validatedData.vehicle_lookup?.model || 'Unknown Model',
         registration: validatedData.vehicle_lookup?.registration || 'UNKNOWN',
-        year: validatedData.vehicle_lookup?.year,
+        year: validatedData.vehicle_lookup?.year ? parseInt(validatedData.vehicle_lookup.year.toString()) : undefined,
         color: validatedData.vehicle_lookup?.color,
         notes: validatedData.vehicle_lookup?.notes
-      }
+      },
+      add_ons_price: validatedData.add_ons_price || 0
     }
 
     console.log('Creating booking with data:', bookingData)
@@ -180,12 +240,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
           make: booking.vehicle_lookup?.make || 'Unknown Make',
           model: booking.vehicle_lookup?.model || 'Unknown Model',
           registration: booking.vehicle_lookup?.registration || 'UNKNOWN',
-          year: booking.vehicle_lookup?.year,
+          year: booking.vehicle_lookup?.year ? parseInt(booking.vehicle_lookup.year.toString()) : undefined,
           color: booking.vehicle_lookup?.color,
           notes: booking.vehicle_lookup?.notes
         },
         total_price: booking.total_price,
         travel_fee: booking.travel_fee || 0,
+        add_ons_price: booking.add_ons_price || 0,
         status: booking.status || BookingStatus.PENDING,
         payment_status: booking.payment_status || PaymentStatus.PENDING,
         payment_method: booking.payment_method || PaymentMethod.CARD,

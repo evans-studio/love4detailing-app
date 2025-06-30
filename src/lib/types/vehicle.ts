@@ -1,7 +1,7 @@
-import { SERVICES } from '@/lib/constants'
+import { VehicleSize } from '@/lib/enums'
 
-// Vehicle size type from constants
-export type VehicleSize = keyof typeof SERVICES.vehicleSizes
+// Re-export VehicleSize for components that import from here
+export { VehicleSize }
 
 // Vehicle image types
 export type VehicleImage = {
@@ -40,4 +40,21 @@ export const GALLERY_CONFIG = {
 } as const
 
 // Allowed mime types
-export type AllowedMimeType = typeof GALLERY_CONFIG.allowedTypes[number] 
+export type AllowedMimeType = typeof GALLERY_CONFIG.allowedTypes[number]
+
+export interface Vehicle {
+  registration: string
+  make: string
+  model: string
+  year: number
+  color?: string
+  size: VehicleSize
+  dvlaLookup?: {
+    make: string
+    model: string
+    year: number
+    color?: string
+    fuelType?: string
+    engineSize?: string
+  }
+} 

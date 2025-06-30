@@ -19,7 +19,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   onChange,
   maxFiles = 3,
   maxSize = 5 * 1024 * 1024, // 5MB
-  accept = 'image/*',
+  accept: _accept = 'image/*',
   disabled = false,
 }) => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -85,8 +85,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 size="icon"
                 className="absolute top-2 right-2"
                 onClick={() => {
-                  const newValue = value.filter(v => v !== url)
-                  onChange([] as any) // Hack: we're passing empty array since we only have URLs
+                  const _newValue = value.filter(v => v !== url)
+                  onChange([]) // Hack: we're passing empty array since we only have URLs
                   // In a real app, you'd want to delete the file from storage here
                 }}
               >

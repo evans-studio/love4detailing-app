@@ -3,57 +3,116 @@ import { Redis } from '@upstash/redis'
 // Initialize Redis client
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 })
+
+// Cache configurations
+export const CACHE_CONFIGS = {
+  VEHICLE: { ttl: 86400 }, // 24 hours
+  VEHICLE_LOOKUP: { ttl: 86400 }, // 24 hours
+  SERVICES: { ttl: 3600 }, // 1 hour
+  AVAILABILITY: { ttl: 300 }, // 5 minutes
+  DISTANCE_CALC: { ttl: 3600 }, // 1 hour
+}
 
 interface CacheConfig {
   ttl: number // Time to live in seconds
 }
 
-const DEFAULT_CONFIG: CacheConfig = {
-  ttl: 3600 // 1 hour
+/**
+ * Generate a cache key for a given prefix and identifier
+ */
+export function generateCacheKey(prefix: string, identifier: string): string {
+  return `cache:${prefix}:${identifier}`
 }
 
-export async function getFromCache<T>(
+/**
+ * Get data from cache
+ */
+export async function getFromCache<T>(key: string): Promise<T | null> {
+  try {
+    const data = await redis.get<T>(key)
+    return data
+  } catch (error) {
+    console.error('Cache get error:', error)
+    return null
+  }
+}
+
+/**
+ * Set data in cache with TTL
+ */
+export async function setInCache<T>(
   key: string,
-  fetcher: () => Promise<T>,
-  config: CacheConfig = DEFAULT_CONFIG
+  data: T,
+  ttl: number
+): Promise<boolean> {
+  try {
+    await redis.set(key, data, { ex: ttl })
+    return true
+  } catch (error) {
+    console.error('Cache set error:', error)
+    return false
+  }
+}
+
+/**
+ * Delete data from cache
+ */
+export async function deleteFromCache(key: string): Promise<boolean> {
+  try {
+    await redis.del(key)
+    return true
+  } catch (error) {
+    console.error('Cache delete error:', error)
+    return false
+  }
+}
+
+/**
+ * Get or set cache with callback
+ */
+export async function getOrSetCache<T>(
+  key: string,
+  callback: () => Promise<T>,
+  ttl: number
 ): Promise<T> {
   try {
     // Try to get from cache first
-    const cached = await redis.get<T>(key)
+    const cached = await getFromCache<T>(key)
     if (cached) {
       return cached
     }
 
-    // If not in cache, fetch fresh data
-    const fresh = await fetcher()
+    // If not in cache, call the callback
+    const data = await callback()
 
-    // Store in cache with TTL
-    await redis.setex(key, config.ttl, fresh)
+    // Store in cache
+    await setInCache(key, data, ttl)
 
-    return fresh
+    return data
   } catch (error) {
-    console.error('Cache error:', error)
-    // Fallback to direct fetch if cache fails
-    return fetcher()
+    console.error('Cache get/set error:', error)
+    // If cache fails, just return the callback result
+    return callback()
   }
 }
 
-// Predefined cache configs
-export const CACHE_CONFIGS = {
-  VEHICLE_LOOKUP: {
-    ttl: 3600 // 1 hour
-  },
-  DISTANCE_CALC: {
-    ttl: 86400 // 24 hours
-  },
-  POSTCODE_LOOKUP: {
-    ttl: 604800 // 1 week
+/**
+ * Clear cache by prefix
+ */
+export async function clearCacheByPrefix(prefix: string): Promise<boolean> {
+  try {
+    const pattern = `cache:${prefix}:*`
+    const keys = await redis.keys(pattern)
+    
+    if (keys.length > 0) {
+      await redis.del(...keys)
+    }
+    
+    return true
+  } catch (error) {
+    console.error('Cache clear error:', error)
+    return false
   }
-} as const
-
-// Helper to generate consistent cache keys
-export function generateCacheKey(prefix: string, ...parts: string[]): string {
-  return `${prefix}:${parts.join(':')}`
 } 

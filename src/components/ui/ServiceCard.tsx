@@ -63,7 +63,7 @@ const ServiceCard = React.forwardRef<HTMLDivElement, ServiceCardProps>(
     ...props
   }, ref) => {
     const service = SERVICES.packages[servicePackage]
-    const vehicleSizeData = SERVICES.vehicleSizes[vehicleSize]
+    const vehicleSizeData = SERVICES.vehicleSizes[vehicleSize as keyof typeof SERVICES.vehicleSizes]
     
     if (!service) {
       console.error(`Service package "${servicePackage}" not found`)

@@ -15,14 +15,59 @@ interface LoggerOptions {
   level?: 'info' | 'warn' | 'error';
 }
 
-class Logger {
-  private isDevelopment = process.env.NODE_ENV === 'development'
+interface Logger {
+  debug: (message: string, ...args: any[]) => void
+  info: (message: string, ...args: any[]) => void
+  warn: (message: string, ...args: any[]) => void
+  error: (message: string, ...args: any[]) => void
+}
+
+class LoggerImpl implements Logger {
+  private readonly context: string
+  private readonly isDev: boolean
   private logs: LogEntry[] = []
   private maxLogEntries = 100
-  private service: string;
 
-  constructor(options: LoggerOptions) {
-    this.service = options.service;
+  constructor(context: string) {
+    this.context = context
+    this.isDev = process.env.NODE_ENV === 'development'
+  }
+
+  private log(level: LogLevel, message: string, ...args: any[]) {
+    const timestamp = new Date().toISOString()
+    const prefix = `[${timestamp}] [${level.toUpperCase()}] [${this.context}]`
+    
+    if (this.isDev) {
+      console[level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'log'](
+        `${prefix} ${message}`,
+        ...args
+      )
+    } else {
+      // In production, we might want to send logs to a service
+      // For now, only log warnings and errors
+      if (level === 'warn' || level === 'error') {
+        console[level](
+          `${prefix} ${message}`,
+          ...args
+        )
+      }
+    }
+  }
+
+  debug(message: string, ...args: any[]) {
+    this.log('debug', message, ...args)
+  }
+
+  info(message: string, ...args: any[]) {
+    this.log('info', message, ...args)
+  }
+
+  warn(message: string, ...args: any[]) {
+    this.log('warn', message, ...args)
+  }
+
+  error(message: string, ...args: any[]) {
+    this.log('error', message, ...args)
   }
 
   private formatMessage(level: string, message: string, meta?: any) {
@@ -30,7 +75,7 @@ class Logger {
     return {
       timestamp,
       level,
-      service: this.service,
+      service: this.context,
       message,
       ...(meta && { meta })
     };
@@ -53,55 +98,6 @@ class Logger {
     }
   }
 
-  debug(message: string, context?: string, data?: unknown): void {
-    this.addToLogs('debug', message, context, data)
-    
-    if (this.isDevelopment) {
-      const formattedMessage = this.formatMessage('debug', message, { context, data })
-      if (data) {
-        console.log(formattedMessage)
-      } else {
-        console.log(formattedMessage)
-      }
-    }
-  }
-
-  info(message: string, context?: string, data?: unknown): void {
-    const formattedMessage = this.formatMessage('info', message, { context, data });
-    this.addToLogs('info', message, context, data);
-    
-    if (this.isDevelopment) {
-      console.log(JSON.stringify(formattedMessage));
-    }
-  }
-
-  warn(message: string, context?: string, data?: unknown): void {
-    const formattedMessage = this.formatMessage('warn', message, { context, data });
-    this.addToLogs('warn', message, context, data);
-    
-    if (this.isDevelopment) {
-      console.warn(JSON.stringify(formattedMessage));
-    }
-  }
-
-  error(message: string, context?: string, error?: Error | unknown, meta?: any): void {
-    const formattedMessage = this.formatMessage('error', message, {
-      ...(error instanceof Error ? {
-        error: {
-          name: error.name,
-          message: error.message,
-          stack: error.stack
-        }
-      } : { error }),
-      ...meta
-    });
-    this.addToLogs('error', message, context, error);
-    
-    if (this.isDevelopment) {
-      console.error(JSON.stringify(formattedMessage));
-    }
-  }
-
   // Get recent logs for debugging
   getRecentLogs(count = 50): LogEntry[] {
     return this.logs.slice(-count)
@@ -118,8 +114,15 @@ class Logger {
   }
 }
 
+// Create loggers for different contexts
+export const bookingLogger = new LoggerImpl('Booking')
+export const vehicleLogger = new LoggerImpl('Vehicle')
+export const paymentLogger = new LoggerImpl('Payment')
+export const emailLogger = new LoggerImpl('Email')
+export const authLogger = new LoggerImpl('Auth')
+
 // Create singleton instance
-export const logger = new Logger({ service: 'app' })
+export const logger = new LoggerImpl('app')
 
 // Context-specific loggers for better organization
 export const apiLogger = {
@@ -128,37 +131,6 @@ export const apiLogger = {
   warn: (message: string, data?: unknown) => logger.warn(message, 'API', data),
   error: (message: string, error?: unknown) => logger.error(message, 'API', error),
 }
-
-export const authLogger = {
-  debug: (message: string, data?: unknown) => logger.debug(message, 'AUTH', data),
-  info: (message: string, data?: unknown) => logger.info(message, 'AUTH', data),
-  warn: (message: string, data?: unknown) => logger.warn(message, 'AUTH', data),
-  error: (message: string, error?: unknown) => logger.error(message, 'AUTH', error),
-}
-
-export const paymentLogger = {
-  debug: (message: string, data?: unknown) => logger.debug(message, 'PAYMENT', data),
-  info: (message: string, data?: unknown) => logger.info(message, 'PAYMENT', data),
-  warn: (message: string, data?: unknown) => logger.warn(message, 'PAYMENT', data),
-  error: (message: string, error?: unknown) => logger.error(message, 'PAYMENT', error),
-}
-
-export const bookingLogger = {
-  debug: (message: string, data?: unknown) => logger.debug(message, 'BOOKING', data),
-  info: (message: string, data?: unknown) => logger.info(message, 'BOOKING', data),
-  warn: (message: string, data?: unknown) => logger.warn(message, 'BOOKING', data),
-  error: (message: string, error?: unknown) => logger.error(message, 'BOOKING', error),
-}
-
-export const vehicleLogger = {
-  debug: (message: string, data?: unknown) => logger.debug(message, 'VEHICLE', data),
-  info: (message: string, data?: unknown) => logger.info(message, 'VEHICLE', data),
-  warn: (message: string, data?: unknown) => logger.warn(message, 'VEHICLE', data),
-  error: (message: string, error?: unknown) => logger.error(message, 'VEHICLE', error),
-}
-
-// Create loggers for different services
-export const rewardsLogger = new Logger({ service: 'rewards-service' });
 
 // Helper function to sanitize sensitive data
 export function sanitizeData(

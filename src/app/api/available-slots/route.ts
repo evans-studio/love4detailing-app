@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { BookingStatus } from '@/lib/enums'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

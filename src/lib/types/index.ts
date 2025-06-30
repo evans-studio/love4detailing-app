@@ -146,14 +146,20 @@ export interface VehicleLookupData {
 }
 
 export interface Vehicle {
-  id?: string
+  registration: string
   make: string
   model: string
-  year?: number
-  registration?: string
+  year: number
   color?: string
   size: VehicleSize
-  notes?: string
+  dvlaLookup?: {
+    make: string
+    model: string
+    year: number
+    color?: string
+    fuelType?: string
+    engineSize?: string
+  }
 }
 
 export type BookingFormData = {

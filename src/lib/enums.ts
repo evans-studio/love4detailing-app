@@ -3,14 +3,22 @@ export enum VehicleSize {
   SMALL = 'small',
   MEDIUM = 'medium',
   LARGE = 'large',
-  XLARGE = 'XLARGE',
+  VAN = 'van'
+}
+
+// Service Type Enums
+export enum ServiceType {
+  BASIC_WASH = 'basic-wash',
+  FULL_VALET = 'full-valet',
+  PREMIUM_DETAIL = 'premium-detail'
 }
 
 // Booking Status Enums
 export enum BookingStatus {
+  DRAFT = 'draft',
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
-  IN_PROGRESS = 'in_progress',
+  IN_PROGRESS = 'in-progress',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled'
 }
@@ -19,17 +27,17 @@ export enum BookingStatus {
 export enum PaymentStatus {
   PENDING = 'pending',
   PAID = 'paid',
+  FAILED = 'failed',
   REFUNDED = 'refunded',
-  FAILED = 'failed'
+  CANCELLED = 'cancelled'
 }
 
 // Payment Method Enums
 export enum PaymentMethod {
-  CASH = 'cash',
   CARD = 'card',
-  STRIPE = 'STRIPE',
-  PAYPAL = 'PAYPAL',
-  TRANSFER = 'transfer'
+  CASH = 'cash',
+  STRIPE = 'stripe',
+  PAYPAL = 'paypal'
 }
 
 // Loyalty Tier Enums
@@ -44,54 +52,53 @@ export enum LoyaltyTier {
 export enum CustomerStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
-  BLOCKED = 'BLOCKED',
-}
-
-// Service Type Enums
-export enum ServiceType {
-  BASIC = 'basic',
-  PREMIUM = 'premium',
-  ULTIMATE = 'ultimate',
-  LUXURY = 'luxury',
-  DELUXE = 'DELUXE',
-  CUSTOM = 'CUSTOM',
-}
-
-// Notification Type Enums
-export enum NotificationType {
-  BOOKING_CONFIRMATION = 'BOOKING_CONFIRMATION',
-  BOOKING_REMINDER = 'BOOKING_REMINDER',
-  BOOKING_CANCELLED = 'BOOKING_CANCELLED',
-  PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
-  REWARD_EARNED = 'REWARD_EARNED',
-}
-
-// Notification Channel Enums
-export enum NotificationChannel {
-  EMAIL = 'EMAIL',
-  SMS = 'SMS',
-  PUSH = 'PUSH',
-  IN_APP = 'IN_APP',
-}
-
-// Role Type Enums
-export enum RoleType {
-  ADMIN = 'ADMIN',
-  STAFF = 'STAFF',
-  CUSTOMER = 'CUSTOMER',
+  BLOCKED = 'blocked',
 }
 
 // Image Type Enums
 export enum ImageType {
-  VEHICLE = 'VEHICLE',
-  PROFILE = 'PROFILE',
-  SERVICE = 'SERVICE',
-  GALLERY = 'GALLERY',
+  VEHICLE = 'vehicle',
+  PROFILE = 'profile',
+  SERVICE = 'service',
+  GALLERY = 'gallery'
+}
+
+// User Role Enums
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+  SUPER_ADMIN = 'super_admin'
+}
+
+// Notification Type Enums
+export enum NotificationType {
+  BOOKING_CONFIRMED = 'booking-confirmed',
+  BOOKING_REMINDER = 'booking-reminder',
+  BOOKING_CANCELLED = 'booking-cancelled',
+  PAYMENT_RECEIVED = 'payment-received',
+  PAYMENT_FAILED = 'payment-failed',
+  REWARD_EARNED = 'reward-earned',
+  TIER_UPGRADE = 'tier-upgrade'
+}
+
+// Notification Channel Enums
+export enum NotificationChannel {
+  EMAIL = 'email',
+  SMS = 'sms',
+  PUSH = 'push',
+  IN_APP = 'in_app',
+}
+
+// Role Type Enums
+export enum RoleType {
+  ADMIN = 'admin',
+  STAFF = 'staff',
+  CUSTOMER = 'customer',
 }
 
 // Discount Type Enums
 export enum DiscountType {
-  PERCENTAGE = 'PERCENTAGE',
-  FIXED = 'FIXED',
-  FREE_SERVICE = 'FREE_SERVICE',
+  PERCENTAGE = 'percentage',
+  FIXED = 'fixed',
+  FREE_SERVICE = 'free_service',
 } 

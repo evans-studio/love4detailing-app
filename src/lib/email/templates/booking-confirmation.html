@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation - Love4Detailing</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      background-color: #6B46C1;
+      color: white;
+    }
+    .content {
+      padding: 20px;
+      background-color: #fff;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #6B46C1;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .detail-label {
+      font-weight: bold;
+      color: #666;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #666;
+      font-size: 14px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #6B46C1;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    @media only screen and (max-width: 600px) {
+      .container {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Booking Confirmation</h1>
+      <p>Thank you for choosing Love4Detailing</p>
+    </div>
+    
+    <div class="content">
+      <p>Dear {{customer_name}},</p>
+      
+      <p>Your booking has been confirmed. Here are the details of your appointment:</p>
+      
+      <div class="section">
+        <div class="section-title">Appointment Details</div>
+        <div class="detail-row">
+          <span class="detail-label">Date:</span>
+          <span>{{booking_date}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Time:</span>
+          <span>{{booking_time}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Service:</span>
+          <span>{{service_type}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Vehicle Size:</span>
+          <span>{{vehicle_size}}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Vehicle Details</div>
+        <div class="detail-row">
+          <span class="detail-label">Make:</span>
+          <span>{{vehicle_lookup.make}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Model:</span>
+          <span>{{vehicle_lookup.model}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Registration:</span>
+          <span>{{vehicle_lookup.registration}}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Service Location</div>
+        <div class="detail-row">
+          <span class="detail-label">Address:</span>
+          <span>{{address}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Postcode:</span>
+          <span>{{postcode}}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Price Breakdown</div>
+        <div class="detail-row">
+          <span class="detail-label">Service Price:</span>
+          <span>£{{base_price}}</span>
+        </div>
+        {{#if add_ons}}
+        <div class="detail-row">
+          <span class="detail-label">Add-ons:</span>
+          <span>£{{add_ons_price}}</span>
+        </div>
+        {{/if}}
+        {{#if travel_fee}}
+        <div class="detail-row">
+          <span class="detail-label">Travel Fee:</span>
+          <span>£{{travel_fee}}</span>
+        </div>
+        {{/if}}
+        <div class="detail-row" style="margin-top: 10px; font-weight: bold;">
+          <span class="detail-label">Total:</span>
+          <span>£{{total_price}}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Important Information</div>
+        <ul>
+          <li>Please ensure your vehicle is accessible at the scheduled time</li>
+          <li>Have your keys ready for handover</li>
+          <li>Remove any valuables from your vehicle</li>
+          <li>Payment will be collected after the service</li>
+        </ul>
+      </div>
+      
+      <p>Your booking reference is: <strong>{{booking_reference}}</strong></p>
+      
+      <p>You can view your booking details and make changes by clicking the button below:</p>
+      
+      <div style="text-align: center;">
+        <a href="{{dashboard_url}}" class="button">View Booking</a>
+      </div>
+      
+      <p>If you need to make any changes to your booking or have any questions, please don't hesitate to contact us:</p>
+      <ul>
+        <li>Email: info@love4detailing.com</li>
+        <li>Phone: 01273 123456</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      <p>Love4Detailing - Professional Car Valeting Services</p>
+      <p>Brighton & Hove, UK</p>
+      <p><small>This email was sent to {{email}}. If you did not make this booking, please contact us immediately.</small></p>
+    </div>
+  </div>
+</body>
+</html> 

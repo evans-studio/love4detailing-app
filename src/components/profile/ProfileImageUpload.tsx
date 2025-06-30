@@ -171,7 +171,7 @@ export default function ProfileImageUpload({
         <Avatar className={sizeClasses[size]}>
           <AvatarImage src={displayUrl} alt="Profile" />
           <AvatarFallback>
-            {user?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+            {user?.user_metadata?.full_name?.split(' ').map((n: string) => n[0]).join('') || user?.email?.charAt(0).toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
         

@@ -1,169 +1,176 @@
 "use client"
 
-import React from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useBookingStore } from '@/lib/stores/booking'
 import { content } from '@/lib/content'
-import { FormSection } from '@/components/ui/FormSection'
-import { InputGroup } from '@/components/ui/InputGroup'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/Input'
 
-interface ContactDetailsStepProps {
-  isAuthenticated?: boolean
-  userId?: string
-}
+const contactSchema = z.object({
+  fullName: z.string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must be less than 50 characters'),
+  email: z.string()
+    .email('Invalid email address'),
+  phone: z.string()
+    .min(10, 'Phone number must be at least 10 digits')
+    .max(15, 'Phone number must be less than 15 digits')
+    .regex(/^[0-9+\-\s()]*$/, 'Invalid phone number format'),
+  postcode: z.string()
+    .min(5, 'Postcode is required')
+    .max(10, 'Invalid postcode format')
+    .regex(/^[A-Z0-9\s]*$/i, 'Invalid postcode format'),
+  address: z.string()
+    .min(5, 'Address is required')
+    .max(200, 'Address must be less than 200 characters')
+})
 
-export const ContactDetailsStep: React.FC<ContactDetailsStepProps> = ({
-  isAuthenticated = false,
-  userId,
-}) => {
-  const { setValue, watch, formState: { errors } } = useFormContext()
+type ContactFormData = z.infer<typeof contactSchema>
+
+export function ContactDetailsStep() {
+  const store = useBookingStore()
   
-  const fullName = watch('fullName') || ''
-  const email = watch('email') || ''
-  const phone = watch('phone') || ''
-  const address = watch('address') || ''
-  const postcode = watch('postcode') || ''
-  const notes = watch('notes') || ''
-
-  // Note: For authenticated users, this step might be skipped entirely
-  // or used to confirm/update existing information
-  if (isAuthenticated) {
-    return (
-      <div className="space-y-8">
-        <FormSection
-          title={content.pages.booking.steps.contactDetails.title}
-          description={content.pages.booking.steps.contactDetails.description}
-          variant="card"
-        >
-          <div className="p-4 bg-[var(--color-info)]/10 rounded-lg border border-[var(--color-info)]/20 mb-6">
-            <p className="text-sm text-[var(--color-info)] font-medium mb-1">
-              Using Your Account Information
-            </p>
-            <p className="text-xs text-muted-foreground">
-              We'll use the contact details from your account. You can update them in your profile if needed.
-            </p>
-          </div>
-          
-          {/* Show current details for confirmation */}
-          <div className="bg-background/50 rounded-lg p-4 border">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                  {content.pages.booking.steps.contactDetails.fields.name.label}
-                </p>
-                <p className="text-muted-foreground">{fullName || 'Not provided'}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                  {content.pages.booking.steps.contactDetails.fields.email.label}
-                </p>
-                <p className="text-muted-foreground">{email || 'Not provided'}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                  {content.pages.booking.steps.contactDetails.fields.phone.label}
-                </p>
-                <p className="text-muted-foreground">{phone || 'Not provided'}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[var(--color-text)] mb-1">
-                  {content.pages.booking.steps.contactDetails.fields.address.label}
-                </p>
-                <p className="text-muted-foreground">
-                  {address && postcode ? `${address}, ${postcode}` : 'Will be collected separately'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </FormSection>
-      </div>
-    )
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      fullName: store.fullName,
+      email: store.email,
+      phone: store.phone,
+      postcode: store.postcode,
+      address: store.address
+    }
+  })
+  
+  const onSubmit = (data: ContactFormData) => {
+    store.setContactDetails(data)
   }
-
-  // Guest user form
+  
+  // Update store on field change
+  const handleFieldChange = (field: keyof ContactFormData, value: string) => {
+    store.setContactDetails({ [field]: value })
+  }
+  
   return (
-    <div className="space-y-8">
-      {/* Personal Information */}
-      <FormSection
-        title={content.pages.booking.steps.contactDetails.sections.personal.title}
-        description={content.pages.booking.steps.contactDetails.sections.personal.description}
-        variant="card"
-        required
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6"
+        onChange={(e) => {
+          const target = e.target as HTMLInputElement
+          if (target.name) {
+            handleFieldChange(
+              target.name as keyof ContactFormData,
+              target.value
+            )
+          }
+        }}
       >
-        <InputGroup layout="responsive" columns={2}>
-          <Input
-            label={content.pages.booking.steps.contactDetails.fields.name.label}
-            placeholder={content.pages.booking.steps.contactDetails.fields.name.placeholder}
-            value={fullName}
-            onChange={(e) => setValue('fullName', e.target.value, { shouldValidate: true })}
-            error={errors.fullName?.message as string}
-            required
-          />
-          
-          <Input
-            type="email"
-            label={content.pages.booking.steps.contactDetails.fields.email.label}
-            placeholder={content.pages.booking.steps.contactDetails.fields.email.placeholder}
-            value={email}
-            onChange={(e) => setValue('email', e.target.value, { shouldValidate: true })}
-            error={errors.email?.message as string}
-            required
-          />
-        </InputGroup>
-
-        <Input
-          type="tel"
-          label={content.pages.booking.steps.contactDetails.fields.phone.label}
-          placeholder={content.pages.booking.steps.contactDetails.fields.phone.placeholder}
-          value={phone}
-          onChange={(e) => setValue('phone', e.target.value, { shouldValidate: true })}
-          error={errors.phone?.message as string}
-          required
+        {/* Full Name */}
+        <FormField
+          control={form.control}
+          name="fullName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="John Doe"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormSection>
-
-      {/* Service Address */}
-      <FormSection
-        title={content.pages.booking.steps.contactDetails.sections.address.title}
-        description={content.pages.booking.steps.contactDetails.sections.address.description}
-        variant="default"
-        required
-      >
-        <div className="space-y-4">
-          <Input
-            label={content.pages.booking.steps.contactDetails.fields.postcode.label}
-            placeholder={content.pages.booking.steps.contactDetails.fields.postcode.placeholder}
-            value={postcode}
-            onChange={(e) => setValue('postcode', e.target.value.toUpperCase(), { shouldValidate: true })}
-            error={errors.postcode?.message as string}
-            required
-          />
-          
-          <Input
-            label={content.pages.booking.steps.contactDetails.fields.address.label}
-            placeholder={content.pages.booking.steps.contactDetails.fields.address.placeholder}
-            value={address}
-            onChange={(e) => setValue('address', e.target.value, { shouldValidate: true })}
-            error={errors.address?.message as string}
-            required
-          />
-        </div>
-      </FormSection>
-
-      {/* Special Instructions */}
-      <FormSection
-        title={content.pages.booking.steps.contactDetails.sections.notes.title}
-        description={content.pages.booking.steps.contactDetails.sections.notes.description}
-        variant="default"
-      >
-        <Input
-          label={content.pages.booking.steps.contactDetails.fields.notes.label}
-          placeholder={content.pages.booking.steps.contactDetails.fields.notes.placeholder}
-          value={notes}
-          onChange={(e) => setValue('notes', e.target.value, { shouldValidate: true })}
-          error={errors.notes?.message as string}
+        
+        {/* Email */}
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  placeholder="john@example.com"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </FormSection>
-    </div>
+        
+        {/* Phone */}
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone</FormLabel>
+              <FormControl>
+                <Input
+                  type="tel"
+                  placeholder="07123456789"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        {/* Postcode */}
+        <FormField
+          control={form.control}
+          name="postcode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Postcode</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="SW1A 1AA"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase()
+                    field.onChange(value)
+                    handleFieldChange('postcode', value)
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        {/* Address */}
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="10 Downing Street"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </form>
+    </Form>
   )
 } 

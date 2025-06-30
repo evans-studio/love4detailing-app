@@ -541,7 +541,7 @@ export const LABELS = {
     [VehicleSize.SMALL]: 'Small Vehicle',
     [VehicleSize.MEDIUM]: 'Medium Vehicle',
     [VehicleSize.LARGE]: 'Large Vehicle',
-    [VehicleSize.XLARGE]: 'Extra Large Vehicle',
+    [VehicleSize.VAN]: 'Van/Extra Large Vehicle',
   },
   bookingStatus: {
     [BookingStatus.PENDING]: { label: 'Pending', color: 'warning' },
@@ -610,29 +610,24 @@ export const LABELS = {
     [CustomerStatus.BLOCKED]: { label: 'Blocked', color: 'error' },
   },
   serviceType: {
-    [ServiceType.BASIC]: {
-      label: 'Basic Detail',
+    [ServiceType.BASIC_WASH]: {
+      label: 'Basic Wash',
       description: 'Essential cleaning service',
       duration: 90,
     },
-    [ServiceType.PREMIUM]: {
-      label: 'Premium Detail',
+    [ServiceType.FULL_VALET]: {
+      label: 'Full Valet',
       description: 'Comprehensive cleaning and protection',
       duration: 180,
     },
-    [ServiceType.DELUXE]: {
-      label: 'Deluxe Detail',
+    [ServiceType.PREMIUM_DETAIL]: {
+      label: 'Premium Detail',
       description: 'Ultimate detailing experience',
       duration: 240,
     },
-    [ServiceType.CUSTOM]: {
-      label: 'Custom Service',
-      description: 'Tailored to your needs',
-      duration: 120,
-    },
   },
   notificationType: {
-    [NotificationType.BOOKING_CONFIRMATION]: 'Booking Confirmed',
+    [NotificationType.BOOKING_CONFIRMED]: 'Booking Confirmed',
     [NotificationType.BOOKING_REMINDER]: 'Booking Reminder',
     [NotificationType.BOOKING_CANCELLED]: 'Booking Cancelled',
     [NotificationType.PAYMENT_RECEIVED]: 'Payment Received',

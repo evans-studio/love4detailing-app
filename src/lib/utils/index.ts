@@ -10,12 +10,9 @@ import { VehicleSize, ServiceType, BookingStatus, LoyaltyTier } from '@/lib/enum
 
 // Service type mapping
 const serviceTypeToPackageKey: Record<ServiceType, keyof typeof SERVICES.vehicleSizes['small']['pricing']> = {
-  [ServiceType.BASIC]: 'essential-clean',
-  [ServiceType.PREMIUM]: 'premium-detail',
-  [ServiceType.LUXURY]: 'ultimate-protection',
-  [ServiceType.DELUXE]: 'ultimate-protection',
-  [ServiceType.CUSTOM]: 'essential-clean',
-  [ServiceType.ULTIMATE]: 'ultimate-protection',
+  [ServiceType.BASIC_WASH]: 'essential-clean',
+  [ServiceType.FULL_VALET]: 'premium-detail',
+  [ServiceType.PREMIUM_DETAIL]: 'ultimate-protection',
 }
 
 // Vehicle size mapping
@@ -23,7 +20,7 @@ const vehicleSizeToKey: Record<VehicleSize, keyof typeof SERVICES.vehicleSizes> 
   [VehicleSize.SMALL]: 'small',
   [VehicleSize.MEDIUM]: 'medium',
   [VehicleSize.LARGE]: 'large',
-  [VehicleSize.XLARGE]: 'extraLarge',
+  [VehicleSize.VAN]: 'extraLarge',
 }
 
 // =================================================================
@@ -148,6 +145,7 @@ export function generateBookingReference(): string {
  */
 export function getStatusColor(status: BookingStatus): string {
   const colors: Record<BookingStatus, string> = {
+    [BookingStatus.DRAFT]: 'gray',
     [BookingStatus.PENDING]: 'yellow',
     [BookingStatus.CONFIRMED]: 'green',
     [BookingStatus.IN_PROGRESS]: 'blue',
@@ -249,6 +247,7 @@ export function isNetworkError(error: unknown): boolean {
 
 // Booking status mapping
 export const bookingStatusLabels: Record<BookingStatus, string> = {
+  [BookingStatus.DRAFT]: 'Draft',
   [BookingStatus.PENDING]: 'Pending',
   [BookingStatus.CONFIRMED]: 'Confirmed',
   [BookingStatus.IN_PROGRESS]: 'In Progress',

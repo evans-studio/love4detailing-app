@@ -3,9 +3,8 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/badge"
-import { Car, Clock, CheckCircle, ArrowLeft } from 'lucide-react'
+import { Clock, CheckCircle, ArrowLeft } from 'lucide-react'
 import Container from '@/components/ui/Container'
 import { cn } from '@/lib/utils'
 import { useMediaQuery } from '@/hooks/useMediaQuery'

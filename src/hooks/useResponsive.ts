@@ -4,7 +4,7 @@ import { breakpoints } from '@/lib/constants/breakpoints'
 type Breakpoint = keyof typeof breakpoints
 
 export function useResponsive() {
-  const [currentBreakpoint, setCurrentBreakpoint] = useState<Breakpoint>('xs')
+  const [currentBreakpoint, setCurrentBreakpoint] = useState<Breakpoint>('sm')
   const [isMobile, setIsMobile] = useState(true)
   const [isTablet, setIsTablet] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -15,18 +15,16 @@ export function useResponsive() {
       const width = window.innerWidth
 
       // Update current breakpoint
-      if (width >= breakpoints.xxl) {
-        setCurrentBreakpoint('xxl')
+      if (width >= breakpoints['2xl']) {
+        setCurrentBreakpoint('2xl')
       } else if (width >= breakpoints.xl) {
         setCurrentBreakpoint('xl')
       } else if (width >= breakpoints.lg) {
         setCurrentBreakpoint('lg')
       } else if (width >= breakpoints.md) {
         setCurrentBreakpoint('md')
-      } else if (width >= breakpoints.sm) {
-        setCurrentBreakpoint('sm')
       } else {
-        setCurrentBreakpoint('xs')
+        setCurrentBreakpoint('sm')
       }
 
       // Update device type flags

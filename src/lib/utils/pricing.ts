@@ -1,46 +1,54 @@
-import { VehicleSize, ServiceType } from '@/lib/enums'
+import { ServiceType, VehicleSize } from '@/lib/enums'
+import { SERVICES, ADD_ONS, TRAVEL_ZONES } from '@/lib/constants/services'
 
-export const vehicleSizes = {
-  [VehicleSize.SMALL]: { label: 'Small', description: 'Fiesta, Polo, Mini', price: 55 },
-  [VehicleSize.MEDIUM]: { label: 'Medium', description: 'Focus, Golf, Civic', price: 60 },
-  [VehicleSize.LARGE]: { label: 'Large', description: 'BMW 5 Series, SUV, Estate', price: 65 },
-  [VehicleSize.XLARGE]: { label: 'Extra Large', description: 'Van, Range Rover, 7-Seater', price: 70 },
-} as const
-
-export const serviceTypes = [
-  { 
-    id: ServiceType.BASIC, 
-    name: 'Car Detailing Service', 
-    description: 'Professional exterior and interior car detailing',
-    duration: '45min - 1hr',
-    included: ['Exterior wash & dry', 'Interior vacuum', 'Dashboard clean', 'Wheel clean', 'Windows', 'Basic wax'],
-    multiplier: 1
-  },
-] as const
-
-export const addOns = [
-  { id: 'interiorShampoo', label: 'Interior Deep Clean', price: 15, description: 'Deep carpet and upholstery cleaning' },
-  { id: 'wheelShine', label: 'Alloy Wheel Polish', price: 10, description: 'Professional wheel polish and protection' },
-  { id: 'paintProtection', label: 'Paint Protection', price: 25, description: 'Wax coating for long-lasting shine' },
-  { id: 'engineBay', label: 'Engine Bay Clean', price: 20, description: 'Professional engine bay cleaning' },
-  { id: 'headlightRestoration', label: 'Headlight Restoration', price: 18, description: 'Restore cloudy headlights' },
-] as const
-
-export function calculateBasePrice(vehicleSize: VehicleSize, serviceType: ServiceType) {
-  const basePrice = vehicleSizes[vehicleSize]?.price || 0
-  const service = serviceTypes.find(s => s.id === serviceType)
-  return basePrice * (service?.multiplier || 1)
+export function calculateBasePrice(serviceType: ServiceType, vehicleSize: VehicleSize): number {
+  const service = SERVICES.find(s => s.id === serviceType)
+  if (!service) return 0
+  return service.basePrice[vehicleSize]
 }
 
-export function calculateAddOnsPrice(selectedAddOns: string[]) {
-  return selectedAddOns.reduce((total, addonId) => {
-    const addon = addOns.find(a => a.id === addonId)
-    return total + (addon?.price || 0)
+export function calculateAddOnsPrice(addOnIds: string[], vehicleSize: VehicleSize): number {
+  return addOnIds.reduce((total, addOnId) => {
+    const addOn = ADD_ONS.find(a => a.id === addOnId)
+    if (!addOn) return total
+    return total + addOn.price[vehicleSize]
   }, 0)
 }
 
-export function calculateTotalPrice(vehicleSize: VehicleSize, serviceType: ServiceType, selectedAddOns: string[]) {
-  const basePrice = calculateBasePrice(vehicleSize, serviceType)
-  const addOnsPrice = calculateAddOnsPrice(selectedAddOns)
-  return basePrice + addOnsPrice
+export function calculateTravelFee(postcode: string): number {
+  const postcodePrefix = postcode.toUpperCase().split(' ')[0]
+  const zone = TRAVEL_ZONES.find(zone => 
+    zone.range.some(prefix => postcodePrefix.startsWith(prefix))
+  )
+  return zone?.fee ?? 0
+}
+
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP'
+  }).format(price)
+}
+
+export function calculateTotalPrice(params: {
+  serviceType: ServiceType
+  vehicleSize: VehicleSize
+  addOnIds: string[]
+  postcode: string
+}): {
+  basePrice: number
+  addOnsPrice: number
+  travelFee: number
+  totalPrice: number
+} {
+  const basePrice = calculateBasePrice(params.serviceType, params.vehicleSize)
+  const addOnsPrice = calculateAddOnsPrice(params.addOnIds, params.vehicleSize)
+  const travelFee = calculateTravelFee(params.postcode)
+  
+  return {
+    basePrice,
+    addOnsPrice,
+    travelFee,
+    totalPrice: basePrice + addOnsPrice + travelFee
+  }
 } 

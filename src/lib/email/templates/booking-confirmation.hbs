@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Booking Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .details {
+      margin-bottom: 30px;
+    }
+    .detail-row {
+      margin-bottom: 10px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Booking Confirmation</h1>
+      <p>Thank you for choosing Love4Detailing!</p>
+    </div>
+
+    <div class="details">
+      <h2>Booking Details</h2>
+      <div class="detail-row">
+        <strong>Booking Reference:</strong> {{booking_reference}}
+      </div>
+      <div class="detail-row">
+        <strong>Customer Name:</strong> {{customer_name}}
+      </div>
+      <div class="detail-row">
+        <strong>Service Date:</strong> {{booking_date}}
+      </div>
+      <div class="detail-row">
+        <strong>Service Time:</strong> {{booking_time}}
+      </div>
+      <div class="detail-row">
+        <strong>Service Type:</strong> {{service_type}}
+      </div>
+      <div class="detail-row">
+        <strong>Location:</strong> {{address}}, {{postcode}}
+      </div>
+    </div>
+
+    <div class="details">
+      <h2>Vehicle Details</h2>
+      <div class="detail-row">
+        <strong>Vehicle Size:</strong> {{vehicle_size}}
+      </div>
+      <div class="detail-row">
+        <strong>Make:</strong> {{vehicle_lookup.make}}
+      </div>
+      <div class="detail-row">
+        <strong>Model:</strong> {{vehicle_lookup.model}}
+      </div>
+      <div class="detail-row">
+        <strong>Registration:</strong> {{vehicle_lookup.registration}}
+      </div>
+      {{#if vehicle_lookup.color}}
+      <div class="detail-row">
+        <strong>Color:</strong> {{vehicle_lookup.color}}
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="details">
+      <h2>Service Details</h2>
+      {{#if add_ons.length}}
+      <div class="detail-row">
+        <strong>Add-ons:</strong>
+        <ul>
+          {{#each add_ons}}
+          <li>{{this}}</li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/if}}
+      <div class="detail-row">
+        <strong>Travel Fee:</strong> £{{travel_fee}}
+      </div>
+      <div class="detail-row">
+        <strong>Total Price:</strong> £{{total_price}}
+      </div>
+      <div class="detail-row">
+        <strong>Payment Status:</strong> {{payment_status}}
+      </div>
+      <div class="detail-row">
+        <strong>Payment Method:</strong> {{payment_method}}
+      </div>
+    </div>
+
+    {{#if special_requests}}
+    <div class="details">
+      <h2>Special Requests</h2>
+      <p>{{special_requests}}</p>
+    </div>
+    {{/if}}
+
+    <div class="footer">
+      <p>If you have any questions about your booking, please contact us at {{support_email}}.</p>
+      <p>Love4Detailing - Professional Car Care Services</p>
+    </div>
+  </div>
+</body>
+</html> 

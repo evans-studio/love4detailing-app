@@ -1,46 +1,26 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { breakpoints } from '@/lib/constants/breakpoints'
 
 interface SidebarContextType {
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
   isCollapsed: boolean
-  setIsCollapsed: (isCollapsed: boolean) => void
   toggleCollapsed: () => void
 }
 
-const SidebarContext = createContext<SidebarContextType>({
-  isOpen: false,
-  setIsOpen: () => {},
-  isCollapsed: false,
-  setIsCollapsed: () => {},
-  toggleCollapsed: () => {}
-})
+const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false)
   const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg}px)`)
   const [isCollapsed, setIsCollapsed] = useState(!isDesktop)
 
-  useEffect(() => {
-    setIsCollapsed(!isDesktop)
-  }, [isDesktop])
-
-  const toggleCollapsed = useCallback(() => {
+  const toggleCollapsed = () => {
     setIsCollapsed(prev => !prev)
-  }, [])
+  }
 
   return (
-    <SidebarContext.Provider value={{ 
-      isOpen, 
-      setIsOpen, 
-      isCollapsed, 
-      setIsCollapsed,
-      toggleCollapsed 
-    }}>
+    <SidebarContext.Provider value={{ isCollapsed, toggleCollapsed }}>
       {children}
     </SidebarContext.Provider>
   )

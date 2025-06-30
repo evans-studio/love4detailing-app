@@ -60,22 +60,22 @@ export default function AdminCustomersClient() {
 
       if (rewardsError) throw rewardsError
 
-      const processedCustomers: ProcessedCustomer[] = customersData.map((customer: any) => ({
+      const processedCustomers: ProcessedCustomer[] = customersData.map((customer: Customer) => ({
         id: customer.id,
         email: customer.email,
         full_name: customer.full_name || null,
         avatar_url: customer.avatar_url || null,
         postcode: customer.postcode || null,
-        phone: customer.phone || null,
+        phone: customer.phone || undefined,
         created_at: customer.created_at,
         total_spent: customer.total_spent || 0,
-        total_bookings: bookingsData.filter((b: any) => b.user_id === customer.id).length,
-        loyalty_points: rewardsData.find((r: any) => r.user_id === customer.id)?.points || 0,
-        loyalty_tier: rewardsData.find((r: any) => r.user_id === customer.id)?.loyalty_tier || LoyaltyTier.BRONZE,
+        total_bookings: bookingsData.filter((b: { user_id: string }) => b.user_id === customer.id).length,
+        loyalty_points: rewardsData.find((r: { user_id: string; points: number }) => r.user_id === customer.id)?.points || 0,
+        loyalty_tier: rewardsData.find((r: { user_id: string; loyalty_tier: LoyaltyTier }) => r.user_id === customer.id)?.loyalty_tier || LoyaltyTier.BRONZE,
         last_booking_date: bookingsData
-          .filter((b: any) => b.user_id === customer.id)
-          .sort((a: any, b: any) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())[0]?.booking_date || null,
-        status: customer.status || 'inactive'
+          .filter((b: { user_id: string }) => b.user_id === customer.id)
+          .sort((a: { booking_date: string }, b: { booking_date: string }) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())[0]?.booking_date || null,
+        status: customer.status || CustomerStatus.INACTIVE
       }))
 
       setCustomers(processedCustomers)

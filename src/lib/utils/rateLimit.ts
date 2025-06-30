@@ -7,57 +7,114 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!
 })
 
+// Rate limit configurations
+export const RATE_LIMITS = {
+  VEHICLE_LOOKUP: { points: 5, duration: 60 }, // 5 requests per minute
+  BOOKING_CREATE: { points: 3, duration: 60 }, // 3 requests per minute
+  DISTANCE_CALC: { points: 10, duration: 60 }, // 10 requests per minute
+  GENERAL_API: { points: 100, duration: 60 }, // 100 requests per minute
+}
+
 interface RateLimitConfig {
-  limit: number // Number of requests
-  window: number // Time window in seconds
+  points: number
+  duration: number
 }
 
-const DEFAULT_CONFIG: RateLimitConfig = {
-  limit: 10,
-  window: 60 // 1 minute
+interface RateLimitResult {
+  success: boolean
+  remaining?: number
+  reset?: number
+  response?: NextResponse
 }
 
+/**
+ * Rate limiting implementation using the token bucket algorithm
+ */
 export async function rateLimit(
-  ip: string,
-  endpoint: string,
-  config: RateLimitConfig = DEFAULT_CONFIG
-) {
-  const key = `rate_limit:${endpoint}:${ip}`
-  
+  identifier: string,
+  type: keyof typeof RATE_LIMITS,
+  config?: RateLimitConfig
+): Promise<RateLimitResult> {
+  const { points, duration } = config || RATE_LIMITS[type]
+  const key = `rate_limit:${type}:${identifier}`
+  const now = Date.now()
+
   try {
-    const requests = await redis.incr(key)
-    
-    // Set expiry on first request
-    if (requests === 1) {
-      await redis.expire(key, config.window)
+    // Get the current bucket
+    const bucket = await redis.get<{ tokens: number; reset: number }>(key)
+
+    if (!bucket) {
+      // Create a new bucket
+      await redis.set(key, {
+        tokens: points - 1,
+        reset: now + duration * 1000
+      }, { ex: duration })
+
+      return {
+        success: true,
+        remaining: points - 1,
+        reset: now + duration * 1000
+      }
     }
-    
-    if (requests > config.limit) {
+
+    // Check if the bucket should be reset
+    if (now > bucket.reset) {
+      await redis.set(key, {
+        tokens: points - 1,
+        reset: now + duration * 1000
+      }, { ex: duration })
+
+      return {
+        success: true,
+        remaining: points - 1,
+        reset: now + duration * 1000
+      }
+    }
+
+    // Check if there are tokens available
+    if (bucket.tokens <= 0) {
       return {
         success: false,
-        response: NextResponse.json(
-          { error: 'Too many requests' },
-          { status: 429 }
+        remaining: 0,
+        reset: bucket.reset,
+        response: new NextResponse(
+          JSON.stringify({
+            error: 'Too many requests',
+            message: `Please try again in ${Math.ceil((bucket.reset - now) / 1000)} seconds`
+          }),
+          {
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'X-RateLimit-Limit': points.toString(),
+              'X-RateLimit-Remaining': '0',
+              'X-RateLimit-Reset': bucket.reset.toString(),
+              'Retry-After': Math.ceil((bucket.reset - now) / 1000).toString()
+            }
+          }
         )
       }
     }
-    
-    return { success: true }
-  } catch (error) {
-    console.error('Rate limiting error:', error)
-    // Fail open if Redis is down
-    return { success: true }
-  }
-}
 
-// Predefined rate limit configs
-export const RATE_LIMITS = {
-  VEHICLE_LOOKUP: {
-    limit: 5,
-    window: 60 // 5 requests per minute
-  },
-  DISTANCE_CALC: {
-    limit: 10,
-    window: 60 // 10 requests per minute
+    // Update the bucket
+    await redis.set(key, {
+      tokens: bucket.tokens - 1,
+      reset: bucket.reset
+    }, { ex: Math.ceil((bucket.reset - now) / 1000) })
+
+    return {
+      success: true,
+      remaining: bucket.tokens - 1,
+      reset: bucket.reset
+    }
+
+  } catch (error) {
+    console.error('Rate limit error:', error)
+    // If Redis fails, allow the request but log the error
+    return {
+      success: true,
+      remaining: -1,
+      reset: -1
+    }
   }
-} as const 
+} 

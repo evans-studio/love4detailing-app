@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { toast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
 import { BookingStatus, ServiceType } from '@/lib/enums'
+import { User } from '@supabase/supabase-js'
 
 export type AuthUser = {
   id: string
@@ -16,8 +17,20 @@ export type AuthUser = {
   }
 }
 
-export type AuthState = {
-  user: AuthUser | null
+interface Profile {
+  id: string
+  full_name: string | null
+  email: string
+  phone: string | null
+  role: 'admin' | 'customer'
+  avatar_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+interface AuthState {
+  user: User | null
+  profile: Profile | null
   isLoading: boolean
 }
 
@@ -236,97 +249,68 @@ export async function signOut() {
 }
 
 export function useAuth() {
-  const [authState, setAuthState] = useState<AuthState>({
+  const [state, setState] = useState<AuthState>({
     user: null,
-    isLoading: true,
+    profile: null,
+    isLoading: true
   })
-  const router = useRouter()
 
   useEffect(() => {
-    let mounted = true
-
-    async function initializeAuth() {
-      try {
-        // Check for existing session
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (!mounted) return
-
-        if (!session?.user) {
-          setAuthState({ user: null, isLoading: false })
-          return
-        }
-
-        // Fetch user profile
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-
-        if (!mounted) return
-
-        if (error) {
-          setAuthState({ user: null, isLoading: false })
-          return
-        }
-
-        setAuthState({
-          user: profile,
-          isLoading: false,
-        })
-      } catch (error) {
-        if (!mounted) return
-        setAuthState({ user: null, isLoading: false })
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) {
+        setState({ user: null, profile: null, isLoading: false })
+        return
       }
-    }
 
-    // Initialize auth state
-    initializeAuth()
+      // Fetch user profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+
+      setState({
+        user: session.user,
+        profile,
+        isLoading: false
+      })
+    })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
-
-        if (!session?.user) {
-          setAuthState({ user: null, isLoading: false })
-          return
-        }
-
-        try {
-          // Fetch user profile
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-
-          if (!mounted) return
-
-          if (error) {
-            setAuthState({ user: null, isLoading: false })
-            return
-          }
-
-          setAuthState({
-            user: profile,
-            isLoading: false,
-          })
-        } catch (error) {
-          if (!mounted) return
-          setAuthState({ user: null, isLoading: false })
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!session) {
+        setState({ user: null, profile: null, isLoading: false })
+        return
       }
-    )
+
+      // Fetch user profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+
+      setState({
+        user: session.user,
+        profile,
+        isLoading: false
+      })
+    })
 
     return () => {
-      mounted = false
       subscription.unsubscribe()
     }
-  }, [router])
+  }, [])
 
-  return authState
+  return {
+    ...state,
+    signIn: supabase.auth.signInWithPassword,
+    signUp: supabase.auth.signUp,
+    signOut: () => supabase.auth.signOut(),
+  }
 }
 
 export async function requireAuth() {
@@ -357,13 +341,15 @@ export function useProtectedRoute() {
   return { user, isLoading }
 }
 
-export function isAdminUser(user: AuthUser | null): boolean {
-  return user?.role === 'admin'
+export function isAdminUser(user: User | null): boolean {
+  return user?.user_metadata?.role === 'admin'
 }
 
 export function useAdminRoute() {
-  const { user, isLoading } = useAuth()
+  const { user, profile, isLoading } = useAuth()
   const router = useRouter()
+
+  const isAdmin = profile?.role === 'admin'
 
   useEffect(() => {
     if (!isLoading) {
@@ -374,7 +360,7 @@ export function useAdminRoute() {
           variant: "destructive",
         })
         router.push('/')
-      } else if (!isAdminUser(user)) {
+      } else if (!isAdmin) {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access this page",
@@ -383,7 +369,7 @@ export function useAdminRoute() {
         router.push('/dashboard')
       }
     }
-  }, [user, isLoading, router])
+  }, [user, isAdmin, isLoading, router])
 
-  return { user, isLoading, isAdmin: isAdminUser(user) }
+  return { user, isLoading, isAdmin }
 } 

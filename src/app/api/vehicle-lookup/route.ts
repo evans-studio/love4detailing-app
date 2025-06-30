@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { vehicleLogger } from '@/lib/utils/logger'
 import { vehicleLookupSchema, type VehicleLookupRequest } from '@/lib/schemas/api'
 import { rateLimit, RATE_LIMITS } from '@/lib/utils/rateLimit'
-import { getFromCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
+import { getOrSetCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     const ip = forwardedFor?.split(',')[0] || 'unknown'
 
     // Apply rate limiting
-    const rateLimitResult = await rateLimit(ip, 'vehicle_lookup', RATE_LIMITS.VEHICLE_LOOKUP)
+    const rateLimitResult = await rateLimit(ip, 'VEHICLE_LOOKUP')
     if (!rateLimitResult.success) {
       return rateLimitResult.response
     }
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     const cacheKey = generateCacheKey('vehicle', cleanReg)
 
     // Try to get from cache or fetch from DVLA
-    const vehicleData = await getFromCache<DVLAResponse | null>(
+    const vehicleData = await getOrSetCache<DVLAResponse | null>(
       cacheKey,
       async () => {
         // Get DVLA API key from environment variables
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
 
         return await response.json()
       },
-      CACHE_CONFIGS.VEHICLE_LOOKUP
+      CACHE_CONFIGS.VEHICLE_LOOKUP.ttl
     )
 
     if (!vehicleData) {

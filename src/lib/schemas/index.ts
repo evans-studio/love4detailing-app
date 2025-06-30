@@ -179,7 +179,7 @@ export const bookingFormSchema = z.object({
   date: z.string().min(1, 'Booking date is required'),
   timeSlot: z.string().min(1, 'Booking time is required'),
   addOnIds: z.array(z.string()).default([]),
-  vehicle_images: z.array(z.string()).default([]),
+  vehicle_images: z.array(z.string().url('Invalid image URL format')).default([]),
   special_requests: z.string().optional(),
   total_price: z.number().min(0),
   travel_fee: z.number().min(0).default(0),
@@ -205,7 +205,7 @@ export const bookingSchema = z.object({
   booking_date: z.string().min(1, 'Booking date is required'),
   booking_time: z.string().min(1, 'Booking time is required'),
   add_ons: z.array(z.string()).default([]),
-  vehicle_images: z.array(z.string()).default([]),
+  vehicle_images: z.array(z.string().url('Invalid image URL format')).default([]),
   special_requests: z.string().optional(),
   total_price: z.number().min(0),
   travel_fee: z.number().min(0).default(0),
@@ -243,7 +243,7 @@ export const loyaltyActionSchema = z.object({
   userId: z.string().uuid('Invalid user ID.'),
   action: z.enum(['booking', 'review', 'referral', 'socialShare', 'firstBooking'] as const),
   points: z.number().min(0, 'Points must be positive.'),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.unknown()).optional(),
 })
 
 export type RewardRedemptionData = z.infer<typeof rewardRedemptionSchema>
@@ -255,7 +255,7 @@ export type LoyaltyActionData = z.infer<typeof loyaltyActionSchema>
 
 export const apiResponseSchema = z.object({
   success: z.boolean(),
-  data: z.any().optional(),
+  data: z.unknown().optional(),
   error: z.string().optional(),
   message: z.string().optional(),
 })
@@ -272,7 +272,7 @@ export const searchQuerySchema = z.object({
   filters: z.record(z.string()).optional(),
 })
 
-export type ApiResponse<T = any> = z.infer<typeof apiResponseSchema> & { data?: T }
+export type ApiResponse<T = unknown> = z.infer<typeof apiResponseSchema> & { data?: T }
 export type PaginationParams = z.infer<typeof paginationSchema>
 export type SearchQuery = z.infer<typeof searchQuerySchema>
 

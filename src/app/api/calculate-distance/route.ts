@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { distanceCalculationSchema } from '@/lib/schemas/api'
 import { rateLimit, RATE_LIMITS } from '@/lib/utils/rateLimit'
-import { getFromCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
+import { getOrSetCache, generateCacheKey, CACHE_CONFIGS } from '@/lib/utils/cache'
 import { headers } from 'next/headers'
 
 const MAX_DISTANCE_METERS = 16093 // 10 miles in meters
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const ip = forwardedFor?.split(',')[0] || 'unknown'
 
     // Apply rate limiting
-    const rateLimitResult = await rateLimit(ip, 'distance_calc', RATE_LIMITS.DISTANCE_CALC)
+    const rateLimitResult = await rateLimit(ip, 'DISTANCE_CALC')
     if (!rateLimitResult.success) {
       return rateLimitResult.response
     }
@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
     const { postcode } = validationResult.data
 
     // Generate cache key
-    const cacheKey = generateCacheKey('distance', HQ_POSTCODE, postcode)
+    const cacheKey = generateCacheKey('distance', `${HQ_POSTCODE}-${postcode}`)
 
     // Try to get from cache or calculate fresh
-    const result = await getFromCache<ApiResponse>(
+    const result = await getOrSetCache<ApiResponse>(
       cacheKey,
       async () => {
         const apiKey = process.env.GOOGLE_MAPS_API_KEY
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
 
         return successResponse
       },
-      CACHE_CONFIGS.DISTANCE_CALC
+      CACHE_CONFIGS.DISTANCE_CALC.ttl
     )
 
     if ('error' in result) {

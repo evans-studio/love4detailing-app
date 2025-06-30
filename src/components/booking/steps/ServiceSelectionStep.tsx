@@ -1,184 +1,210 @@
 'use client'
 
-import React from 'react'
-import { useFormContext } from 'react-hook-form'
-import { SERVICES } from '@/lib/constants'
-import { content } from '@/lib/content'
-import { FormSection } from '@/components/ui/FormSection'
-import { ServiceCard } from '@/components/ui/ServiceCard'
-import type { ServicePackage, VehicleSize, AddOnService } from '@/lib/types/index'
+import { useBookingStore } from '@/lib/stores/booking'
+import { ServiceType } from '@/lib/enums'
+import { calculateBasePrice, calculateAddOnsPrice, formatPrice } from '@/lib/utils/pricing'
+import { Card } from '@/components/ui/Card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 
-interface ServiceSelectionStepProps {
-  isAuthenticated?: boolean
-  userId?: string
-}
-
-export const ServiceSelectionStep: React.FC<ServiceSelectionStepProps> = ({
-  isAuthenticated = false,
-  userId,
-}) => {
-  const { setValue, watch } = useFormContext()
-  
-  const selectedService = watch('servicePackage')
-  const selectedVehicleSize = watch('vehicleSize') || 'medium'
-  const selectedAddOns = watch('addOns') || []
-
-  const handleServiceSelect = (servicePackage: ServicePackage) => {
-    setValue('servicePackage', servicePackage, { shouldValidate: true })
+const SERVICE_PACKAGES = [
+  {
+    type: ServiceType.BASIC_WASH,
+    title: 'Basic Wash',
+    description: 'Essential car cleaning service',
+    features: [
+      'Exterior wash & dry',
+      'Interior vacuum',
+      'Dashboard clean',
+      'Window clean',
+      'Tire shine'
+    ]
+  },
+  {
+    type: ServiceType.FULL_VALET,
+    title: 'Full Valet',
+    description: 'Comprehensive cleaning inside and out',
+    features: [
+      'All Basic Wash features',
+      'Interior deep clean',
+      'Leather/upholstery clean',
+      'Paint decontamination',
+      'Wheel deep clean',
+      'Wax protection'
+    ]
+  },
+  {
+    type: ServiceType.PREMIUM_DETAIL,
+    title: 'Premium Detail',
+    description: 'Professional detailing service',
+    features: [
+      'All Full Valet features',
+      'Paint correction',
+      'Ceramic coating',
+      'Engine bay clean',
+      'Glass polish',
+      'Paint sealant'
+    ]
   }
+]
 
-  const handleAddOnToggle = (addOnId: AddOnService) => {
-    const currentAddOns = selectedAddOns || []
+const ADD_ONS = [
+  {
+    id: 'paint-protection',
+    title: 'Paint Protection',
+    description: 'Long-lasting paint protection coating',
+    price: 50
+  },
+  {
+    id: 'interior-protection',
+    title: 'Interior Protection',
+    description: 'Fabric and leather protection treatment',
+    price: 40
+  },
+  {
+    id: 'wheel-protection',
+    title: 'Wheel Protection',
+    description: 'Ceramic wheel coating for lasting shine',
+    price: 30
+  }
+] as const
+
+type AddOn = typeof ADD_ONS[number]['id']
+
+export function ServiceSelectionStep() {
+  const store = useBookingStore()
+  
+  const handleServiceSelect = (type: ServiceType) => {
+    store.setServiceType(type)
+  }
+  
+  const handleAddOnToggle = (addOnId: AddOn) => {
+    const currentAddOns = store.addOns as AddOn[]
     const isSelected = currentAddOns.includes(addOnId)
     
     if (isSelected) {
-      setValue('addOns', currentAddOns.filter((id: AddOnService) => id !== addOnId), { shouldValidate: true })
+      store.setAddOns(currentAddOns.filter(id => id !== addOnId))
     } else {
-      setValue('addOns', [...currentAddOns, addOnId], { shouldValidate: true })
+      store.setAddOns([...currentAddOns, addOnId])
     }
   }
-
+  
+  const basePrice = store.serviceType
+    ? calculateBasePrice(store.serviceType, store.vehicleSize)
+    : 0
+    
+  const addOnsPrice = calculateAddOnsPrice(store.addOns as AddOn[], store.vehicleSize)
+  const totalPrice = basePrice + addOnsPrice
+  
   return (
     <div className="space-y-8">
-      {/* Service Package Selection */}
-      <FormSection
-        title={content.pages.booking.steps.serviceSelection.title}
-        description={content.pages.booking.steps.serviceSelection.description}
-        variant="card"
-      >
+      {/* Service Packages */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Select Service Package</h3>
         <div className="grid gap-4 md:grid-cols-3">
-          {Object.entries(SERVICES.packages).map(([packageId, packageData]) => (
-            <ServiceCard
-              key={packageId}
-              servicePackage={packageId as ServicePackage}
-              vehicleSize={selectedVehicleSize}
-              isSelected={selectedService === packageId}
-              isPopular={packageId === 'premium'}
-              onSelect={handleServiceSelect}
-              ctaText={content.pages.booking.buttons.select}
-              size="full"
-            />
+          {SERVICE_PACKAGES.map((service) => (
+            <Card
+              key={service.type}
+              className={`
+                p-4 cursor-pointer transition-all duration-200
+                ${store.serviceType === service.type
+                  ? 'ring-2 ring-primary'
+                  : 'hover:border-primary/50'
+                }
+              `}
+              onClick={() => handleServiceSelect(service.type)}
+            >
+              <div className="space-y-2">
+                <h4 className="font-medium">{service.title}</h4>
+                <p className="text-sm text-muted-foreground">
+                  {service.description}
+                </p>
+                <div className="pt-2">
+                  <p className="text-lg font-semibold">
+                    {formatPrice(calculateBasePrice(service.type, store.vehicleSize))}
+                  </p>
+                </div>
+                <ul className="pt-2 space-y-1">
+                  {service.features.map((feature, index) => (
+                    <li key={index} className="text-sm flex items-center">
+                      <span className="text-primary mr-2">•</span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
           ))}
         </div>
-      </FormSection>
-
-      {/* Add-on Services */}
-      {selectedService && (
-        <FormSection
-          title={content.pages.booking.steps.serviceSelection.addOns.title}
-          description={content.pages.booking.steps.serviceSelection.addOns.description}
-          variant="default"
-        >
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(SERVICES.addOns).map(([addOnId, addOnData]) => {
-              const isSelected = selectedAddOns.includes(addOnId as AddOnService)
+      </div>
+      
+      {/* Add-ons */}
+      {store.serviceType && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Optional Add-ons</h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            {ADD_ONS.map((addOn) => {
+              const isSelected = (store.addOns as AddOn[]).includes(addOn.id)
               
               return (
-                <div
-                  key={addOnId}
+                <Card
+                  key={addOn.id}
                   className={`
-                    relative cursor-pointer rounded-lg border p-4 transition-all duration-200
-                    ${isSelected 
-                      ? 'border-[var(--color-primary)] bg-[var(--purple-50)] ring-1 ring-[var(--color-primary)]' 
-                      : 'border-border bg-background hover:border-[var(--color-primary)]/50'
+                    p-4 cursor-pointer transition-all duration-200
+                    ${isSelected
+                      ? 'ring-2 ring-primary'
+                      : 'hover:border-primary/50'
                     }
                   `}
-                  onClick={() => handleAddOnToggle(addOnId as AddOnService)}
                 >
-                  {/* Selection indicator */}
-                  <div className="absolute top-3 right-3">
-                    <div className={`
-                      w-5 h-5 rounded-full border-2 transition-all duration-200
-                      ${isSelected 
-                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]' 
-                        : 'border-muted-foreground/30'
-                      }
-                    `}>
-                      {isSelected && (
-                        <svg 
-                          className="w-3 h-3 text-white m-0.5" 
-                          fill="currentColor" 
-                          viewBox="0 0 20 20"
-                          aria-hidden="true"
-                        >
-                          <path 
-                            fillRule="evenodd" 
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
-                            clipRule="evenodd" 
-                          />
-                        </svg>
-                      )}
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id={addOn.id}
+                      checked={isSelected}
+                      onCheckedChange={() => handleAddOnToggle(addOn.id)}
+                    />
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor={addOn.id}
+                        className="text-sm font-medium cursor-pointer"
+                      >
+                        {addOn.title}
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        {addOn.description}
+                      </p>
+                      <p className="text-sm font-medium">
+                        + {formatPrice(addOn.price)}
+                      </p>
                     </div>
                   </div>
-                  
-                  <div className="pr-8">
-                    <h4 className="font-medium text-[var(--color-text)] mb-1">
-                      {addOnData.name}
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {addOnData.description}
-                    </p>
-                    <p className="font-semibold text-[var(--color-primary)]">
-                      +£{addOnData.price}
-                    </p>
-                  </div>
-                </div>
+                </Card>
               )
             })}
           </div>
-        </FormSection>
+        </div>
       )}
-
-      {/* Service Details */}
-      {selectedService && (
-        <FormSection
-          title={content.pages.booking.steps.serviceSelection.details.title}
-          description={content.pages.booking.steps.serviceSelection.details.description}
-          variant="glass"
-        >
-          <div className="bg-background/50 rounded-lg p-4 border">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h4 className="font-semibold text-lg text-[var(--color-text)]">
-                  {SERVICES.packages[selectedService as ServicePackage]?.name}
-                </h4>
-                <p className="text-muted-foreground">
-                  {SERVICES.packages[selectedService as ServicePackage]?.description}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {content.pages.booking.steps.serviceSelection.details.duration}: {SERVICES.packages[selectedService as ServicePackage]?.duration}
-                </p>
-              </div>
+      
+      {/* Price Summary */}
+      {store.serviceType && (
+        <Card className="p-4">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Base Price:</span>
+              <span>{formatPrice(basePrice)}</span>
             </div>
-            
-            <div>
-              <h5 className="font-medium text-[var(--color-text)] mb-2">
-                {content.pages.booking.steps.serviceSelection.details.included}:
-              </h5>
-              <ul className="space-y-1">
-                {SERVICES.packages[selectedService as ServicePackage]?.features.map((feature, index) => (
-                  <li key={index} className="flex items-start text-sm">
-                    <svg 
-                      className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-[var(--color-success)]" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M5 13l4 4L19 7" 
-                      />
-                    </svg>
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+            {addOnsPrice > 0 && (
+              <div className="flex justify-between text-sm">
+                <span>Add-ons:</span>
+                <span>{formatPrice(addOnsPrice)}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-lg font-semibold pt-2 border-t">
+              <span>Total:</span>
+              <span>{formatPrice(totalPrice)}</span>
             </div>
           </div>
-        </FormSection>
+        </Card>
       )}
     </div>
   )

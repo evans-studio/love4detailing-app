@@ -91,181 +91,147 @@ export const contact = {
 export const pages = {
   home: {
     hero: {
-      title: 'Professional Car Detailing Services',
-      subtitle: 'Transform your vehicle with our expert detailing services',
+      title: 'Professional Car Detailing',
+      subtitle: 'Transform your vehicle with our premium valeting services',
+      cta: 'Book Now'
     },
   },
   booking: {
-    title: 'Book Your Service',
-    subtitle: 'Schedule your detailing service in a few simple steps',
+    title: 'Book a Service',
+    description: 'Complete the form below to book your car detailing service.',
     steps: {
-      vehicleDetails: {
+      vehicle: {
         title: 'Vehicle Details',
         description: 'Tell us about your vehicle',
         fields: {
-          make: 'Vehicle Make',
-          model: 'Vehicle Model',
-          year: 'Year of Manufacture',
-          color: 'Vehicle Color',
-          registration: 'Registration Number',
-          size: {
-            title: 'Vehicle Size',
-            description: 'Select your vehicle size',
+          registration: {
+            label: 'Registration Number',
+            placeholder: 'e.g. AB12 CDE',
+            error: 'Please enter a valid registration'
           },
-        },
-        errors: {
-          make: 'Please enter your vehicle make',
-          model: 'Please enter your vehicle model',
-          year: 'Please enter a valid year',
-          registration: 'Please enter a valid registration number',
-          size: 'Please select your vehicle size',
-        },
-        lookup: {
-          button: 'Lookup',
-          loading: 'Looking up...',
-          error: 'Vehicle lookup failed. Please enter details manually.',
-          success: 'Vehicle details found',
-        },
+          size: {
+            label: 'Vehicle Size',
+            placeholder: 'Select vehicle size',
+            error: 'Please select your vehicle size'
+          },
+          images: {
+            label: 'Vehicle Photos',
+            description: 'Upload up to 3 photos of your vehicle',
+            error: 'Please upload at least one photo'
+          }
+        }
       },
-      serviceSelection: {
-        title: 'Choose Your Service Package',
-        description: 'Select the detailing package that best suits your needs',
-        addOns: {
-          title: 'Add-on Services',
-          description: 'Enhance your service with these optional extras',
-        },
-        details: {
-          title: 'Service Details',
-          description: 'What\'s included in your selected package',
-          duration: 'Duration',
-          included: 'What\'s included',
-        },
+      service: {
+        title: 'Service Selection',
+        description: 'Choose your service package and any add-ons',
+        fields: {
+          service: {
+            label: 'Service Package',
+            placeholder: 'Select a service',
+            error: 'Please select a service'
+          },
+          addons: {
+            label: 'Optional Add-ons',
+            description: 'Enhance your service with these extras'
+          }
+        }
       },
-      dateTime: {
-        title: 'Select Date & Time',
-        description: 'Choose your preferred appointment date and time',
+      datetime: {
+        title: 'Date & Time',
+        description: 'Select your preferred appointment time',
         fields: {
           date: {
-            label: 'Select Date',
-            helperText: 'You can book up to 30 days in advance',
+            label: 'Preferred Date',
+            error: 'Please select a date'
           },
           time: {
-            label: 'Choose Time Slot',
-            description: 'Select your preferred appointment time',
-          },
-        },
-        errors: {
-          date: 'Please select a valid date',
-          time: 'Please select a time slot',
-          unavailable: 'This time slot is no longer available',
-        },
-        messages: {
-          selectedDate: 'Selected Date',
-          loading: 'Checking availability...',
-          unavailable: 'No time slots available for this date',
-          chooseAnother: 'Choose Different Date',
-        },
-        advanceBookingNote: 'Bookings must be made at least 24 hours in advance',
+            label: 'Preferred Time',
+            error: 'Please select a time slot'
+          }
+        }
       },
-      contactDetails: {
+      contact: {
         title: 'Contact Details',
-        description: 'Provide your contact information',
+        description: 'Enter your contact information',
         fields: {
-          name: {
+          fullName: {
             label: 'Full Name',
-            placeholder: 'e.g. John Smith',
+            placeholder: 'John Doe',
+            error: 'Please enter your full name'
           },
           email: {
             label: 'Email Address',
-            placeholder: 'e.g. john@example.com',
+            placeholder: 'john@example.com',
+            error: 'Please enter a valid email'
           },
           phone: {
             label: 'Phone Number',
-            placeholder: 'e.g. 07123 456789',
+            placeholder: '07123 456789',
+            error: 'Please enter a valid phone number'
           },
           postcode: {
             label: 'Postcode',
-            placeholder: 'e.g. SW1A 1AA',
+            placeholder: 'BN1 1AA',
+            error: 'Please enter a valid postcode'
           },
           address: {
-            label: 'Service Address',
+            label: 'Full Address',
             placeholder: 'Enter your full address',
-          },
-          notes: {
-            label: 'Special Requirements',
-            placeholder: 'Any special requests or requirements',
-          },
-        },
-        errors: {
-          name: 'Please enter your full name',
-          email: 'Please enter a valid email address',
-          phone: 'Please enter a valid phone number',
-          postcode: 'Please enter a valid postcode',
-          address: 'Please enter your service address',
-        },
-        sections: {
-          personal: {
-            title: 'Personal Information',
-            description: 'Your contact details',
-          },
-          address: {
-            title: 'Service Address',
-            description: 'Where should we provide the detailing service?',
-          },
-          notes: {
-            title: 'Special Instructions',
-            description: 'Any additional information we should know?',
-          },
-        },
+            error: 'Please enter your address'
+          }
+        }
       },
       confirmation: {
         title: 'Confirm Booking',
-        description: 'Review and confirm your booking details',
+        description: 'Review your booking details',
         sections: {
-          vehicle: {
-            title: 'Vehicle Details',
-            make: 'Make',
-            model: 'Model',
-            year: 'Year',
-            color: 'Color',
-            size: 'Size',
-          },
-          service: {
-            title: 'Service Details',
-            package: 'Package',
-            addOns: 'Add-ons',
-            duration: 'Duration',
-          },
-          appointment: {
-            title: 'Appointment',
-            date: 'Date',
-            time: 'Time',
-          },
-          contact: {
-            title: 'Contact Details',
-            name: 'Name',
-            email: 'Email',
-            phone: 'Phone',
-          },
-          pricing: {
-            title: 'Pricing',
-            basePrice: 'Base Price',
-            addOns: 'Add-ons',
-            subtotal: 'Subtotal',
-            discount: 'Discount',
-            total: 'Total',
-          },
-        },
-      },
+          vehicle: 'Vehicle Details',
+          service: 'Service Details',
+          datetime: 'Appointment',
+          contact: 'Contact Details',
+          pricing: 'Price Breakdown'
+        }
+      }
     },
     buttons: {
-      previous: 'Previous',
       next: 'Next',
-      submit: 'Submit Booking',
-      processing: 'Processing...',
-      select: 'Select',
+      back: 'Back',
+      skip: 'Skip',
     },
   },
+  confirmation: {
+    title: 'Booking Confirmed',
+    description: 'Thank you for booking with Love4Detailing',
+    message: 'We have sent you a confirmation email with all the details of your appointment.',
+    nextSteps: [
+      'We will arrive at your location at the scheduled time',
+      'Please ensure your vehicle is accessible',
+      'Have your keys ready for handover'
+    ]
+  },
+  dashboard: {
+    welcome: 'Welcome back',
+    sections: {
+      bookings: {
+        title: 'My Bookings',
+        empty: 'No bookings found',
+        statuses: {
+          pending: 'Pending',
+          confirmed: 'Confirmed',
+          completed: 'Completed',
+          cancelled: 'Cancelled'
+        }
+      },
+      profile: {
+        title: 'My Profile',
+        sections: {
+          personal: 'Personal Details',
+          vehicles: 'My Vehicles',
+          preferences: 'Preferences'
+        }
+      }
+    }
+  }
 }
 
 export const admin = {
@@ -364,13 +330,13 @@ export const auth = {
 }
 
 export const brand = {
-  name: 'Love 4 Detailing',
-  tagline: 'Professional Car Detailing Services',
-  description: 'Transform your vehicle with our expert detailing services',
+  name: 'Love4Detailing',
+  tagline: 'Professional Car Valeting Services',
+  description: 'Premium car detailing and valeting services in Brighton & Hove',
   contact: {
     email: 'info@love4detailing.com',
-    phone: '+44 123 456 7890',
-    address: '123 Car Street, London, UK',
+    phone: '01273 123456',
+    address: 'Brighton & Hove, UK'
   },
 }
 
